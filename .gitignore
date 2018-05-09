@@ -102,3 +102,25 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# OSX generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.AppleDouble
+.LSOverride
+.Icon
+._*
+.Spotlight-V100
+.Trashes
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+
+# VIM
+*.swp
