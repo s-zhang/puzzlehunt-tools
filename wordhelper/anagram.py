@@ -75,20 +75,3 @@ class AnagramPattern:
 					for remaining_multi_word_anagram in remaining_multi_word_anagrams:
 						multi_word_anagrams.append([word] + remaining_multi_word_anagram)
 		return multi_word_anagrams
-"""
-	def find_multi_helper(self, words_so_far, sorted_words_list):
-		single_word_anagrams = self.find()
-		if len(single_word_anagrams) > 0:
-			print(single_word_anagrams)
-			return list(map(lambda anagram: [anagram], single_word_anagrams))
-
-		multi_word_anagrams = []
-		for word in sorted_words_list:
-			remaining_pattern = self.subtract_word(word)
-			if remaining_pattern != None:
-				remaining_multi_word_anagrams = remaining_pattern.find_multi()
-				if len(remaining_multi_word_anagrams) != None:
-					for remaining_multi_word_anagram in remaining_multi_word_anagrams:
-						multi_word_anagrams.append([word] + remaining_multi_word_anagram)
-		return multi_word_anagrams
-"""
