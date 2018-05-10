@@ -53,6 +53,7 @@ class Dictionary:
 	
 	def __init__(self, name):
 		self.__dictionary = None
+		self.__words_sorted_by_length = None
 		self.__dictionary_path = os.path.join(self.dictionariesDir, name, "dictionary.json")
 		if not os.path.exists(self.__dictionary_path):
 			raise Exception("Dictionary [{}] not found".format(self.__dictionary_path))
@@ -68,9 +69,18 @@ class Dictionary:
 		return self.__get_dictionary()["words"]
 
 	@property
+	def words_sorted_by_length(self):
+		if self.__words_sorted_by_length == None:
+			self.__words_sorted_by_length = sorted(self.words, key=lambda word: len(word))
+		return self.__words_sorted_by_length
+
+	@property
 	def words_by_character_frequency(self):
 		return self.__get_dictionary()["words_by_character_frequency"]
 
 
+def get_current_dictionary():
+	return CURRENT_DICTIONARY
+
 CURRENT_DICTIONARY = Dictionary("Collins Scrabble Words (2015)")
-#CURRENT_DICTIONARY = None
+#CURRENT_DICTIONARY = Dictionary("google-10000-english-usa")
