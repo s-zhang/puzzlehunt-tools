@@ -11,8 +11,9 @@ def main():
 	"""
 		Examples:
 		utils.dictionary.CURRENT_DICTIONARY = Dictionary("google-10000-english-usa")
+		utils.dictionary.CURRENT_DICTIONARY = Dictionary("Peter Norvig in Collins")
 		print(anagram("qi??"))
-		print(anagram_multi("cata"))
+		print(anagram_multi("irobot"))
 		print(search("^t.st$"))
 	"""
 	return

@@ -8,4 +8,6 @@ def test_anagram_with_wildcard():
 	assert anagram("qi??") == ['ipaq', 'iraq', 'quit', 'quiz']
 
 def test_anagram_multi():
-	assert ["a", "cat"] in anagram_multi("cata")
+	multi_anagrams = anagram_multi("irobot")
+	assert ["robot", "i"] in multi_anagrams
+	assert ["i", "robot"] not in multi_anagrams
