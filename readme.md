@@ -21,9 +21,7 @@ Basically what I want is all the random online tools in one easy lightweight pla
     - Semaphore Translator
     - Number/Hex to Letter
 - Improvements to wordhelper
-    - Full Regex (DONE)
     - Insert/Remove/Replace a string
-    - Anagram for phrases
 
 ## Other Work
 - We can put all these tools on a handy, simple website

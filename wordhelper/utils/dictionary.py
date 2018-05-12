@@ -52,7 +52,9 @@ class Dictionary:
 		return words_by_char_frequency
 	
 	def __init__(self, name):
+		self.__words = None
 		self.__dictionary = None
+		self.__words_sorted_by_length = None
 		self.__dictionary_path = os.path.join(self.dictionariesDir, name, "dictionary.json")
 		if not os.path.exists(self.__dictionary_path):
 			raise Exception("Dictionary [{}] not found".format(self.__dictionary_path))
@@ -65,12 +67,114 @@ class Dictionary:
 
 	@property
 	def words(self):
-		return self.__get_dictionary()["words"]
+		if self.__words == None:
+			self.__words = list(filter(lambda w: w not in EXCLUSIONS, self.__get_dictionary()["words"]))
+		return self.__words
+
+	@property
+	def words_sorted_by_length_then_lex(self):
+		if self.__words_sorted_by_length == None:
+			self.__words_sorted_by_length = sorted(self.words, key=lambda word: (len(word), word))
+		return self.__words_sorted_by_length
 
 	@property
 	def words_by_character_frequency(self):
 		return self.__get_dictionary()["words_by_character_frequency"]
 
 
+def get_current_dictionary():
+	return CURRENT_DICTIONARY
+
 CURRENT_DICTIONARY = Dictionary("Collins Scrabble Words (2015)")
-#CURRENT_DICTIONARY = None
+#CURRENT_DICTIONARY = Dictionary("google-10000-english-usa")
+
+EXCLUSIONS = set([
+	"pa",
+	"el",
+	"ma",
+	"mm",
+	"ed",
+	"un",
+	"mi",
+	"na",
+	"os",
+	"ex",
+	"po",
+	"di",
+	"ar",
+	"mo",
+	"da",
+	"em",
+	"ne",
+	"es",
+	"aa",
+	"ch",
+	"op",
+	"ab",
+	"ha",
+	"ea",
+	"ky",
+	"lo",
+	"ut",
+	"si",
+	"ag",
+	"ba",
+	"ee",
+	"er",
+	"li",
+	"ya",
+	"te",
+	"fe",
+	"ah",
+	"ja",
+	"bi",
+	"ta",
+	"gi",
+	"ho",
+	"sh",
+	"ae",
+	"pi",
+	"ai",
+	"pe",
+	"fy",
+	"ef",
+	"ti",
+	"oo",
+	"um",
+	"ye",
+	"yo",
+	"fa",
+	"jo",
+	"oe",
+	"ur",
+	"nu",
+	"ou",
+	"xi",
+	"za",
+	"yu",
+	"om",
+	"ka",
+	"eh",
+	"uh",
+	"bo",
+	"io",
+	"mu",
+	"ko",
+	"aw",
+	"ob",
+	"hm",
+	"od",
+	"ki",
+	"ax",
+	"ug",
+	"gu",
+	"ay",
+	"wo",
+	"oi",
+	"ow",
+	"ox",
+	"xu",
+	"qi",
+	"oy",
+	"zo",
+])
