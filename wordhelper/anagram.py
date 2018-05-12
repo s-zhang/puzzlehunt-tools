@@ -1,4 +1,3 @@
-import itertools
 from utils.dictionary import get_current_dictionary
 from utils.word import get_character_histogram, histogram_to_string
 
@@ -98,12 +97,14 @@ class AnagramPattern:
 		single_word_anagrams = self.find()
 		largest_word = get_current_dictionary().words_sorted_by_length_then_lex[use_words_until]
 		single_word_anagrams_deduped = []
-		for single_word_anagrams in single_word_anagrams:
-			if len(single_word_anagrams) < len(largest_word) or \
-				(len(single_word_anagrams) == len(largest_word) and single_word_anagrams <= largest_word):
+		for single_word_anagram in single_word_anagrams:
+			if len(single_word_anagram) < len(largest_word) or \
+				(len(single_word_anagram) == len(largest_word) and single_word_anagram <= largest_word):
+				# We only include single-word anagrams that are smaller in the order dictated by words_sorted_by_length_then_lex, because
+				# words larger would've been searched already in previous calls.
 				# prints out solutions as we find them since the whole algo is very slow
-				print(words_so_far + [single_word_anagrams])
-				single_word_anagrams_deduped.append([single_word_anagrams])
+				print("found: [" + " ".join(words_so_far + [single_word_anagram]) + "]")
+				single_word_anagrams_deduped.append([single_word_anagram])
 		if len(single_word_anagrams_deduped) > 0:
 			# Terminate once we found a single word anagram for the rest of the pattern. We might miss some words but this makes the run faster
 			return single_word_anagrams_deduped
@@ -114,6 +115,10 @@ class AnagramPattern:
 			word = get_current_dictionary().words_sorted_by_length_then_lex[i]
 			remaining_pattern = self.subtract_word(word)
 			if remaining_pattern != None:
+				# In this case we can successfully subtract the word from the pattern. So we attempt to recursively
+				# search for solutions using the remaining pattern, assuming we use the word. Limiting our search to
+				# only use words smaller or equal to the order defined by words_sorted_by_length_then_lex so that we don't
+				# search for the same word twice.
 				words_so_far.append(word)
 				remaining_multi_word_anagrams = remaining_pattern.find_multi_helper(i, words_so_far)
 				words_so_far.pop()
