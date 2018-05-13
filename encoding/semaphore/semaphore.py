@@ -1,4 +1,4 @@
-semaphoreClockMapping = {
+semaphore_clock_mapping = {
     1: 1,
     2: 1,
     3: 3,
@@ -13,7 +13,7 @@ semaphoreClockMapping = {
     12: 12,
 }
 
-semaphoreCompassMapping = {
+semaphore_compass_mapping = {
     'n': 12,
     'ne': 1,
     'e': 3,
@@ -24,7 +24,7 @@ semaphoreCompassMapping = {
     'nw': 10,
 }
 
-semaphoreMapping = {
+semaphore_mapping = {
     1: {
         3: 'w',
         4: 'x',
@@ -67,25 +67,25 @@ semaphoreMapping = {
     },
 }
 
-def parsePosition(position):
+def parse_position(position):
     try:
-        return semaphoreClockMapping[int(position)]
+        return semaphore_clock_mapping[int(position)]
     except ValueError:
-        return semaphoreCompassMapping[position]
+        return semaphore_compass_mapping[position]
 
 def semaphore(position1, position2):
     try:    
-        pos1 = parsePosition(position1)
-        pos2 = parsePosition(position2)
+        pos1 = parse_position(position1)
+        pos2 = parse_position(position2)
 
         if pos1 < pos2:
-            return semaphoreMapping[pos1][pos2]
+            return semaphore_mapping[pos1][pos2]
         else:
-            return semaphoreMapping[pos2][pos1]
+            return semaphore_mapping[pos2][pos1]
     except (KeyError, TypeError):
         return '?'
 
-def semaphoremulti(positions):
+def semaphore_multi(positions):
     if len(positions) % 2 == 1:
         print("An odd number of positions were provided")
         return
