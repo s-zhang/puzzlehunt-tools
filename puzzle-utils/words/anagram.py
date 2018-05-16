@@ -1,5 +1,5 @@
-from utils.dictionary import get_current_dictionary
-from utils.word import get_character_histogram, histogram_to_string
+from .utils.dictionary import get_current_dictionary
+from .utils.word import get_character_histogram, histogram_to_string
 
 class AnagramPattern:
 	num_of_letters = 26

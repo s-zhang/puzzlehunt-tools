@@ -4,7 +4,7 @@ import json
 from .word import get_character_histogram, histogram_to_string
 
 class Dictionary:
-	dictionariesDir = os.path.join(os.getcwd(), "dictionaries")
+	dictionariesDir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dictionaries")
 
 	@classmethod
 	def import_dictionary(cls, words_list_path, dictionary_name):
