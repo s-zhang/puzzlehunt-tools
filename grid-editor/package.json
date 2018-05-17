@@ -1,0 +1,31 @@
+{
+  "name": "stevenz",
+  "version": "1.0.0",
+  "description": "",
+  "main": "public/js/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpack": "webpack --config ./build/webpack.config.js",
+    "http-server": "http-server",
+    "ts-node": "ts-node"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "d3": "^5.4.0"
+  },
+  "devDependencies": {
+    "@types/d3": "^5.0.0",
+    "@types/jquery": "^3.2.13",
+    "@types/node": "^8.0.34",
+    "@types/webpack": "^4.1.6",
+    "http-server": "^0.10.0",
+    "jquery": "^3.2.1",
+    "ts-loader": "^4.3.0",
+    "ts-node": "^3.3.0",
+    "tslint": "^5.7.0",
+    "typescript": "^2.5.3",
+    "webpack": "^4.8.3",
+    "webpack-cli": "^2.1.3"
+  }
+}
