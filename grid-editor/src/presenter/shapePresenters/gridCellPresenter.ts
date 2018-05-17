@@ -3,13 +3,14 @@ import { Property } from "../../model/property"
 import { Cell, Grid } from "../../model/shapes/gridCell"
 import { TextPropertyPresenter } from "../propertyPresenters/textPropertyPresenter"
 import { IRenderer, Rect, IRenderedObject } from "../../renderer/renderer"
+import { IController } from "../../controller";
 
 export class SqaureCellPresenter extends ShapePresenter {
     private readonly _cell : Cell
     private readonly _sideLength : number
     private readonly _rect : Rect
-    constructor(cell : Cell, sideLength : number) {
-        super(cell)
+    constructor(cell : Cell, sideLength : number, controller : IController) {
+        super(cell, controller)
         this._cell = cell
         this._sideLength = sideLength
         this._rect = new Rect(
@@ -31,19 +32,18 @@ export class SqaureCellPresenter extends ShapePresenter {
         } else if (numBoxes == 1) {
             return [this._rect]
         }
-        throw new Error("Method not implemented.");
+        throw new Error("Cannot handle multiple properties in one cell yet.")
     }
 }
-
 
 export class GridPresenter extends ShapeCollectionPresenter {
     private readonly _grid : Grid
     private readonly _sideLength : number = 50
-    constructor(grid : Grid) {
+    constructor(grid : Grid, controller : IController) {
         super()
         this._grid = grid
         for (let cell of grid.cells) {
-            this.shapePresenters.push(new SqaureCellPresenter(cell, this._sideLength))
+            this.shapePresenters.push(new SqaureCellPresenter(cell, this._sideLength, controller))
         }
     }
 }

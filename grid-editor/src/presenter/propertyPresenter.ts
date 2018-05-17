@@ -1,10 +1,14 @@
 import { Property } from "../model/property"
 import { IRenderer, Rect } from "../renderer/renderer"
+import { Presenter, IPresenter } from "./presenter";
 
-export abstract class PropertyPresenter {
+export abstract class PropertyPresenter extends Presenter implements IPresenter {
     readonly property : Property
     constructor(property : Property) {
+        super()
         this.property = property
     }
-    abstract present(renderer : IRenderer, boundingBox : Rect) : void
+    remove() : void {
+        this.removeRenderedObject()
+    }
 }

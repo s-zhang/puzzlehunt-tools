@@ -1,8 +1,10 @@
 export interface IRenderer {
+    renderArea : Rect
     renderCircle(x : number, y : number, radius : number) : IRenderedObject
     renderRectangle(x : number, y : number, width : number, height : number) : IRenderedObject
     //renderLine(x : number, y : number, )
     renderText(text : string, boundingBox : Rect) : IRenderedObject
+    renderButton(text : string, divId : string) : IRenderedObject
     clear() : void
 }
 
@@ -28,4 +30,17 @@ export class Rect {
 export interface IRenderedObject {
     onclick(handler : () => void) : void
     remove() : void
+}
+
+export const NotRenderedObject : IRenderedObject = {
+    onclick(handler : () => void) : void {
+        ThrowObjectNotRenderedError()
+    },
+    remove() : void {
+        ThrowObjectNotRenderedError()
+    }
+}
+
+function ThrowObjectNotRenderedError() {
+    throw new Error("Object not rendered yet!")
 }

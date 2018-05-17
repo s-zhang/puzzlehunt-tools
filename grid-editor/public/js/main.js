@@ -38604,6 +38604,42 @@ return jQuery;
 
 /***/ }),
 
+/***/ "./src/controller.ts":
+/*!***************************!*\
+  !*** ./src/controller.ts ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class Controller {
+    //private readonly _renderer : IRenderer
+    constructor(refresher) {
+        this._selectedProperty = null;
+        this._refresher = refresher;
+        //this._renderer = renderer
+    }
+    selectProperty(propertyPresenter) {
+        this._selectedProperty = propertyPresenter;
+    }
+    selectShape(shapePresenter) {
+        console.log(shapePresenter);
+        console.log(this._selectedProperty);
+        let represent = false;
+        if (this._selectedProperty != null) {
+            shapePresenter.addProperty(this._selectedProperty);
+            represent = true;
+        }
+        return represent;
+    }
+}
+exports.Controller = Controller;
+
+
+/***/ }),
+
 /***/ "./src/main.ts":
 /*!*********************!*\
   !*** ./src/main.ts ***!
@@ -38620,29 +38656,21 @@ const d3Renderer_1 = __webpack_require__(/*! ./renderer/d3Renderer */ "./src/ren
 const gridCellPresenter_1 = __webpack_require__(/*! ./presenter/shapePresenters/gridCellPresenter */ "./src/presenter/shapePresenters/gridCellPresenter.ts");
 const property_1 = __webpack_require__(/*! ./model/property */ "./src/model/property.ts");
 const textPropertyPresenter_1 = __webpack_require__(/*! ./presenter/propertyPresenters/textPropertyPresenter */ "./src/presenter/propertyPresenters/textPropertyPresenter.ts");
-const uiController_1 = __webpack_require__(/*! ./presenter/uiController */ "./src/presenter/uiController.ts");
-// Set jquery '$' variable as a global
-window.$ = $;
+const controller_1 = __webpack_require__(/*! ./controller */ "./src/controller.ts");
+const uiView_1 = __webpack_require__(/*! ./uiView */ "./src/uiView.ts");
 $(() => {
     let sudoku = new sudoku_1.SudokuGrid();
     let renderer = new d3Renderer_1.D3Renderer();
-    let presenter = new gridCellPresenter_1.GridPresenter(sudoku);
-    //presenter.shapePresenters[15].addProperty(new TextPropertyPresenter(new Property("5")))
-    presenter.present(renderer);
-    let ui = new uiController_1.UIController(() => {
-        renderer.clear();
-        presenter.present(renderer);
-    }, renderer);
+    let controller = new controller_1.Controller(() => { });
+    let presenter = new gridCellPresenter_1.GridPresenter(sudoku, controller);
+    let initialPropertyPresenters = new Array();
     for (let i = 1; i <= 9; i++) {
-        let button = $(`<input type="button" value="${i}" />`);
         let property = new property_1.Property(i.toString());
         let propertyPresenter = new textPropertyPresenter_1.TextPropertyPresenter(property);
-        button.click(() => { ui.selectProperty(propertyPresenter); });
-        button.appendTo($("#toolbar"));
+        initialPropertyPresenters.push(propertyPresenter);
     }
-    for (let shapePresenter of presenter.shapePresenters) {
-        shapePresenter.renderedObject.onclick(() => { ui.selectShape(shapePresenter); });
-    }
+    let ui = new uiView_1.UIView(presenter, initialPropertyPresenters, controller, renderer);
+    ui.render();
 });
 
 
@@ -38912,6 +38940,35 @@ function divmod(a, b) {
 
 /***/ }),
 
+/***/ "./src/presenter/presenter.ts":
+/*!************************************!*\
+  !*** ./src/presenter/presenter.ts ***!
+  \************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
+class Presenter {
+    constructor() {
+        this.renderedObject = renderer_1.NotRenderedObject;
+    }
+    removeRenderedObject() {
+        this.renderedObject.remove();
+        this.renderedObject = renderer_1.NotRenderedObject;
+    }
+    represent(renderer, boudingBox) {
+        this.remove();
+        this.present(renderer, boudingBox);
+    }
+}
+exports.Presenter = Presenter;
+
+
+/***/ }),
+
 /***/ "./src/presenter/propertyPresenter.ts":
 /*!********************************************!*\
   !*** ./src/presenter/propertyPresenter.ts ***!
@@ -38922,9 +38979,14 @@ function divmod(a, b) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-class PropertyPresenter {
+const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
+class PropertyPresenter extends presenter_1.Presenter {
     constructor(property) {
+        super();
         this.property = property;
+    }
+    remove() {
+        this.removeRenderedObject();
     }
 }
 exports.PropertyPresenter = PropertyPresenter;
@@ -38945,7 +39007,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
 class TextPropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     present(renderer, boundingBox) {
-        renderer.renderText(this.property.name, boundingBox);
+        this.renderedObject = renderer.renderText(this.property.name, boundingBox);
     }
 }
 exports.TextPropertyPresenter = TextPropertyPresenter;
@@ -38963,21 +39025,35 @@ exports.TextPropertyPresenter = TextPropertyPresenter;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-class ShapePresenter {
-    constructor(shape) {
+const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
+class ShapePresenter extends presenter_1.Presenter {
+    constructor(shape, controller) {
+        super();
         this._shape = shape;
         this._propertyPresenters = new Set();
+        this._controller = controller;
     }
     get propertyPresenters() {
         return this._propertyPresenters;
     }
-    present(renderer) {
+    present(renderer, boudingBox) {
         this.renderedObject = this.presentShape(renderer);
+        this.renderedObject.onclick(() => {
+            this.remove();
+            this._controller.selectShape(this);
+            this.present(renderer, boudingBox);
+        });
         let boundingBoxes = this.getBoundingBoxes(this._propertyPresenters.size);
         let i = 0;
         for (let propertyPresenter of this._propertyPresenters) {
             propertyPresenter.present(renderer, boundingBoxes[i]);
             i++;
+        }
+    }
+    remove() {
+        this.removeRenderedObject();
+        for (let propertyPresenter of this._propertyPresenters) {
+            propertyPresenter.remove();
         }
     }
     addProperty(propertyPresenter) {
@@ -38995,12 +39071,20 @@ class ShapeCollectionPresenter {
         this.shapePresenters = new Array();
         this.constraintPresenters = new Array();
     }
-    present(renderer) {
+    present(renderer, boudingBox) {
         for (let shapePresenter of this.shapePresenters) {
-            shapePresenter.present(renderer);
+            shapePresenter.present(renderer, boudingBox);
         }
         for (let constraintPresenter of this.constraintPresenters) {
-            constraintPresenter.present(renderer);
+            constraintPresenter.present(renderer, boudingBox);
+        }
+    }
+    remove() {
+        for (let shapePresenter of this.shapePresenters) {
+            shapePresenter.remove();
+        }
+        for (let constraintPresenter of this.constraintPresenters) {
+            constraintPresenter.remove();
         }
     }
 }
@@ -39022,8 +39106,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const shapePresenter_1 = __webpack_require__(/*! ../shapePresenter */ "./src/presenter/shapePresenter.ts");
 const renderer_1 = __webpack_require__(/*! ../../renderer/renderer */ "./src/renderer/renderer.ts");
 class SqaureCellPresenter extends shapePresenter_1.ShapePresenter {
-    constructor(cell, sideLength) {
-        super(cell);
+    constructor(cell, sideLength, controller) {
+        super(cell, controller);
         this._cell = cell;
         this._sideLength = sideLength;
         this._rect = new renderer_1.Rect(cell.column * sideLength, cell.row * sideLength, sideLength, sideLength);
@@ -39038,56 +39122,21 @@ class SqaureCellPresenter extends shapePresenter_1.ShapePresenter {
         else if (numBoxes == 1) {
             return [this._rect];
         }
-        throw new Error("Method not implemented.");
+        throw new Error("Cannot handle multiple properties in one cell yet.");
     }
 }
 exports.SqaureCellPresenter = SqaureCellPresenter;
 class GridPresenter extends shapePresenter_1.ShapeCollectionPresenter {
-    constructor(grid) {
+    constructor(grid, controller) {
         super();
         this._sideLength = 50;
         this._grid = grid;
         for (let cell of grid.cells) {
-            this.shapePresenters.push(new SqaureCellPresenter(cell, this._sideLength));
+            this.shapePresenters.push(new SqaureCellPresenter(cell, this._sideLength, controller));
         }
     }
 }
 exports.GridPresenter = GridPresenter;
-
-
-/***/ }),
-
-/***/ "./src/presenter/uiController.ts":
-/*!***************************************!*\
-  !*** ./src/presenter/uiController.ts ***!
-  \***************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-class UIController {
-    constructor(refresher, renderer) {
-        this._selectedProperty = null;
-        this._refresher = refresher;
-        this._renderer = renderer;
-    }
-    selectProperty(propertyPresenter) {
-        this._selectedProperty = propertyPresenter;
-    }
-    selectShape(shapePresenter) {
-        console.log(shapePresenter);
-        console.log(this._selectedProperty);
-        if (this._selectedProperty != null) {
-            shapePresenter.addProperty(this._selectedProperty);
-            shapePresenter.renderedObject.remove();
-            shapePresenter.present(this._renderer);
-            //this._refresher()
-        }
-    }
-}
-exports.UIController = UIController;
 
 
 /***/ }),
@@ -39102,15 +39151,21 @@ exports.UIController = UIController;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 const d3 = __webpack_require__(/*! d3 */ "./node_modules/d3/index.js");
+const renderer_1 = __webpack_require__(/*! ./renderer */ "./src/renderer/renderer.ts");
 class D3Renderer {
     constructor() {
         this._xOffset = 10;
         this._yOffset = 10;
+        this._renderArea = new renderer_1.Rect(0, 0, 700, 700);
         this._canvas = d3.select("#canvas")
             .append("svg")
-            .attr("width", "700px")
-            .attr("height", "700px");
+            .attr("width", `${this._renderArea.width}px`)
+            .attr("height", `${this._renderArea.height}px`);
+    }
+    get renderArea() {
+        return this._renderArea;
     }
     renderCircle(x, y, radius) {
         throw new Error("Method not implemented.");
@@ -39135,23 +39190,43 @@ class D3Renderer {
             .attr("font-family", "Verdana")
             .text(text));
     }
+    renderButton(text, divId) {
+        let button = $(`<input type="button" value="${text}" />`);
+        button.appendTo($(`#${divId}`));
+        return new JQueryRenderedObject(button);
+    }
     clear() {
         this._canvas.selectAll("*").remove();
     }
 }
 exports.D3Renderer = D3Renderer;
-class D3RenderedObject {
-    constructor(d3Element) {
-        this._d3Element = d3Element;
-    }
-    onclick(handler) {
-        this._d3Element.on("click", handler);
-    }
-    remove() {
-        this._d3Element.remove();
+class RenderedObject {
+    constructor(element) {
+        this.element = element;
     }
 }
-exports.D3RenderedObject = D3RenderedObject;
+class D3RenderedObject extends RenderedObject {
+    constructor(element) {
+        super(element);
+    }
+    onclick(handler) {
+        this.element.on("click", handler);
+    }
+    remove() {
+        this.element.remove();
+    }
+}
+class JQueryRenderedObject extends RenderedObject {
+    constructor(element) {
+        super(element);
+    }
+    onclick(handler) {
+        this.element.click(handler);
+    }
+    remove() {
+        throw new Error("Method not implemented.");
+    }
+}
 
 
 /***/ }),
@@ -39181,6 +39256,47 @@ class Rect {
     }
 }
 exports.Rect = Rect;
+exports.NotRenderedObject = {
+    onclick(handler) {
+        ThrowObjectNotRenderedError();
+    },
+    remove() {
+        ThrowObjectNotRenderedError();
+    }
+};
+function ThrowObjectNotRenderedError() {
+    throw new Error("Object not rendered yet!");
+}
+
+
+/***/ }),
+
+/***/ "./src/uiView.ts":
+/*!***********************!*\
+  !*** ./src/uiView.ts ***!
+  \***********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class UIView {
+    constructor(shapeCollectionPresenter, initialPropertyPresenters, controller, renderer) {
+        this._shapeCollectionPresenter = shapeCollectionPresenter;
+        this._initialPropertyPresenters = initialPropertyPresenters;
+        this._controller = controller;
+        this._renderer = renderer;
+    }
+    render() {
+        this._shapeCollectionPresenter.present(this._renderer, this._renderer.renderArea);
+        for (let propertyPresenter of this._initialPropertyPresenters) {
+            let button = this._renderer.renderButton(propertyPresenter.property.name, "toolbar");
+            button.onclick(() => { this._controller.selectProperty(propertyPresenter); });
+        }
+    }
+}
+exports.UIView = UIView;
 
 
 /***/ })
