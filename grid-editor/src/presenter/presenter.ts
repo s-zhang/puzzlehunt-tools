@@ -2,23 +2,23 @@ import { IRenderer, IRenderedObject, NotRenderedObject, Rect } from "../renderer
 
 export interface IPresenter {
     present(renderer : IRenderer, boudingBox : Rect) : void
-    remove() : void
+    erase() : void
 }
 
 export abstract class Presenter implements IPresenter {
-    protected renderedObject : IRenderedObject
+    public renderedObject : IRenderedObject
     constructor() {
         this.renderedObject = NotRenderedObject
     }
-    protected removeRenderedObject() : void {
-        this.renderedObject.remove()
+    protected eraseRenderedObject() : void {
+        this.renderedObject.erase()
         this.renderedObject = NotRenderedObject
     }
 
     abstract present(renderer: IRenderer, boudingBox : Rect): void
-    abstract remove(): void
+    abstract erase(): void
     protected represent(renderer: IRenderer, boudingBox : Rect): void {
-        this.remove()
+        this.erase()
         this.present(renderer, boudingBox)
     }
 }

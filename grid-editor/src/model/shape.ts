@@ -44,7 +44,7 @@ export abstract class ShapeCollection<TShape extends Shape> {
     areConstraintsSatisfied() : ConstraintSatifaction {
         let satisfaction = ConstraintSatifaction.Satisfied
         for (let constraint of this.constraints) {
-            satisfaction = Math.max(satisfaction, constraint.isSatisfied())
+            satisfaction = Math.max(satisfaction, constraint.check().satisfactionLevel)
         }
         return satisfaction
     }

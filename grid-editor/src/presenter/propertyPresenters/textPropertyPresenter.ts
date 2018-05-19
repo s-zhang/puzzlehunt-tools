@@ -1,9 +1,10 @@
 import { PropertyPresenter } from "../propertyPresenter"
-import { IRenderer, Rect } from "../../renderer/renderer"
+import { IRenderer, Rect, IRenderedObject } from "../../renderer/renderer"
 import { IPresenter } from "../presenter";
+import { Property } from "../../model/property";
 
 export class TextPropertyPresenter extends PropertyPresenter implements IPresenter {
-    present(renderer: IRenderer, boundingBox: Rect): void {
-        this.renderedObject = renderer.renderText(this.property.name, boundingBox)
+    presentProperty(renderer: IRenderer, boundingBox: Rect) : IRenderedObject {
+        return renderer.renderText(this.property.name, boundingBox)
     }
 }

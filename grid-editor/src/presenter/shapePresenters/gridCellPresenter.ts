@@ -4,13 +4,14 @@ import { Cell, Grid } from "../../model/shapes/gridCell"
 import { TextPropertyPresenter } from "../propertyPresenters/textPropertyPresenter"
 import { IRenderer, Rect, IRenderedObject } from "../../renderer/renderer"
 import { IController } from "../../controller";
+import { ConstraintPresenter } from "../constraintPresenter";
 
 export class SqaureCellPresenter extends ShapePresenter {
     private readonly _cell : Cell
     private readonly _sideLength : number
     private readonly _rect : Rect
-    constructor(cell : Cell, sideLength : number, controller : IController) {
-        super(cell, controller)
+    constructor(cell : Cell, sideLength : number, affectedConstraints : ConstraintPresenter[], controller : IController) {
+        super(cell, affectedConstraints, controller)
         this._cell = cell
         this._sideLength = sideLength
         this._rect = new Rect(
@@ -42,8 +43,11 @@ export class GridPresenter extends ShapeCollectionPresenter {
     constructor(grid : Grid, controller : IController) {
         super()
         this._grid = grid
+        for (let constraint of grid.constraints) {
+            this.addConstraint(constraint)
+        }
         for (let cell of grid.cells) {
-            this.shapePresenters.push(new SqaureCellPresenter(cell, this._sideLength, controller))
+            this.addShapePresenter(cell, new SqaureCellPresenter(cell, this._sideLength, this.constraintPresenters, controller))
         }
     }
 }

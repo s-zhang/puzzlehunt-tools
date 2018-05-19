@@ -1,5 +1,6 @@
-import { ConstraintSatifaction, ShapesConstraint } from "../constraint"
+import { ConstraintSatifaction, ShapesConstraint, ConstraintCheckResult } from "../constraint"
 import { Grid, Cell,  } from "./gridCell"
+import { Property } from "../property";
 
 const SIDE_LENGTH = 9
 const BLOCK_LENGTH = 3
@@ -31,21 +32,24 @@ export class SudokuGrid extends Grid {
     get blocks(): Cell[][] {
         return this._blocks
     }
-    private _sudokuConstraint(cells : Cell[]) : ConstraintSatifaction {
-        let numPropertyNamesSeen = 0
-        let propertyNamesSeen = [false, false, false, false, false, false, false, false, false]
+    private _sudokuConstraint(cells : Cell[]) : ConstraintCheckResult {
+        let numPropertiesSeen = 0
+        let allCellsWithSameProperty : Cell[][] = [[], [], [], [], [], [], [], [], []]
+        let violations = new Array<[Cell, Property]>()
         for (let cell of cells) {
             if (cell.property != null) {
                 let index = Number(cell.property.name) - 1
-                if (propertyNamesSeen[index]) {
-                    return ConstraintSatifaction.Unsatisfiable
-                } else {
-                    propertyNamesSeen[index] = true
-                    numPropertyNamesSeen++
+                let cellsWithSameProperty = allCellsWithSameProperty[index]
+                if (cellsWithSameProperty.length >= 1) {
+                    violations.push([cell, cell.property])
+                    if (cellsWithSameProperty.length == 1) {
+                        violations.push([cellsWithSameProperty[0], cell.property])
+                    }
                 }
+                cellsWithSameProperty.push(cell)
             }
         }
-        return numPropertyNamesSeen == SIDE_LENGTH ? ConstraintSatifaction.Satisfied : ConstraintSatifaction.NotSatisfied
+        return new ConstraintCheckResult(cells.length == SIDE_LENGTH && violations.length == 0, violations)
     }
 }
 

@@ -1,32 +1,39 @@
 import { IPresenter } from "./presenter/presenter"
 import { IRenderer, Rect } from "./renderer/renderer"
-import { PropertyPresenter } from "./presenter/propertyPresenter";
+import { PropertyPresenter, PropertyPresenterFactory } from "./presenter/propertyPresenter";
 import { ShapePresenter } from "./presenter/shapePresenter";
 
 export interface IController {
-    selectProperty(propertyPresenter : PropertyPresenter) : void
-    selectShape(shapePresenter : ShapePresenter) : boolean
+    addPropertyMode(propertyPresenterFactory : PropertyPresenterFactory) : void
+    removePropertyMode() : void
+    selectShape(shapePresenter : ShapePresenter) : void
+    selectProperty(propertyPresenter : PropertyPresenter) : boolean
 }
 
 export class Controller implements IController {
-    private readonly _refresher : () => void
-    //private readonly _renderer : IRenderer
-    constructor(refresher : () => void) {
-        this._refresher = refresher
-        //this._renderer = renderer
+    constructor() {
     }
-    private _selectedProperty : PropertyPresenter | null = null
-    selectProperty(propertyPresenter : PropertyPresenter) : void {
-        this._selectedProperty = propertyPresenter
+    private _selectedProperty : PropertyPresenterFactory | null = null
+    addPropertyMode(propertyPresenterFactory : PropertyPresenterFactory) : void {
+        this._selectedProperty = propertyPresenterFactory
     }
-    selectShape(shapePresenter : ShapePresenter) : boolean {
-        console.log(shapePresenter)
-        console.log(this._selectedProperty)
-        let represent : boolean = false
-        if (this._selectedProperty != null) {
-            shapePresenter.addProperty(this._selectedProperty)
-            represent = true
+    removePropertyMode() : void {
+        this._selectedProperty = null
+    }
+    selectShape(shapePresenter : ShapePresenter) : void {
+        //console.log(shapePresenter)
+        //console.log(this._selectedProperty)
+        if (this._selectedProperty == null) {
+            return
         }
-        return represent
+        let propertyPresenter : PropertyPresenter = this._selectedProperty.createFromProperty(shapePresenter, this)
+        shapePresenter.addProperty(propertyPresenter.property, propertyPresenter)
+    }
+    selectProperty(propertyPresenter : PropertyPresenter) : boolean {
+        if (this._selectedProperty == null) {
+            propertyPresenter.parentShapePresenter.removeProperty(propertyPresenter.property, propertyPresenter)
+            return true
+        }
+        return false
     }
 }

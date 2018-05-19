@@ -1,7 +1,26 @@
 import { Shape } from "./shape"
+import { Property } from "./property";
 
 export interface IConstraint {
-    isSatisfied() : ConstraintSatifaction
+    check() : ConstraintCheckResult
+}
+
+export class ConstraintCheckResult {
+    public readonly isSatisfied : boolean
+    public readonly violations : [Shape, Property][]
+    constructor(isSatisfied : boolean, violations : [Shape, Property][]) {
+        this.isSatisfied = isSatisfied
+        this.violations = violations
+    }
+    get satisfactionLevel() : ConstraintSatifaction{
+        if (this.isSatisfied) {
+            return ConstraintSatifaction.Satisfied
+        } else if (this.violations.length == 0) {
+            return ConstraintSatifaction.NotSatisfied
+        } else {
+            return ConstraintSatifaction.Unsatisfiable
+        }
+    }
 }
 
 export enum ConstraintSatifaction {
@@ -12,12 +31,12 @@ export enum ConstraintSatifaction {
 
 export class ShapesConstraint<TShape extends Shape> implements IConstraint {
     private _shapes : TShape[]
-    private _constraint : (shapes: TShape[]) => ConstraintSatifaction
-    constructor(shapes : TShape[], constraint : (shapes: TShape[]) => ConstraintSatifaction) {
+    private _constraint : (shapes: TShape[]) => ConstraintCheckResult
+    constructor(shapes : TShape[], constraint : (shapes: TShape[]) => ConstraintCheckResult) {
         this._shapes = shapes
         this._constraint = constraint
     }
-    isSatisfied() {
+    check(): ConstraintCheckResult {
         return this._constraint(this._shapes)
     }
 }

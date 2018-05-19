@@ -1,4 +1,4 @@
-import { ConstraintSatifaction, ShapesConstraint } from "../constraint"
+import { ConstraintSatifaction, ShapesConstraint, ConstraintCheckResult } from "../constraint"
 import { Shape, ShapeCollection } from "../shape"
 
 export abstract class GridShape extends Shape {
@@ -65,12 +65,12 @@ export class Grid extends ShapeCollection<GridShape> {
     get cellBorders() : CellBorder[] {
         throw new Error("Method not implemented.");
     }
-    addRowConstraint(constraint: (cells: Cell[]) => ConstraintSatifaction): void {
+    addRowConstraint(constraint: (cells: Cell[]) => ConstraintCheckResult): void {
         for (let row of this.rows) {
             this.constraints.push(new ShapesConstraint<Cell>(row, constraint))
         }
     }
-    addColumnConstraint(constraint: (cells: Cell[]) => ConstraintSatifaction): void {
+    addColumnConstraint(constraint: (cells: Cell[]) => ConstraintCheckResult): void {
         for (let column of this.columns) {
             this.constraints.push(new ShapesConstraint<Cell>(column, constraint))
         }

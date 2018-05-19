@@ -27,20 +27,34 @@ export class Rect {
     }
 }
 
+export const NO_BOUNDING_BOX = new Rect(-1, -1, -1, -1)
+
 export interface IRenderedObject {
     onclick(handler : () => void) : void
-    remove() : void
+    erase() : void
+    color(color : string) : void
+    reset() : void
+}
+
+export interface IRenderedEffect {
+    undo() : void
 }
 
 export const NotRenderedObject : IRenderedObject = {
     onclick(handler : () => void) : void {
         ThrowObjectNotRenderedError()
     },
-    remove() : void {
+    erase() : void {
+        ThrowObjectNotRenderedError()
+    },
+    color(color : string) : void {
+        ThrowObjectNotRenderedError()
+    },
+    reset() : void {
         ThrowObjectNotRenderedError()
     }
 }
 
-function ThrowObjectNotRenderedError() {
+function ThrowObjectNotRenderedError() : any {
     throw new Error("Object not rendered yet!")
 }

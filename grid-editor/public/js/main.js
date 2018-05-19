@@ -38615,24 +38615,30 @@ return jQuery;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 class Controller {
-    //private readonly _renderer : IRenderer
-    constructor(refresher) {
+    constructor() {
         this._selectedProperty = null;
-        this._refresher = refresher;
-        //this._renderer = renderer
     }
-    selectProperty(propertyPresenter) {
-        this._selectedProperty = propertyPresenter;
+    addPropertyMode(propertyPresenterFactory) {
+        this._selectedProperty = propertyPresenterFactory;
+    }
+    removePropertyMode() {
+        this._selectedProperty = null;
     }
     selectShape(shapePresenter) {
-        console.log(shapePresenter);
-        console.log(this._selectedProperty);
-        let represent = false;
-        if (this._selectedProperty != null) {
-            shapePresenter.addProperty(this._selectedProperty);
-            represent = true;
+        //console.log(shapePresenter)
+        //console.log(this._selectedProperty)
+        if (this._selectedProperty == null) {
+            return;
         }
-        return represent;
+        let propertyPresenter = this._selectedProperty.createFromProperty(shapePresenter, this);
+        shapePresenter.addProperty(propertyPresenter.property, propertyPresenter);
+    }
+    selectProperty(propertyPresenter) {
+        if (this._selectedProperty == null) {
+            propertyPresenter.parentShapePresenter.removeProperty(propertyPresenter.property, propertyPresenter);
+            return true;
+        }
+        return false;
     }
 }
 exports.Controller = Controller;
@@ -38657,16 +38663,17 @@ const gridCellPresenter_1 = __webpack_require__(/*! ./presenter/shapePresenters/
 const property_1 = __webpack_require__(/*! ./model/property */ "./src/model/property.ts");
 const textPropertyPresenter_1 = __webpack_require__(/*! ./presenter/propertyPresenters/textPropertyPresenter */ "./src/presenter/propertyPresenters/textPropertyPresenter.ts");
 const controller_1 = __webpack_require__(/*! ./controller */ "./src/controller.ts");
+const propertyPresenter_1 = __webpack_require__(/*! ./presenter/propertyPresenter */ "./src/presenter/propertyPresenter.ts");
 const uiView_1 = __webpack_require__(/*! ./uiView */ "./src/uiView.ts");
 $(() => {
     let sudoku = new sudoku_1.SudokuGrid();
     let renderer = new d3Renderer_1.D3Renderer();
-    let controller = new controller_1.Controller(() => { });
+    let controller = new controller_1.Controller();
     let presenter = new gridCellPresenter_1.GridPresenter(sudoku, controller);
     let initialPropertyPresenters = new Array();
     for (let i = 1; i <= 9; i++) {
         let property = new property_1.Property(i.toString());
-        let propertyPresenter = new textPropertyPresenter_1.TextPropertyPresenter(property);
+        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property);
         initialPropertyPresenters.push(propertyPresenter);
     }
     let ui = new uiView_1.UIView(presenter, initialPropertyPresenters, controller, renderer);
@@ -38686,6 +38693,24 @@ $(() => {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+class ConstraintCheckResult {
+    constructor(isSatisfied, violations) {
+        this.isSatisfied = isSatisfied;
+        this.violations = violations;
+    }
+    get satisfactionLevel() {
+        if (this.isSatisfied) {
+            return ConstraintSatifaction.Satisfied;
+        }
+        else if (this.violations.length == 0) {
+            return ConstraintSatifaction.NotSatisfied;
+        }
+        else {
+            return ConstraintSatifaction.Unsatisfiable;
+        }
+    }
+}
+exports.ConstraintCheckResult = ConstraintCheckResult;
 var ConstraintSatifaction;
 (function (ConstraintSatifaction) {
     ConstraintSatifaction[ConstraintSatifaction["Satisfied"] = 0] = "Satisfied";
@@ -38697,7 +38722,7 @@ class ShapesConstraint {
         this._shapes = shapes;
         this._constraint = constraint;
     }
-    isSatisfied() {
+    check() {
         return this._constraint(this._shapes);
     }
 }
@@ -38779,7 +38804,7 @@ class ShapeCollection {
     areConstraintsSatisfied() {
         let satisfaction = constraint_1.ConstraintSatifaction.Satisfied;
         for (let constraint of this.constraints) {
-            satisfaction = Math.max(satisfaction, constraint.isSatisfied());
+            satisfaction = Math.max(satisfaction, constraint.check().satisfactionLevel);
         }
         return satisfaction;
     }
@@ -38913,21 +38938,23 @@ class SudokuGrid extends gridCell_1.Grid {
         return this._blocks;
     }
     _sudokuConstraint(cells) {
-        let numPropertyNamesSeen = 0;
-        let propertyNamesSeen = [false, false, false, false, false, false, false, false, false];
+        let numPropertiesSeen = 0;
+        let allCellsWithSameProperty = [[], [], [], [], [], [], [], [], []];
+        let violations = new Array();
         for (let cell of cells) {
             if (cell.property != null) {
                 let index = Number(cell.property.name) - 1;
-                if (propertyNamesSeen[index]) {
-                    return constraint_1.ConstraintSatifaction.Unsatisfiable;
+                let cellsWithSameProperty = allCellsWithSameProperty[index];
+                if (cellsWithSameProperty.length >= 1) {
+                    violations.push([cell, cell.property]);
+                    if (cellsWithSameProperty.length == 1) {
+                        violations.push([cellsWithSameProperty[0], cell.property]);
+                    }
                 }
-                else {
-                    propertyNamesSeen[index] = true;
-                    numPropertyNamesSeen++;
-                }
+                cellsWithSameProperty.push(cell);
             }
         }
-        return numPropertyNamesSeen == SIDE_LENGTH ? constraint_1.ConstraintSatifaction.Satisfied : constraint_1.ConstraintSatifaction.NotSatisfied;
+        return new constraint_1.ConstraintCheckResult(cells.length == SIDE_LENGTH && violations.length == 0, violations);
     }
 }
 exports.SudokuGrid = SudokuGrid;
@@ -38936,6 +38963,55 @@ function divmod(a, b) {
     let remainder = a % b;
     return [quotient, remainder];
 }
+
+
+/***/ }),
+
+/***/ "./src/presenter/constraintPresenter.ts":
+/*!**********************************************!*\
+  !*** ./src/presenter/constraintPresenter.ts ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class ConstraintPresenter {
+    constructor(constraint, shapePresenters) {
+        this._constraint = constraint;
+        this._shapePresenters = shapePresenters;
+        this._affectedRenderedObjects = new Array();
+    }
+    _getShapePresenter(shape) {
+        let shapePresenter = this._shapePresenters.get(shape);
+        if (shapePresenter == undefined) {
+            throw new Error(`ShapePresenter corresponding this shape [${shape}] does not exist!`);
+        }
+        return shapePresenter;
+    }
+    present(renderer, boudingBox) {
+        //this.remove()
+        let constraintCheckResult = this._constraint.check();
+        for (let violation of constraintCheckResult.violations) {
+            let shape = violation[0];
+            let shapePresenter = this._getShapePresenter(shape);
+            shapePresenter.renderedObject.color("#ffcc00");
+            this._affectedRenderedObjects.push(shapePresenter.renderedObject);
+            let property = violation[1];
+            let propertyPresenter = shapePresenter.getPropertyPresenter(property);
+            propertyPresenter.renderedObject.color("red");
+            this._affectedRenderedObjects.push(propertyPresenter.renderedObject);
+        }
+    }
+    erase() {
+        for (let renderedObject of this._affectedRenderedObjects) {
+            renderedObject.reset();
+        }
+        this._affectedRenderedObjects = [];
+    }
+}
+exports.ConstraintPresenter = ConstraintPresenter;
 
 
 /***/ }),
@@ -38955,12 +39031,12 @@ class Presenter {
     constructor() {
         this.renderedObject = renderer_1.NotRenderedObject;
     }
-    removeRenderedObject() {
-        this.renderedObject.remove();
+    eraseRenderedObject() {
+        this.renderedObject.erase();
         this.renderedObject = renderer_1.NotRenderedObject;
     }
     represent(renderer, boudingBox) {
-        this.remove();
+        this.erase();
         this.present(renderer, boudingBox);
     }
 }
@@ -38979,17 +39055,39 @@ exports.Presenter = Presenter;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
 const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
 class PropertyPresenter extends presenter_1.Presenter {
-    constructor(property) {
+    constructor(property, parentShapePresenter, controller) {
         super();
         this.property = property;
+        this.parentShapePresenter = parentShapePresenter;
+        this._controller = controller;
     }
-    remove() {
-        this.removeRenderedObject();
+    present(renderer, boundingBox) {
+        this.renderedObject = this.presentProperty(renderer, boundingBox);
+        this.renderedObject.onclick(() => {
+            if (this._controller.selectProperty(this)) {
+                this.erase();
+                this.parentShapePresenter.present(renderer, renderer_1.NO_BOUNDING_BOX);
+            }
+        });
+    }
+    erase() {
+        this.eraseRenderedObject();
     }
 }
 exports.PropertyPresenter = PropertyPresenter;
+class PropertyPresenterFactory {
+    constructor(propertyPresenterConstructor, property) {
+        this._propertyPresenterConstructor = propertyPresenterConstructor;
+        this.property = property;
+    }
+    createFromProperty(parentShapePresenter, controller) {
+        return new this._propertyPresenterConstructor(this.property, parentShapePresenter, controller);
+    }
+}
+exports.PropertyPresenterFactory = PropertyPresenterFactory;
 
 
 /***/ }),
@@ -39006,8 +39104,8 @@ exports.PropertyPresenter = PropertyPresenter;
 Object.defineProperty(exports, "__esModule", { value: true });
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
 class TextPropertyPresenter extends propertyPresenter_1.PropertyPresenter {
-    present(renderer, boundingBox) {
-        this.renderedObject = renderer.renderText(this.property.name, boundingBox);
+    presentProperty(renderer, boundingBox) {
+        return renderer.renderText(this.property.name, boundingBox);
     }
 }
 exports.TextPropertyPresenter = TextPropertyPresenter;
@@ -39025,66 +39123,85 @@ exports.TextPropertyPresenter = TextPropertyPresenter;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const constraintPresenter_1 = __webpack_require__(/*! ./constraintPresenter */ "./src/presenter/constraintPresenter.ts");
 const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
+const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
 class ShapePresenter extends presenter_1.Presenter {
-    constructor(shape, controller) {
+    constructor(shape, affectedConstraints, controller) {
         super();
         this._shape = shape;
-        this._propertyPresenters = new Set();
+        this._propertyPresenters = new Map();
+        this._affectedConstraints = affectedConstraints;
         this._controller = controller;
-    }
-    get propertyPresenters() {
-        return this._propertyPresenters;
     }
     present(renderer, boudingBox) {
         this.renderedObject = this.presentShape(renderer);
         this.renderedObject.onclick(() => {
-            this.remove();
+            this.erase();
             this._controller.selectShape(this);
             this.present(renderer, boudingBox);
         });
         let boundingBoxes = this.getBoundingBoxes(this._propertyPresenters.size);
         let i = 0;
-        for (let propertyPresenter of this._propertyPresenters) {
+        for (let propertyPresenter of this._propertyPresenters.values()) {
             propertyPresenter.present(renderer, boundingBoxes[i]);
             i++;
         }
-    }
-    remove() {
-        this.removeRenderedObject();
-        for (let propertyPresenter of this._propertyPresenters) {
-            propertyPresenter.remove();
+        for (let constraintPresenter of this._affectedConstraints) {
+            constraintPresenter.erase();
+        }
+        for (let constraintPresenter of this._affectedConstraints) {
+            constraintPresenter.present(renderer, renderer_1.NO_BOUNDING_BOX);
         }
     }
-    addProperty(propertyPresenter) {
-        this._propertyPresenters.add(propertyPresenter);
+    erase() {
+        this.eraseRenderedObject();
+        for (let propertyPresenter of this._propertyPresenters.values()) {
+            propertyPresenter.erase();
+        }
+    }
+    addProperty(property, propertyPresenter) {
+        this._propertyPresenters.set(property, propertyPresenter);
         this._shape.properties.add(propertyPresenter.property);
     }
-    removeProperty(propertyPresenter) {
-        this._propertyPresenters.delete(propertyPresenter);
+    removeProperty(property, propertyPresenter) {
+        this._propertyPresenters.delete(property);
         this._shape.properties.delete(propertyPresenter.property);
+    }
+    getPropertyPresenter(property) {
+        let propertyPresenter = this._propertyPresenters.get(property);
+        if (propertyPresenter == undefined) {
+            throw new Error(`PropertyPresenter corresponding this property [${property}] does not exist!`);
+        }
+        return propertyPresenter;
     }
 }
 exports.ShapePresenter = ShapePresenter;
 class ShapeCollectionPresenter {
     constructor() {
-        this.shapePresenters = new Array();
+        this._shapePresenters = new Map();
         this.constraintPresenters = new Array();
     }
     present(renderer, boudingBox) {
-        for (let shapePresenter of this.shapePresenters) {
+        for (let shapePresenter of this._shapePresenters.values()) {
             shapePresenter.present(renderer, boudingBox);
         }
         for (let constraintPresenter of this.constraintPresenters) {
             constraintPresenter.present(renderer, boudingBox);
         }
     }
-    remove() {
-        for (let shapePresenter of this.shapePresenters) {
-            shapePresenter.remove();
+    addShapePresenter(shape, shapePresenter) {
+        this._shapePresenters.set(shape, shapePresenter);
+    }
+    addConstraint(constraint) {
+        this.constraintPresenters.push(new constraintPresenter_1.ConstraintPresenter(constraint, this._shapePresenters));
+    }
+    erase() {
+        for (let shapePresenter of this._shapePresenters.values()) {
+            shapePresenter.erase();
         }
         for (let constraintPresenter of this.constraintPresenters) {
-            constraintPresenter.remove();
+            constraintPresenter.erase();
         }
     }
 }
@@ -39106,8 +39223,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const shapePresenter_1 = __webpack_require__(/*! ../shapePresenter */ "./src/presenter/shapePresenter.ts");
 const renderer_1 = __webpack_require__(/*! ../../renderer/renderer */ "./src/renderer/renderer.ts");
 class SqaureCellPresenter extends shapePresenter_1.ShapePresenter {
-    constructor(cell, sideLength, controller) {
-        super(cell, controller);
+    constructor(cell, sideLength, affectedConstraints, controller) {
+        super(cell, affectedConstraints, controller);
         this._cell = cell;
         this._sideLength = sideLength;
         this._rect = new renderer_1.Rect(cell.column * sideLength, cell.row * sideLength, sideLength, sideLength);
@@ -39131,8 +39248,11 @@ class GridPresenter extends shapePresenter_1.ShapeCollectionPresenter {
         super();
         this._sideLength = 50;
         this._grid = grid;
+        for (let constraint of grid.constraints) {
+            this.addConstraint(constraint);
+        }
         for (let cell of grid.cells) {
-            this.shapePresenters.push(new SqaureCellPresenter(cell, this._sideLength, controller));
+            this.addShapePresenter(cell, new SqaureCellPresenter(cell, this._sideLength, this.constraintPresenters, controller));
         }
     }
 }
@@ -39161,8 +39281,10 @@ class D3Renderer {
         this._renderArea = new renderer_1.Rect(0, 0, 700, 700);
         this._canvas = d3.select("#canvas")
             .append("svg")
+            .attr("id", "svgcanvas")
             .attr("width", `${this._renderArea.width}px`)
             .attr("height", `${this._renderArea.height}px`);
+        //$("#mysvg")[0].getBoundingClientRect()
     }
     get renderArea() {
         return this._renderArea;
@@ -39202,18 +39324,40 @@ class D3Renderer {
 exports.D3Renderer = D3Renderer;
 class RenderedObject {
     constructor(element) {
+        this._renderedEffects = new Array();
         this.element = element;
+    }
+    reset() {
+        for (let i = this._renderedEffects.length - 1; i >= 0; i--) {
+            this._renderedEffects[i].undo();
+        }
+        this._renderedEffects = [];
+    }
+    color(color) {
+        this._renderedEffects.push(this.colorWithEffect(color));
     }
 }
 class D3RenderedObject extends RenderedObject {
     constructor(element) {
         super(element);
+        //console.log((<any> this.element.node()).getBBox())
     }
     onclick(handler) {
         this.element.on("click", handler);
     }
-    remove() {
+    erase() {
         this.element.remove();
+    }
+    colorWithEffect(color) {
+        //let boudingBox = <SVGRect> (<any> this.element.node()).getBBox()
+        let element = this.element;
+        let originalColor = element.style("fill");
+        element.style("fill", color);
+        return {
+            undo() {
+                element.style("fill", originalColor);
+            }
+        };
     }
 }
 class JQueryRenderedObject extends RenderedObject {
@@ -39223,8 +39367,12 @@ class JQueryRenderedObject extends RenderedObject {
     onclick(handler) {
         this.element.click(handler);
     }
-    remove() {
+    erase() {
         throw new Error("Method not implemented.");
+    }
+    colorWithEffect(color) {
+        //this.element
+        throw new Error("Method not implemented!");
     }
 }
 
@@ -39256,11 +39404,18 @@ class Rect {
     }
 }
 exports.Rect = Rect;
+exports.NO_BOUNDING_BOX = new Rect(-1, -1, -1, -1);
 exports.NotRenderedObject = {
     onclick(handler) {
         ThrowObjectNotRenderedError();
     },
-    remove() {
+    erase() {
+        ThrowObjectNotRenderedError();
+    },
+    color(color) {
+        ThrowObjectNotRenderedError();
+    },
+    reset() {
         ThrowObjectNotRenderedError();
     }
 };
@@ -39291,9 +39446,11 @@ class UIView {
     render() {
         this._shapeCollectionPresenter.present(this._renderer, this._renderer.renderArea);
         for (let propertyPresenter of this._initialPropertyPresenters) {
-            let button = this._renderer.renderButton(propertyPresenter.property.name, "toolbar");
-            button.onclick(() => { this._controller.selectProperty(propertyPresenter); });
+            let propertySelectorButton = this._renderer.renderButton(propertyPresenter.property.name, "toolbar");
+            propertySelectorButton.onclick(() => this._controller.addPropertyMode(propertyPresenter));
         }
+        let propertyRemoveButton = this._renderer.renderButton("remove", "toolbar");
+        propertyRemoveButton.onclick(() => this._controller.removePropertyMode());
     }
 }
 exports.UIView = UIView;

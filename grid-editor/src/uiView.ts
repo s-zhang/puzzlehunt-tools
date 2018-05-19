@@ -1,15 +1,15 @@
 import { IRenderer, Rect } from "./renderer/renderer";
-import { PropertyPresenter } from "./presenter/propertyPresenter";
+import { PropertyPresenter, PropertyPresenterFactory } from "./presenter/propertyPresenter";
 import { ShapeCollectionPresenter } from "./presenter/shapePresenter";
 import { IController } from "./controller";
 
 export class UIView {
     private readonly _shapeCollectionPresenter : ShapeCollectionPresenter
-    private readonly _initialPropertyPresenters : PropertyPresenter[]
+    private readonly _initialPropertyPresenters : PropertyPresenterFactory[]
     private readonly _controller : IController
     private readonly _renderer : IRenderer
     constructor(shapeCollectionPresenter : ShapeCollectionPresenter,
-        initialPropertyPresenters : PropertyPresenter[],
+        initialPropertyPresenters : PropertyPresenterFactory[],
         controller : IController,
         renderer : IRenderer) {
         this._shapeCollectionPresenter = shapeCollectionPresenter
@@ -21,8 +21,11 @@ export class UIView {
         this._shapeCollectionPresenter.present(this._renderer, this._renderer.renderArea)
 
         for (let propertyPresenter of this._initialPropertyPresenters) {
-            let button = this._renderer.renderButton(propertyPresenter.property.name, "toolbar")
-            button.onclick(() => { this._controller.selectProperty(propertyPresenter) })
+            let propertySelectorButton = this._renderer.renderButton(propertyPresenter.property.name, "toolbar")
+            propertySelectorButton.onclick(() => this._controller.addPropertyMode(propertyPresenter))
         }
+        
+        let propertyRemoveButton = this._renderer.renderButton("remove", "toolbar")
+        propertyRemoveButton.onclick(() => this._controller.removePropertyMode())
     }
 }

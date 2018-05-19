@@ -1,6 +1,6 @@
 import * as $ from "jquery"
 import * as d3 from 'd3'
-import { IRenderer, Rect, IRenderedObject } from "./renderer"
+import { IRenderer, Rect, IRenderedObject, IRenderedEffect } from "./renderer"
 
 export class D3Renderer implements IRenderer {
     private readonly _canvas : d3.Selection<d3.BaseType, {}, HTMLElement, any>
@@ -11,8 +11,10 @@ export class D3Renderer implements IRenderer {
         this._renderArea = new Rect(0, 0, 700, 700)
         this._canvas = d3.select("#canvas")
             .append("svg")
+            .attr("id", "svgcanvas")
             .attr("width", `${this._renderArea.width}px`)
             .attr("height", `${this._renderArea.height}px`)
+        //$("#mysvg")[0].getBoundingClientRect()
     }
     get renderArea() : Rect {
         return this._renderArea
@@ -56,18 +58,42 @@ abstract class RenderedObject<TElement> implements IRenderedObject {
         this.element = element
     }
     abstract onclick(handler: () => void): void
-    abstract remove(): void
+    abstract erase(): void
+    
+    private _renderedEffects : IRenderedEffect[] = new Array<IRenderedEffect>()
+    reset(): void {
+        for (let i = this._renderedEffects.length - 1; i >= 0 ; i--) {
+            this._renderedEffects[i].undo()
+        }
+        this._renderedEffects = []
+    }
+    color(color : string) : void {
+        this._renderedEffects.push(this.colorWithEffect(color))
+    }
+    protected abstract colorWithEffect(color : string): IRenderedEffect
 }
 
 class D3RenderedObject extends RenderedObject<d3.Selection<d3.BaseType, {}, HTMLElement, any>> implements IRenderedObject {
     constructor(element : d3.Selection<d3.BaseType, {}, HTMLElement, any>) {
         super(element)
+        //console.log((<any> this.element.node()).getBBox())
     }
     onclick(handler: () => void): void {
         this.element.on("click", handler)
     }
-    remove(): void {
+    erase(): void {
         this.element.remove()
+    }
+    colorWithEffect(color : string): IRenderedEffect {
+        //let boudingBox = <SVGRect> (<any> this.element.node()).getBBox()
+        let element = this.element
+        let originalColor = element.style("fill")
+        element.style("fill", color)
+        return {
+            undo() {
+                element.style("fill", originalColor)
+            }
+        }
     }
 }
 
@@ -78,7 +104,11 @@ class JQueryRenderedObject extends RenderedObject<JQuery<HTMLElement>> implement
     onclick(handler: () => void): void {
         this.element.click(handler)
     }
-    remove(): void {
+    erase(): void {
         throw new Error("Method not implemented.")
+    }
+    colorWithEffect(color : string): IRenderedEffect {
+        //this.element
+        throw new Error("Method not implemented!")
     }
 }
