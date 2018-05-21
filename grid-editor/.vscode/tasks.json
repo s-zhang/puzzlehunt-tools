@@ -4,9 +4,18 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "webpack",
+            "label": "webpackdev",
             "type": "shell",
-            "command": "npm run webpack",
+            "command": "npm run webpackdev",
+            "problemMatcher": [
+                "$tsc"
+            ]
+        },
+
+        {
+            "label": "webpackprod",
+            "type": "shell",
+            "command": "npm run webpackprod",
             "problemMatcher": [
                 "$tsc"
             ]

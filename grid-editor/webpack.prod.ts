@@ -1,14 +1,12 @@
-//import { CheckerPlugin } from "awesome-typescript-loader";
-
 import * as path from "path";
 import * as webpack from "webpack";
 import { cwd } from "process"
 
 const config: webpack.Configuration = {
-    mode : "development",
+    mode : "production",
     entry : "./src/main.ts",
     output: {
-        path: path.resolve("C:\\Users\\stevenz\\Workspace\\puzzlehunt-tools\\grid-editor", "public", "js"),
+        path: path.resolve(cwd(), "public", "js"),
         filename: "main.js"
     },
     
@@ -19,11 +17,6 @@ const config: webpack.Configuration = {
     devtool: "source-map",
 
     module: {
-        /*loaders: [
-            // all files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'
-            { test: /\.tsx?$/, loader: "awesome-typescript-loader" }
-        ],*/
-        
         rules: [
             // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
             { test: /\.tsx?$/, loader: "ts-loader" }
@@ -32,9 +25,7 @@ const config: webpack.Configuration = {
 
     performance: {
         hints: false
-    },
-
-    watch: true
+    }
 };
 
 export default config;
