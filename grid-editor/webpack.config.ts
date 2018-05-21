@@ -3,7 +3,6 @@ import * as webpack from "webpack";
 import { cwd } from "process"
 
 const config: webpack.Configuration = {
-    mode : "production",
     entry : "./src/main.ts",
     output: {
         path: path.resolve(cwd(), "public", "js"),

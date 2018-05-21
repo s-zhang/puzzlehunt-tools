@@ -10,3 +10,12 @@ matrix:
       install: make setup
       # # command to run tests
       script: make test
+
+    - language: node_js
+      node_js:
+        - "lts/*"
+      before_install: cd grid-editor
+      # command to install dependencies
+      install: npm install
+      # # command to run tests
+      script: npm run webpack-prod
