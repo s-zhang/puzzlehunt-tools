@@ -2,9 +2,8 @@ matrix:
   include:
     - language: python
       env:
-        global:
-          - PIPENV_VENV_IN_PROJECT=1
-          - PIPENV_IGNORE_VIRTUALENVS=1
+        - PIPENV_VENV_IN_PROJECT=1
+        - PIPENV_IGNORE_VIRTUALENVS=1
       before_install: cd puzzle-utils
       # command to install dependencies
       install: make setup

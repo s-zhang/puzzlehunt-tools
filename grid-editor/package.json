@@ -1,5 +1,5 @@
 {
-  "name": "stevenz",
+  "name": "grid-editor",
   "version": "1.0.0",
   "description": "",
   "main": "public/js/main.js",
@@ -7,8 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "webpack-dev": "webpack --config ./build/webpack.config.js --mode development --watch",
     "webpack-prod": "webpack --config ./build/webpack.config.js --mode production",
-    "http-server": "http-server",
-    "ts-node": "ts-node"
+    "http-server": "http-server"
   },
   "author": "",
   "license": "ISC",
@@ -23,7 +22,6 @@
     "http-server": "^0.10.0",
     "jquery": "^3.2.1",
     "ts-loader": "^4.3.0",
-    "ts-node": "^3.3.0",
     "tslint": "^5.7.0",
     "typescript": "^2.5.3",
     "webpack": "^4.8.3",
