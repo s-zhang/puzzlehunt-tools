@@ -18,4 +18,6 @@ matrix:
       # command to install dependencies
       install: npm install
       # # command to run tests
-      script: npm run webpack-prod
+      script:
+        - ./node_modules/typescript/bin/tsc
+        - npm run webpack-prod
