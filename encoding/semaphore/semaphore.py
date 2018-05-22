@@ -74,6 +74,12 @@ def parse_position(position):
         return semaphore_compass_mapping[position]
 
 def semaphore(position1, position2):
+    """
+        A flag semaphore lookup tool. Supports compass directions and clock hand positions as input.
+        Example:
+            semaphore('s', 'nw') -> 'c'
+            semaphore(10, 3) -> 'y'
+    """
     try:    
         pos1 = parse_position(position1)
         pos2 = parse_position(position2)
@@ -86,13 +92,16 @@ def semaphore(position1, position2):
         return '?'
 
 def semaphore_multi(positions):
+    """
+        A flag semaphore lookup tool that supports multiple lookups. Supports compass directions and clock hand positions as input.
+        Example:
+            semaphore_multi(['s', 'nw', 10, 3]) -> 'cy'
+    """
     if len(positions) % 2 == 1:
-        print("An odd number of positions were provided")
-        return
+        raise ValueError('An odd number of positions were provided')
     
     letters = ""
-    iterator = iter(positions)
-    for position in iterator:
-        letters += semaphore(position, next(iterator))
+    for i in range(0, len(positions), 2):
+        letters += semaphore(positions[i], positions[i + 1])
     
     return letters
