@@ -57,9 +57,9 @@ Start `puzzle-utils` interactively by running
 ['listen', 'inlets', 'tinsel', 'elints', 'silent', 'intels', 'enlist']
 ```
 
-## Running the tests
+## Build and Test
 
-Explain how to run the automated tests for this system
+Refer to [puzzle-utils/README.md](puzzle-utils/README.md) for details.
 
 ## Contributing
 
