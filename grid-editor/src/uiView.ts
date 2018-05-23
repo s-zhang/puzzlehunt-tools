@@ -18,7 +18,7 @@ export class UIView {
         this._renderer = renderer
     }
     render(): void {
-        this._shapeCollectionPresenter.present(this._renderer, this._renderer.renderArea)
+        this._shapeCollectionPresenter.present(this._renderer)
 
         for (let propertyPresenter of this._initialPropertyPresenters) {
             let propertySelectorButton = this._renderer.renderButton(propertyPresenter.property.name, "toolbar")

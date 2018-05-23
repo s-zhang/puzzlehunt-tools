@@ -19,22 +19,37 @@ export class D3Renderer implements IRenderer {
     get renderArea() : Rect {
         return this._renderArea
     }
-    renderCircle(x: number, y: number, radius: number): D3RenderedObject {
+    renderCircle(x: number, y: number, radius: number): IRenderedObject {
         throw new Error("Method not implemented.");
     }
-    renderRectangle(x: number, y: number, width: number, height: number): D3RenderedObject {
-        return new D3RenderedObject(this._canvas.append("rect")
+    renderRectangle(x: number, y: number, width: number, height: number, layer : number[]): IRenderedObject {
+        return new D3RenderedObject(this.getLayer(layer).append("rect")
             .attr("x", this._xOffset + x)
             .attr("y", this._yOffset + y)
             .attr("width", width)
             .attr("height", height)
-            .style("fill", "#fff")
-            .style("stroke", "#222"))
+            .attr("pointer-events", "all")
+            .style("fill", "none")
+            .style("stroke", "none"))
     }
-    //renderLine(x : number, y : number, )
-    renderText(text: string, boundingBox : Rect): D3RenderedObject {
+    renderLine(fromX: number, fromY: number, toX: number, toY: number, layer : number[]): IRenderedObject {
+        return new D3RenderedObject(this.getLayer(layer).append("line")
+            .attr("x1", this._xOffset + fromX)
+            .attr("y1", this._yOffset + fromY)
+            .attr("x2", this._xOffset + toX)
+            .attr("y2", this._yOffset + toY)
+            .style("stroke", "#000")
+            .style("stroke-width", "2"))
+            
+        /*
+        using jquery doesn't seem to trigger redraw of svg
+        let line = $(`<line x1="${this._xOffset + fromX}" y1="${this._yOffset + fromY}" x2="${this._xOffset + toX}" y2="${this._yOffset + toY}" style="stroke:#000;stroke-width:2" />`)
+        line.appendTo($("#svgcanvas"))
+        return new JQueryRenderedObject(line)*/
+    }
+    renderText(text: string, boundingBox : Rect, layer : number[]): IRenderedObject {
         let fontSize = 32
-        return new D3RenderedObject(this._canvas.append("text")
+        return new D3RenderedObject(this.getLayer(layer).append("text")
             .attr("x", this._xOffset + boundingBox.centerX)
             .attr("y", this._yOffset + boundingBox.centerY + Math.floor(fontSize / 2) - 3)
             .attr("font-size", fontSize)
@@ -49,6 +64,26 @@ export class D3Renderer implements IRenderer {
     }
     clear(): void {
         this._canvas.selectAll("*").remove()
+    }
+    private getLayer(layerNumbers : number[]) : d3.Selection<d3.BaseType, {}, HTMLElement, any> {
+        let selection = this._canvas
+
+        for (let layerLevel = 0; layerLevel < layerNumbers.length; layerLevel++) {
+            let layerNumber = layerNumbers[layerLevel]
+            let newSelection = selection.select(`.layer-level-${layerLevel}#layer-${layerNumber}`)
+            if (newSelection.empty()) {
+                for (let i = 0; i <= layerNumber; i++) {
+                    if (selection.select(`.layer-level-${layerLevel}#layer-${i}`).empty()) {
+                        selection.append("g")
+                            .attr("id", `layer-${i}`)
+                            .attr("class", `layer-level-${layerLevel}`)
+                    }
+                }
+                newSelection = selection.select(`.layer-level-${layerLevel}#layer-${layerNumber}`)
+            }
+            selection = newSelection
+        }
+        return selection
     }
 }
 
@@ -71,6 +106,11 @@ abstract class RenderedObject<TElement> implements IRenderedObject {
         this._renderedEffects.push(this.colorWithEffect(color))
     }
     protected abstract colorWithEffect(color : string): IRenderedEffect
+    makeTransparent() : void {
+        this._renderedEffects.push(this.makeTransparentWithEffect())
+    }
+
+    abstract makeTransparentWithEffect(): IRenderedEffect
 }
 
 class D3RenderedObject extends RenderedObject<d3.Selection<d3.BaseType, {}, HTMLElement, any>> implements IRenderedObject {
@@ -95,6 +135,15 @@ class D3RenderedObject extends RenderedObject<d3.Selection<d3.BaseType, {}, HTML
             }
         }
     }
+    makeTransparentWithEffect(): IRenderedEffect {
+        let element = this.element
+        element.attr("visibility", "hidden")
+        return {
+            undo() {
+                element.attr("visibility", null)
+            }
+        }
+    }
 }
 
 class JQueryRenderedObject extends RenderedObject<JQuery<HTMLElement>> implements IRenderedObject {
@@ -105,10 +154,20 @@ class JQueryRenderedObject extends RenderedObject<JQuery<HTMLElement>> implement
         this.element.click(handler)
     }
     erase(): void {
-        throw new Error("Method not implemented.")
+        this.element.remove()
     }
     colorWithEffect(color : string): IRenderedEffect {
         //this.element
         throw new Error("Method not implemented!")
+        
+    }
+    makeTransparentWithEffect() : IRenderedEffect {
+        let element = this.element
+        element.attr("visibility", "hidden")
+        return {
+            undo() {
+                element.removeAttr("visibility")
+            }
+        }
     }
 }

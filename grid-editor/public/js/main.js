@@ -38788,18 +38788,9 @@ class Shape {
 exports.Shape = Shape;
 class ShapeCollection {
     constructor(shapes) {
-        this._shapes = shapes;
-        this._constrains = new Array();
-        this._propertyNames = new Set();
-    }
-    get shapes() {
-        return this._shapes;
-    }
-    get constraints() {
-        return this._constrains;
-    }
-    get propertyNames() {
-        return this._propertyNames;
+        this.shapes = shapes;
+        this.constraints = new Array();
+        this.propertyNames = new Set();
     }
     areConstraintsSatisfied() {
         let satisfaction = constraint_1.ConstraintSatifaction.Satisfied;
@@ -38832,54 +38823,104 @@ exports.GridShape = GridShape;
 class Cell extends GridShape {
     constructor(row, column) {
         super();
-        this._row = row;
-        this._column = column;
-    }
-    get row() {
-        return this._row;
-    }
-    get column() {
-        return this._column;
+        this.row = row;
+        this.column = column;
     }
 }
 exports.Cell = Cell;
 class CellBorder extends GridShape {
+    constructor(fromRow, toRow, fromColumn, toColumn, grid) {
+        super();
+        this._adjacentCells = null;
+        this.fromRow = fromRow;
+        this.toRow = toRow;
+        this.fromColumn = fromColumn;
+        this.toColumn = toColumn;
+        this._grid = grid;
+    }
+    get adjacentCells() {
+        if (this._adjacentCells == null) {
+            this._adjacentCells = this.computeAdjacentCells();
+        }
+        return this._adjacentCells;
+    }
 }
 exports.CellBorder = CellBorder;
-class Grid extends shape_1.ShapeCollection {
+class HorizontalCellBorder extends CellBorder {
+    constructor(row, fromColumn, toColumn, grid) {
+        super(row, row, fromColumn, toColumn, grid);
+        this.row = row;
+    }
+    computeAdjacentCells() {
+        let adjacentCells = new Array();
+        if (this.row - 1 >= 0) {
+            adjacentCells.push(this._grid.rows[this.row - 1][this.fromColumn]);
+        }
+        if (this.row < this._grid.rows.length) {
+            adjacentCells.push(this._grid.rows[this.row][this.fromColumn]);
+        }
+        return adjacentCells;
+    }
+}
+exports.HorizontalCellBorder = HorizontalCellBorder;
+class VerticalCellBorder extends CellBorder {
+    constructor(fromRow, toRow, column, grid) {
+        super(fromRow, toRow, column, column, grid);
+        this.column = column;
+    }
+    computeAdjacentCells() {
+        let adjacentCells = new Array();
+        if (this.column - 1 >= 0) {
+            adjacentCells.push(this._grid.rows[this.fromRow][this.column - 1]);
+        }
+        if (this.column < this._grid.columns.length) {
+            adjacentCells.push(this._grid.rows[this.fromRow][this.column]);
+        }
+        return adjacentCells;
+    }
+}
+exports.VerticalCellBorder = VerticalCellBorder;
+class GridIntersection extends GridShape {
+}
+exports.GridIntersection = GridIntersection;
+class Grid {
     constructor(width, height) {
-        let cells = new Array(width * height);
-        let rows = new Array(height);
+        this.cells = new Array(width * height);
+        this.rows = new Array(height);
         for (let i = 0; i < height; i++) {
-            rows[i] = new Array(width);
+            this.rows[i] = new Array(width);
             for (let j = 0; j < width; j++) {
-                rows[i][j] = new Cell(i, j);
-                cells[i * width + j] = rows[i][j];
+                this.rows[i][j] = new Cell(i, j);
+                this.cells[i * width + j] = this.rows[i][j];
             }
         }
-        // TODO: handle cell borders
-        super(cells);
-        this._cells = cells;
-        this._rows = rows;
-        this._columns = new Array(width);
+        this.horizontalCellBorders = new Array();
+        for (let i = 0; i < height + 1; i++) {
+            for (let j = 0; j < width; j++) {
+                this.horizontalCellBorders.push(new HorizontalCellBorder(i, j, j + 1, this));
+            }
+        }
+        this.verticalCellBorders = new Array();
+        for (let i = 0; i < height; i++) {
+            for (let j = 0; j < width + 1; j++) {
+                this.verticalCellBorders.push(new VerticalCellBorder(i, i + 1, j, this));
+            }
+        }
+        this.cellBorders = new Array();
+        this.cellBorders = this.cellBorders.concat(this.horizontalCellBorders);
+        this.cellBorders = this.cellBorders.concat(this.verticalCellBorders);
+        this.columns = new Array(width);
         for (let i = 0; i < width; i++) {
-            this._columns[i] = new Array(height);
+            this.columns[i] = new Array(height);
             for (let j = 0; j < height; j++) {
-                this._columns[i][j] = rows[j][i];
+                this.columns[i][j] = this.rows[j][i];
             }
         }
-    }
-    get cells() {
-        return this._cells;
-    }
-    get rows() {
-        return this._rows;
-    }
-    get columns() {
-        return this._columns;
-    }
-    get cellBorders() {
-        throw new Error("Method not implemented.");
+        let gridShapes = new Array();
+        gridShapes = gridShapes.concat(this.cells);
+        gridShapes = gridShapes.concat(this.horizontalCellBorders);
+        gridShapes = gridShapes.concat(this.verticalCellBorders);
+        this._shapeCollection = new shape_1.ShapeCollection(gridShapes);
     }
     addRowConstraint(constraint) {
         for (let row of this.rows) {
@@ -38890,6 +38931,23 @@ class Grid extends shape_1.ShapeCollection {
         for (let column of this.columns) {
             this.constraints.push(new constraint_1.ShapesConstraint(column, constraint));
         }
+    }
+    addCellBorderConstraint(constraint) {
+        for (let cellBoarder of this.cellBorders) {
+            this.constraints.push(new constraint_1.ShapesConstraint([cellBoarder], (cellBorders) => constraint(cellBorders[0])));
+        }
+    }
+    get shapes() {
+        return this._shapeCollection.shapes;
+    }
+    get constraints() {
+        return this._shapeCollection.constraints;
+    }
+    get propertyNames() {
+        return this._shapeCollection.propertyNames;
+    }
+    areConstraintsSatisfied() {
+        return this._shapeCollection.areConstraintsSatisfied();
     }
 }
 exports.Grid = Grid;
@@ -38981,7 +39039,7 @@ class ConstraintPresenter {
     constructor(constraint, shapePresenters) {
         this._constraint = constraint;
         this._shapePresenters = shapePresenters;
-        this._affectedRenderedObjects = new Array();
+        this._affectedPresenters = new Array();
     }
     _getShapePresenter(shape) {
         let shapePresenter = this._shapePresenters.get(shape);
@@ -38990,25 +39048,26 @@ class ConstraintPresenter {
         }
         return shapePresenter;
     }
-    present(renderer, boudingBox) {
-        //this.remove()
+    present(renderer) {
         let constraintCheckResult = this._constraint.check();
         for (let violation of constraintCheckResult.violations) {
             let shape = violation[0];
             let shapePresenter = this._getShapePresenter(shape);
-            shapePresenter.renderedObject.color("#ffcc00");
-            this._affectedRenderedObjects.push(shapePresenter.renderedObject);
+            shapePresenter.markForViolation();
+            //shapePresenter.selectObject.color("#ffcc00")
+            this._affectedPresenters.push(shapePresenter);
             let property = violation[1];
             let propertyPresenter = shapePresenter.getPropertyPresenter(property);
-            propertyPresenter.renderedObject.color("red");
-            this._affectedRenderedObjects.push(propertyPresenter.renderedObject);
+            propertyPresenter.markForViolation();
+            //propertyPresenter.renderedObject.color("red")
+            this._affectedPresenters.push(propertyPresenter);
         }
     }
     erase() {
-        for (let renderedObject of this._affectedRenderedObjects) {
-            renderedObject.reset();
+        for (let presenter of this._affectedPresenters) {
+            presenter.unmarkForViolation();
         }
-        this._affectedRenderedObjects = [];
+        this._affectedPresenters = [];
     }
 }
 exports.ConstraintPresenter = ConstraintPresenter;
@@ -39028,19 +39087,35 @@ exports.ConstraintPresenter = ConstraintPresenter;
 Object.defineProperty(exports, "__esModule", { value: true });
 const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
 class Presenter {
-    constructor() {
+    constructor(renderLayer, isVisible) {
         this.renderedObject = renderer_1.NotRenderedObject;
+        this.renderLayer = renderLayer;
+    }
+    eraseSelf() {
+        if (this.renderedObject != renderer_1.NotRenderedObject) {
+            this.renderedObject.erase();
+            this.renderedObject = renderer_1.NotRenderedObject;
+        }
+    }
+}
+exports.Presenter = Presenter;
+class FixedPresenter extends Presenter {
+    constructor(renderLayer, isVisible = true) {
+        super(renderLayer, isVisible);
+    }
+}
+exports.FixedPresenter = FixedPresenter;
+class FlexiblePresenter {
+    constructor(renderLayer) {
+        this.renderedObject = renderer_1.NotRenderedObject;
+        this.renderLayer = renderLayer;
     }
     eraseRenderedObject() {
         this.renderedObject.erase();
         this.renderedObject = renderer_1.NotRenderedObject;
     }
-    represent(renderer, boudingBox) {
-        this.erase();
-        this.present(renderer, boudingBox);
-    }
 }
-exports.Presenter = Presenter;
+exports.FlexiblePresenter = FlexiblePresenter;
 
 
 /***/ }),
@@ -39055,26 +39130,45 @@ exports.Presenter = Presenter;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
 const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
-class PropertyPresenter extends presenter_1.Presenter {
+class PropertyPresenter extends presenter_1.FlexiblePresenter {
     constructor(property, parentShapePresenter, controller) {
-        super();
+        super(parentShapePresenter.renderLayer.concat(2));
         this.property = property;
         this.parentShapePresenter = parentShapePresenter;
         this._controller = controller;
+        this._isViolationMarked = false;
     }
     present(renderer, boundingBox) {
         this.renderedObject = this.presentProperty(renderer, boundingBox);
         this.renderedObject.onclick(() => {
             if (this._controller.selectProperty(this)) {
+                // calling this.erase is required because the propertyPresenter is already removed from
+                // parentShapePresenter by now and parentShapePresenter's erase won't be able
+                // to erase the propertyPresenter
                 this.erase();
-                this.parentShapePresenter.present(renderer, renderer_1.NO_BOUNDING_BOX);
+                this.parentShapePresenter.erase();
+                this.parentShapePresenter.present(renderer);
             }
         });
     }
     erase() {
         this.eraseRenderedObject();
+        this._isViolationMarked = false;
+    }
+    markForViolation() {
+        if (this._isViolationMarked) {
+            return;
+        }
+        this.renderedObject.color("red");
+        this._isViolationMarked = true;
+    }
+    unmarkForViolation() {
+        if (!this._isViolationMarked) {
+            return;
+        }
+        this.renderedObject.reset();
+        this._isViolationMarked = false;
     }
 }
 exports.PropertyPresenter = PropertyPresenter;
@@ -39105,7 +39199,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
 class TextPropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
-        return renderer.renderText(this.property.name, boundingBox);
+        return renderer.renderText(this.property.name, boundingBox, this.renderLayer);
     }
 }
 exports.TextPropertyPresenter = TextPropertyPresenter;
@@ -39126,20 +39220,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const constraintPresenter_1 = __webpack_require__(/*! ./constraintPresenter */ "./src/presenter/constraintPresenter.ts");
 const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
 const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
-class ShapePresenter extends presenter_1.Presenter {
-    constructor(shape, affectedConstraints, controller) {
-        super();
+class ShapePresenter extends presenter_1.FixedPresenter {
+    constructor(shape, renderLayer, affectedConstraints, controller, isSelfPresented = true) {
+        super(renderLayer);
         this._shape = shape;
+        this.isSelfPresented = isSelfPresented;
         this._propertyPresenters = new Map();
         this._affectedConstraints = affectedConstraints;
         this._controller = controller;
+        this.selectObject = renderer_1.NotRenderedObject;
+        this._isViolationMarked = false;
     }
-    present(renderer, boudingBox) {
-        this.renderedObject = this.presentShape(renderer);
-        this.renderedObject.onclick(() => {
+    present(renderer) {
+        if (this.isSelfPresented) {
+            this.renderedObject = this.presentSelf(renderer);
+        }
+        this.selectObject = this.presentSelectObject(renderer);
+        this.selectObject.onclick(() => {
             this.erase();
             this._controller.selectShape(this);
-            this.present(renderer, boudingBox);
+            this.present(renderer);
         });
         let boundingBoxes = this.getBoundingBoxes(this._propertyPresenters.size);
         let i = 0;
@@ -39148,17 +39248,38 @@ class ShapePresenter extends presenter_1.Presenter {
             i++;
         }
         for (let constraintPresenter of this._affectedConstraints) {
-            constraintPresenter.erase();
-        }
-        for (let constraintPresenter of this._affectedConstraints) {
-            constraintPresenter.present(renderer, renderer_1.NO_BOUNDING_BOX);
+            constraintPresenter.present(renderer);
         }
     }
     erase() {
-        this.eraseRenderedObject();
+        for (let constraintPresenter of this._affectedConstraints) {
+            constraintPresenter.erase();
+        }
+        if (this.selectObject != this.renderedObject) {
+            this.selectObject.erase();
+            this.selectObject = renderer_1.NotRenderedObject;
+        }
+        if (this.isSelfPresented) {
+            this.eraseSelf();
+        }
+        this._isViolationMarked = false;
         for (let propertyPresenter of this._propertyPresenters.values()) {
             propertyPresenter.erase();
         }
+    }
+    markForViolation() {
+        if (this._isViolationMarked) {
+            return;
+        }
+        this.selectObject.color("#ffcc00");
+        this._isViolationMarked = true;
+    }
+    unmarkForViolation() {
+        if (!this._isViolationMarked) {
+            return;
+        }
+        this.selectObject.reset();
+        this._isViolationMarked = false;
     }
     addProperty(property, propertyPresenter) {
         this._propertyPresenters.set(property, propertyPresenter);
@@ -39179,25 +39300,31 @@ class ShapePresenter extends presenter_1.Presenter {
 exports.ShapePresenter = ShapePresenter;
 class ShapeCollectionPresenter {
     constructor() {
-        this._shapePresenters = new Map();
+        this.shapePresenters = new Map();
         this.constraintPresenters = new Array();
     }
-    present(renderer, boudingBox) {
-        for (let shapePresenter of this._shapePresenters.values()) {
-            shapePresenter.present(renderer, boudingBox);
+    setPresentSelf(shapes, present) {
+        for (let shape of shapes) {
+            let shapePresenter = this.shapePresenters.get(shape);
+            shapePresenter.isSelfPresented = present;
+        }
+    }
+    present(renderer) {
+        for (let shapePresenter of this.shapePresenters.values()) {
+            shapePresenter.present(renderer);
         }
         for (let constraintPresenter of this.constraintPresenters) {
-            constraintPresenter.present(renderer, boudingBox);
+            constraintPresenter.present(renderer);
         }
     }
     addShapePresenter(shape, shapePresenter) {
-        this._shapePresenters.set(shape, shapePresenter);
+        this.shapePresenters.set(shape, shapePresenter);
     }
     addConstraint(constraint) {
-        this.constraintPresenters.push(new constraintPresenter_1.ConstraintPresenter(constraint, this._shapePresenters));
+        this.constraintPresenters.push(new constraintPresenter_1.ConstraintPresenter(constraint, this.shapePresenters));
     }
     erase() {
-        for (let shapePresenter of this._shapePresenters.values()) {
+        for (let shapePresenter of this.shapePresenters.values()) {
             shapePresenter.erase();
         }
         for (let constraintPresenter of this.constraintPresenters) {
@@ -39223,14 +39350,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const shapePresenter_1 = __webpack_require__(/*! ../shapePresenter */ "./src/presenter/shapePresenter.ts");
 const renderer_1 = __webpack_require__(/*! ../../renderer/renderer */ "./src/renderer/renderer.ts");
 class SqaureCellPresenter extends shapePresenter_1.ShapePresenter {
-    constructor(cell, sideLength, affectedConstraints, controller) {
-        super(cell, affectedConstraints, controller);
+    constructor(cell, sideLength, renderLayer, affectedConstraints, controller, isSelfPresented = false) {
+        super(cell, renderLayer, affectedConstraints, controller, isSelfPresented);
         this._cell = cell;
         this._sideLength = sideLength;
         this._rect = new renderer_1.Rect(cell.column * sideLength, cell.row * sideLength, sideLength, sideLength);
     }
-    presentShape(renderer) {
-        return renderer.renderRectangle(this._cell.column * this._sideLength, this._cell.row * this._sideLength, this._sideLength, this._sideLength);
+    presentSelf(renderer) {
+        return renderer_1.NotRenderedObject;
+    }
+    presentSelectObject(renderer) {
+        let renderedObject = renderer.renderRectangle(this._cell.column * this._sideLength, this._cell.row * this._sideLength, this._sideLength, this._sideLength, this.renderLayer.concat(1));
+        //renderedObject.makeTransparent()
+        return renderedObject;
     }
     getBoundingBoxes(numBoxes) {
         if (numBoxes == 0) {
@@ -39243,6 +39375,29 @@ class SqaureCellPresenter extends shapePresenter_1.ShapePresenter {
     }
 }
 exports.SqaureCellPresenter = SqaureCellPresenter;
+class CellBorderPresenter extends shapePresenter_1.ShapePresenter {
+    constructor(cellBorder, sideLength, renderLayer, affectedConstraints, controller) {
+        super(cellBorder, renderLayer, affectedConstraints, controller);
+        this._cellBorder = cellBorder;
+        this._sideLength = sideLength;
+    }
+    presentSelf(renderer) {
+        return renderer.renderLine(this._cellBorder.fromColumn * this._sideLength, this._cellBorder.fromRow * this._sideLength, this._cellBorder.toColumn * this._sideLength, this._cellBorder.toRow * this._sideLength, this.renderLayer.concat(0));
+    }
+    presentSelectObject(renderer) {
+        let mouseEventObject = renderer.renderRectangle(this._cellBorder.fromColumn * this._sideLength - 3, this._cellBorder.fromRow * this._sideLength - 3, (this._cellBorder.toColumn - this._cellBorder.fromColumn) * this._sideLength + 6, (this._cellBorder.toRow - this._cellBorder.fromRow) * this._sideLength + 6, this.renderLayer.concat(1));
+        mouseEventObject.makeTransparent();
+        return mouseEventObject;
+        //return NotRenderedObject
+    }
+    getBoundingBoxes(numBoxes) {
+        if (numBoxes != 0) {
+            throw new Error("Method not implemented.");
+        }
+        return new Array();
+    }
+}
+exports.CellBorderPresenter = CellBorderPresenter;
 class GridPresenter extends shapePresenter_1.ShapeCollectionPresenter {
     constructor(grid, controller) {
         super();
@@ -39252,8 +39407,17 @@ class GridPresenter extends shapePresenter_1.ShapeCollectionPresenter {
             this.addConstraint(constraint);
         }
         for (let cell of grid.cells) {
-            this.addShapePresenter(cell, new SqaureCellPresenter(cell, this._sideLength, this.constraintPresenters, controller));
+            this.addShapePresenter(cell, new SqaureCellPresenter(cell, this._sideLength, [0], this.constraintPresenters, controller));
         }
+        for (let cellBorder of grid.cellBorders) {
+            this.addShapePresenter(cellBorder, new CellBorderPresenter(cellBorder, this._sideLength, [1], this.constraintPresenters, controller));
+        }
+    }
+    set presentCells(present) {
+        this.setPresentSelf(this._grid.cells, present);
+    }
+    set presentCellBorders(present) {
+        this.setPresentSelf(this._grid.cellBorders, present);
     }
 }
 exports.GridPresenter = GridPresenter;
@@ -39292,19 +39456,33 @@ class D3Renderer {
     renderCircle(x, y, radius) {
         throw new Error("Method not implemented.");
     }
-    renderRectangle(x, y, width, height) {
-        return new D3RenderedObject(this._canvas.append("rect")
+    renderRectangle(x, y, width, height, layer) {
+        return new D3RenderedObject(this.getLayer(layer).append("rect")
             .attr("x", this._xOffset + x)
             .attr("y", this._yOffset + y)
             .attr("width", width)
             .attr("height", height)
-            .style("fill", "#fff")
-            .style("stroke", "#222"));
+            .attr("pointer-events", "all")
+            .style("fill", "none")
+            .style("stroke", "none"));
     }
-    //renderLine(x : number, y : number, )
-    renderText(text, boundingBox) {
+    renderLine(fromX, fromY, toX, toY, layer) {
+        return new D3RenderedObject(this.getLayer(layer).append("line")
+            .attr("x1", this._xOffset + fromX)
+            .attr("y1", this._yOffset + fromY)
+            .attr("x2", this._xOffset + toX)
+            .attr("y2", this._yOffset + toY)
+            .style("stroke", "#000")
+            .style("stroke-width", "2"));
+        /*
+        using jquery doesn't seem to trigger redraw of svg
+        let line = $(`<line x1="${this._xOffset + fromX}" y1="${this._yOffset + fromY}" x2="${this._xOffset + toX}" y2="${this._yOffset + toY}" style="stroke:#000;stroke-width:2" />`)
+        line.appendTo($("#svgcanvas"))
+        return new JQueryRenderedObject(line)*/
+    }
+    renderText(text, boundingBox, layer) {
         let fontSize = 32;
-        return new D3RenderedObject(this._canvas.append("text")
+        return new D3RenderedObject(this.getLayer(layer).append("text")
             .attr("x", this._xOffset + boundingBox.centerX)
             .attr("y", this._yOffset + boundingBox.centerY + Math.floor(fontSize / 2) - 3)
             .attr("font-size", fontSize)
@@ -39319,6 +39497,25 @@ class D3Renderer {
     }
     clear() {
         this._canvas.selectAll("*").remove();
+    }
+    getLayer(layerNumbers) {
+        let selection = this._canvas;
+        for (let layerLevel = 0; layerLevel < layerNumbers.length; layerLevel++) {
+            let layerNumber = layerNumbers[layerLevel];
+            let newSelection = selection.select(`.layer-level-${layerLevel}#layer-${layerNumber}`);
+            if (newSelection.empty()) {
+                for (let i = 0; i <= layerNumber; i++) {
+                    if (selection.select(`.layer-level-${layerLevel}#layer-${i}`).empty()) {
+                        selection.append("g")
+                            .attr("id", `layer-${i}`)
+                            .attr("class", `layer-level-${layerLevel}`);
+                    }
+                }
+                newSelection = selection.select(`.layer-level-${layerLevel}#layer-${layerNumber}`);
+            }
+            selection = newSelection;
+        }
+        return selection;
     }
 }
 exports.D3Renderer = D3Renderer;
@@ -39335,6 +39532,9 @@ class RenderedObject {
     }
     color(color) {
         this._renderedEffects.push(this.colorWithEffect(color));
+    }
+    makeTransparent() {
+        this._renderedEffects.push(this.makeTransparentWithEffect());
     }
 }
 class D3RenderedObject extends RenderedObject {
@@ -39359,6 +39559,15 @@ class D3RenderedObject extends RenderedObject {
             }
         };
     }
+    makeTransparentWithEffect() {
+        let element = this.element;
+        element.attr("visibility", "hidden");
+        return {
+            undo() {
+                element.attr("visibility", null);
+            }
+        };
+    }
 }
 class JQueryRenderedObject extends RenderedObject {
     constructor(element) {
@@ -39368,11 +39577,20 @@ class JQueryRenderedObject extends RenderedObject {
         this.element.click(handler);
     }
     erase() {
-        throw new Error("Method not implemented.");
+        this.element.remove();
     }
     colorWithEffect(color) {
         //this.element
         throw new Error("Method not implemented!");
+    }
+    makeTransparentWithEffect() {
+        let element = this.element;
+        element.attr("visibility", "hidden");
+        return {
+            undo() {
+                element.removeAttr("visibility");
+            }
+        };
     }
 }
 
@@ -39417,6 +39635,9 @@ exports.NotRenderedObject = {
     },
     reset() {
         ThrowObjectNotRenderedError();
+    },
+    makeTransparent() {
+        ThrowObjectNotRenderedError();
     }
 };
 function ThrowObjectNotRenderedError() {
@@ -39444,7 +39665,7 @@ class UIView {
         this._renderer = renderer;
     }
     render() {
-        this._shapeCollectionPresenter.present(this._renderer, this._renderer.renderArea);
+        this._shapeCollectionPresenter.present(this._renderer);
         for (let propertyPresenter of this._initialPropertyPresenters) {
             let propertySelectorButton = this._renderer.renderButton(propertyPresenter.property.name, "toolbar");
             propertySelectorButton.onclick(() => this._controller.addPropertyMode(propertyPresenter));

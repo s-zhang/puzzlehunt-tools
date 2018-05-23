@@ -1,4 +1,4 @@
-import { IPresenter } from "./presenter/presenter"
+import { IFixedPresenter } from "./presenter/presenter"
 import { IRenderer, Rect } from "./renderer/renderer"
 import { PropertyPresenter, PropertyPresenterFactory } from "./presenter/propertyPresenter";
 import { ShapePresenter } from "./presenter/shapePresenter";

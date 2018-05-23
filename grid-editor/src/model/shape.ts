@@ -23,25 +23,23 @@ export abstract class Shape {
     }
 }
 
-export abstract class ShapeCollection<TShape extends Shape> {
-    protected constructor(shapes : TShape[]) {
-        this._shapes = shapes
-        this._constrains = new Array<IConstraint>()
-        this._propertyNames = new Set<string>()
+export interface IShapeCollection<TShape extends Shape> {
+    readonly shapes : TShape[]
+    readonly constraints : IConstraint[]
+    readonly propertyNames : Set<string>
+    areConstraintsSatisfied() : ConstraintSatifaction
+}
+
+export class ShapeCollection<TShape extends Shape> implements IShapeCollection<TShape> {
+    public constructor(shapes : TShape[]) {
+        this.shapes = shapes
+        this.constraints = new Array<IConstraint>()
+        this.propertyNames = new Set<string>()
     }
-    private readonly _shapes : TShape[]
-    get shapes() : TShape[] {
-        return this._shapes
-    }
-    private readonly _constrains : IConstraint[]
-    get constraints() : IConstraint[] {
-        return this._constrains
-    }
-    private readonly _propertyNames : Set<string>
-    get propertyNames() : Set<string> {
-        return this._propertyNames
-    }
-    areConstraintsSatisfied() : ConstraintSatifaction {
+    public readonly shapes : TShape[]
+    public readonly constraints : IConstraint[]
+    public readonly propertyNames : Set<string>
+    public areConstraintsSatisfied() : ConstraintSatifaction {
         let satisfaction = ConstraintSatifaction.Satisfied
         for (let constraint of this.constraints) {
             satisfaction = Math.max(satisfaction, constraint.check().satisfactionLevel)

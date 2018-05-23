@@ -1,9 +1,9 @@
 export interface IRenderer {
     renderArea : Rect
     renderCircle(x : number, y : number, radius : number) : IRenderedObject
-    renderRectangle(x : number, y : number, width : number, height : number) : IRenderedObject
-    //renderLine(x : number, y : number, )
-    renderText(text : string, boundingBox : Rect) : IRenderedObject
+    renderRectangle(x : number, y : number, width : number, height : number, layer : number[]) : IRenderedObject
+    renderLine(fromX : number, fromY : number, toX : number, toY : number, layer : number[]) : IRenderedObject
+    renderText(text : string, boundingBox : Rect, layer : number[]) : IRenderedObject
     renderButton(text : string, divId : string) : IRenderedObject
     clear() : void
 }
@@ -34,6 +34,7 @@ export interface IRenderedObject {
     erase() : void
     color(color : string) : void
     reset() : void
+    makeTransparent() : void
 }
 
 export interface IRenderedEffect {
@@ -51,6 +52,9 @@ export const NotRenderedObject : IRenderedObject = {
         ThrowObjectNotRenderedError()
     },
     reset() : void {
+        ThrowObjectNotRenderedError()
+    },
+    makeTransparent() : void {
         ThrowObjectNotRenderedError()
     }
 }
