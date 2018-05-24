@@ -26,8 +26,8 @@ Basically what I want is all the random online tools in one easy lightweight pla
     - Insert/Remove/Replace a string
 - Anagram solver
     - single word and multi-word anagram solver
-- Word search
-    - search a word with regex
+- Word lookup
+    - find a word with regex
 - We can put all these tools on a handy, simple website
 
 ### Prerequisites
