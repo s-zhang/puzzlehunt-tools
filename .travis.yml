@@ -5,7 +5,7 @@ matrix:
         global:
           - PIPENV_VENV_IN_PROJECT=1
           - PIPENV_IGNORE_VIRTUALENVS=1
-      before_install: cd wordhelper
+      before_install: cd puzzle-utils
       # command to install dependencies
       install: make setup
       # # command to run tests
