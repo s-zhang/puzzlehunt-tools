@@ -1,5 +1,5 @@
 import re
-from utils.dictionary import get_current_dictionary
+from .utils.dictionary import get_current_dictionary
 
 def search(pattern):
 	regex = re.compile(pattern)

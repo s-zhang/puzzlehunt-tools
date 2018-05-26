@@ -1,8 +1,8 @@
-from utils.dictionary import get_current_dictionary
-from utils.word import get_character_histogram, histogram_to_string
+from .utils.dictionary import get_current_dictionary
+from .utils.word import get_character_histogram, histogram_to_string
 
 class AnagramPattern:
-	num_of_letters = 26
+	num_letters = 26
 	__words_sorted_by_length_then_lex = None
 	def __init__(self, pattern=None, character_histogram=None, num_wildcards=None):
 		"""
@@ -37,7 +37,7 @@ class AnagramPattern:
 		if num_wildcards_left == 0:
 			expanded_histograms.append(histogram_to_string(self.character_histogram))
 		else:
-			for i in range(starting_from, self.num_of_letters):
+			for i in range(starting_from, self.num_letters):
 				self.character_histogram[i] += 1
 				expanded_histograms += self.expand_wildcard_helper(i, num_wildcards_left - 1)
 				self.character_histogram[i] -= 1
@@ -62,7 +62,7 @@ class AnagramPattern:
 		new_character_histogram = list(self.character_histogram)
 		new_num_wildcards = self.num_wildcards
 		word_character_histogram = get_character_histogram(word)
-		for i in range(self.num_of_letters):
+		for i in range(self.num_letters):
 			new_character_histogram[i] -= word_character_histogram[i]
 			if new_character_histogram[i] < 0:
 				# if the pattern does not have enough characters to match the word, we try to use the wildcards to match
