@@ -1,8 +1,8 @@
-from anagram import anagram, anagram_multi
-import utils.dictionary as dictionary_utils
-from utils.dictionary import Dictionary
+from ..anagram import anagram, anagram_multi
+from ..utils import dictionary
+from ..utils.dictionary import Dictionary
 
-dictionary_utils.CURRENT_DICTIONARY = Dictionary("google-10000-english-usa")
+dictionary.CURRENT_DICTIONARY = Dictionary("google-10000-english-usa")
 
 def test_anagram_with_wildcard():
 	assert anagram("qi??") == ['ipaq', 'iraq', 'quit', 'quiz']
