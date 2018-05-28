@@ -77,8 +77,10 @@ def semaphore(position1, position2):
     """
         A flag semaphore lookup tool. Supports compass directions and clock hand positions as input.
         Example:
-            semaphore('s', 'nw') -> 'c'
-            semaphore(10, 3) -> 'y'
+        >>> semaphore('s', 'nw')
+        'c'
+        >>> semaphore(10, 3)
+        'y'
     """
     try:    
         pos1 = parse_position(position1)
