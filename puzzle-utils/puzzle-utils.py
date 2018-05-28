@@ -1,6 +1,7 @@
 from words.utils.dictionary import set_current_dictionary, PETER_NORVIG_IN_COLLINS, COLLINS_SCRABBLE_WORDS_2015, GOOGLE_10000_ENGLISH_USA
 from words.anagram import anagram, anagram_multi
 from words.search import search
+from encoders.semaphore import semaphore, semaphore_multi
 
 # Sets up tab completion
 import rlcompleter, readline
