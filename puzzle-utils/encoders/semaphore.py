@@ -95,7 +95,8 @@ def semaphore_multi(positions):
     """
         A flag semaphore lookup tool that supports multiple lookups. Supports compass directions and clock hand positions as input.
         Example:
-            semaphore_multi(['s', 'nw', 10, 3]) -> 'cy'
+        >>> semaphore_multi(['s', 'nw', 10, 3])
+        'cy'
     """
     if len(positions) % 2 == 1:
         raise ValueError('An odd number of positions were provided')
