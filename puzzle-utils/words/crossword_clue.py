@@ -24,6 +24,10 @@ def crossword_clue(clue, pattern = '', solver = 'wordplays'):
         raise ValueError('Invalid crossword clue solver')
 
 def crossword_clue_wordplays(clue, pattern = ''):
+    html = crossword_clue_wordplays_request(clue, pattern)
+    return crossword_clue_wordplays_extract(html)
+
+def crossword_clue_wordplays_request(clue, pattern = ''):
     encoded_clue = urllib.parse.quote_plus(clue)
     encoded_pattern = urllib.parse.quote_plus(pattern)
 
@@ -35,8 +39,11 @@ def crossword_clue_wordplays(clue, pattern = ''):
     response = requests.post('https://www.wordplays.com/crossword-solver/', data = data, headers = headers)
     if response.status_code < 200 or response.status_code >= 300:
         raise Exception(f"Unexpected status code was returned, {response.status_code}.")
+    
+    return response.text
 
-    soup = BeautifulSoup(response.text, 'html.parser')
+def crossword_clue_wordplays_extract(html):
+    soup = BeautifulSoup(html, 'html.parser')
     resultElements = soup.find_all('a', { 'href': re.compile('^/crossword-clues/') })
 
     results = []
@@ -46,6 +53,10 @@ def crossword_clue_wordplays(clue, pattern = ''):
     return results
 
 def crossword_clue_dictionary(clue, pattern = ''):
+    html = crossword_clue_dictionary_request(clue, pattern)
+    return crossword_clue_dictionary_extract(html)
+
+def crossword_clue_dictionary_request(clue, pattern = ''):
     encoded_clue = urllib.parse.quote_plus(clue)
     encoded_pattern = urllib.parse.quote_plus(pattern)
     pattern_length = len(pattern)
@@ -55,8 +66,11 @@ def crossword_clue_dictionary(clue, pattern = ''):
     response = requests.get(f'http://www.dictionary.com/fun/crosswordsolver?query={encoded_clue}&pattern={encoded_pattern}&l={pattern_length}')
     if response.status_code < 200 or response.status_code >= 300:
         raise Exception(f"Unexpected status code was returned, {response.status_code}.")
+    
+    return response.text
 
-    soup = BeautifulSoup(response.text, 'html.parser')
+def crossword_clue_dictionary_extract(html):
+    soup = BeautifulSoup(html, 'html.parser')
     resultElements = soup.find_all('div', { 'class': 'matching-answer' })
 
     results = []
