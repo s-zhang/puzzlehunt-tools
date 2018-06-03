@@ -1,13 +1,15 @@
 import { IFixedPresenter } from "./presenter/presenter"
 import { IRenderer, Rect } from "./renderer/renderer"
 import { PropertyPresenter, PropertyPresenterFactory } from "./presenter/propertyPresenter";
-import { ShapePresenter } from "./presenter/shapePresenter";
+import { ShapePresenter, ShapeCollectionPresenter } from "./presenter/shapePresenter";
+import { EditorView } from "./view/editorView";
 
 export interface IController {
     addPropertyMode(propertyPresenterFactory : PropertyPresenterFactory) : void
     removePropertyMode() : void
     selectShape(shapePresenter : ShapePresenter) : void
     selectProperty(propertyPresenter : PropertyPresenter) : boolean
+    selectPuzzle(presenter : ShapeCollectionPresenter, renderer : IRenderer) : void
 }
 
 export class Controller implements IController {
@@ -35,5 +37,9 @@ export class Controller implements IController {
             return true
         }
         return false
+    }
+    selectPuzzle(presenter : ShapeCollectionPresenter, renderer : IRenderer) : void {
+        let editor = new EditorView(presenter, this, renderer)
+        editor.render()
     }
 }

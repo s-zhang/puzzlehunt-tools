@@ -8,11 +8,26 @@ export abstract class GridShape extends Shape {
 export class Cell extends GridShape {
     public readonly row : number
     public readonly column : number
+    private readonly _grid : Grid
 
-    constructor(row : number, column : number) {
+    constructor(row : number, column : number, grid : Grid) {
         super()
         this.row = row
         this.column = column
+        this._grid = grid
+    }
+
+    private _adjacentCellBorders : CellBorder[] | null = null
+    get adjacentCellBorders() : CellBorder[] {
+        if (this._adjacentCellBorders == null) {
+            this._adjacentCellBorders = [
+                this._grid.horizontalCellBorders[this.row][this.column],
+                this._grid.horizontalCellBorders[this.row + 1][this.column],
+                this._grid.verticalCellBorders[this.row][this.column],
+                this._grid.verticalCellBorders[this.row][this.column + 1]
+            ]
+        }
+        return this._adjacentCellBorders
     }
 }
 
@@ -78,16 +93,23 @@ export class VerticalCellBorder extends CellBorder {
 }
 
 export class GridIntersection extends GridShape {
-
+    public readonly row : number
+    public readonly column : number
+    constructor(row : number, column : number) {
+        super()
+        this.row = row
+        this.column = column
+    }
 }
 
 export class Grid implements IShapeCollection<GridShape> {
     public readonly rows : Cell[][]
     public readonly columns : Cell[][]
     public readonly cells : Cell[]
-    public readonly horizontalCellBorders : HorizontalCellBorder[]
-    public readonly verticalCellBorders : VerticalCellBorder[]
+    public readonly horizontalCellBorders : HorizontalCellBorder[][]
+    public readonly verticalCellBorders : VerticalCellBorder[][]
     public readonly cellBorders : CellBorder[]
+    public readonly intersections : GridIntersection[]
     public readonly _shapeCollection : IShapeCollection<GridShape>
     constructor(width : number, height : number) {
         this.cells = new Array<Cell>(width * height)
@@ -95,27 +117,10 @@ export class Grid implements IShapeCollection<GridShape> {
         for (let i = 0; i < height; i++) {
             this.rows[i] = new Array<Cell>(width)
             for (let j = 0; j < width; j++) {
-                this.rows[i][j] = new Cell(i, j)
+                this.rows[i][j] = new Cell(i, j, this)
                 this.cells[i * width + j] = this.rows[i][j]
             }
         }
-        
-        this.horizontalCellBorders = new Array<HorizontalCellBorder>()
-        for (let i = 0; i < height + 1; i++) {
-            for (let j = 0; j < width; j++) {
-                this.horizontalCellBorders.push(new HorizontalCellBorder(i, j, j + 1, this))
-            }
-        }
-        this.verticalCellBorders = new Array<VerticalCellBorder>()
-        for (let i = 0; i < height; i++) {
-            for (let j = 0; j < width + 1; j++) {
-                this.verticalCellBorders.push(new VerticalCellBorder(i, i + 1, j, this))
-            }
-        }
-        this.cellBorders = new Array<CellBorder>()
-        this.cellBorders = this.cellBorders.concat(this.horizontalCellBorders)
-        this.cellBorders = this.cellBorders.concat(this.verticalCellBorders)
-
         this.columns = new Array<Array<Cell>>(width)
         for (let i = 0; i < width; i++) {
             this.columns[i] = new Array<Cell>(height)
@@ -123,11 +128,38 @@ export class Grid implements IShapeCollection<GridShape> {
                 this.columns[i][j] = this.rows[j][i]
             }
         }
+        
+        this.cellBorders = new Array<CellBorder>()
+        this.horizontalCellBorders = new Array<Array<HorizontalCellBorder>>(height + 1)
+        for (let i = 0; i < height + 1; i++) {
+            this.horizontalCellBorders[i] = new Array<HorizontalCellBorder>(width)
+            for (let j = 0; j < width; j++) {
+                let cellBorder = new HorizontalCellBorder(i, j, j + 1, this)
+                this.horizontalCellBorders[i][j] = cellBorder
+                this.cellBorders.push(cellBorder)
+            }
+        }
+        this.verticalCellBorders = new Array<Array<VerticalCellBorder>>(height)
+        for (let i = 0; i < height; i++) {
+            this.verticalCellBorders[i] = new Array<VerticalCellBorder>(width + 1)
+            for (let j = 0; j < width + 1; j++) {
+                let cellBorder = new VerticalCellBorder(i, i + 1, j, this)
+                this.verticalCellBorders[i][j] = cellBorder
+                this.cellBorders.push(cellBorder)
+            }
+        }
+
+        this.intersections = new Array<GridIntersection>()
+        for (let i = 0; i < height + 1; i++) {
+            for (let j = 0; j < width + 1; j++) {
+                this.intersections.push(new GridIntersection(i, j))
+            }
+        }
 
         let gridShapes = new Array<GridShape>()
         gridShapes = gridShapes.concat(this.cells)
-        gridShapes = gridShapes.concat(this.horizontalCellBorders)
-        gridShapes = gridShapes.concat(this.verticalCellBorders)
+        gridShapes = gridShapes.concat(this.cellBorders)
+        gridShapes = gridShapes.concat(this.intersections)
         this._shapeCollection = new ShapeCollection<GridShape>(gridShapes)
     }
     addRowConstraint(constraint: (cells: Cell[]) => ConstraintCheckResult): void {
@@ -138,6 +170,12 @@ export class Grid implements IShapeCollection<GridShape> {
     addColumnConstraint(constraint: (cells: Cell[]) => ConstraintCheckResult): void {
         for (let column of this.columns) {
             this.constraints.push(new ShapesConstraint<Cell>(column, constraint))
+        }
+    }
+    addCellConstraint(constraint: (cell: Cell) => ConstraintCheckResult): void {
+        for (let cell of this.cells) {
+            this.constraints.push(new ShapesConstraint<Cell>([cell],
+                (cells : Cell[]) => constraint(cells[0])))
         }
     }
     addCellBorderConstraint(constraint: (cellBoarder : CellBorder) => ConstraintCheckResult): void {
@@ -153,9 +191,9 @@ export class Grid implements IShapeCollection<GridShape> {
     public get constraints() : IConstraint[] {
         return this._shapeCollection.constraints
     }
-    public get propertyNames() : Set<string> {
+    /*public get propertyNames() : Set<string> {
         return this._shapeCollection.propertyNames
-    }
+    }*/
     public areConstraintsSatisfied() : ConstraintSatifaction {
         return this._shapeCollection.areConstraintsSatisfied()
     }

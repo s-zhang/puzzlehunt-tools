@@ -33,20 +33,12 @@ export interface IFlexiblePresenter {
     erase() : void
 }
 
-export abstract class FlexiblePresenter implements IFlexiblePresenter {
-    protected renderedObject : IRenderedObject
-    public readonly renderLayer : number[]
+export abstract class FlexiblePresenter extends Presenter implements IFlexiblePresenter {
     constructor(renderLayer : number[]) {
-        this.renderedObject = NotRenderedObject
-        this.renderLayer = renderLayer
-    }
-    protected eraseRenderedObject() : void {
-        this.renderedObject.erase()
-        this.renderedObject = NotRenderedObject
+        super(renderLayer, true)
     }
 
     abstract present(renderer: IRenderer, boudingBox : Rect): void
-    abstract erase(): void
 }
 
 export interface IMarkablePresenter {

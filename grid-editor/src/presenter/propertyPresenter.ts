@@ -1,5 +1,5 @@
 import { Property } from "../model/property"
-import { IRenderer, Rect, IRenderedObject, NO_BOUNDING_BOX } from "../renderer/renderer"
+import { IRenderer, Rect, IRenderedObject } from "../renderer/renderer"
 import { FlexiblePresenter, IFlexiblePresenter, IMarkablePresenter } from "./presenter";
 import { ShapePresenter } from "./shapePresenter";
 import { IController } from "../controller";
@@ -31,7 +31,7 @@ export abstract class PropertyPresenter extends FlexiblePresenter implements IFl
         })
     }
     erase() : void {
-        this.eraseRenderedObject()
+        this.eraseSelf()
         this._isViolationMarked = false
     }
     markForViolation() : void {
@@ -57,10 +57,13 @@ export interface IPropertyPresenterConstructor {
 
 export class PropertyPresenterFactory {
     private readonly _propertyPresenterConstructor : IPropertyPresenterConstructor
-    readonly property : Property
-    constructor(propertyPresenterConstructor : IPropertyPresenterConstructor, property : Property) {
+    public readonly property : Property
+    public readonly keyboardSelectShortcut : string | null
+    public constructor(propertyPresenterConstructor : IPropertyPresenterConstructor, property : Property,
+        keyboardSelectShortcut : string | null = null) {
         this._propertyPresenterConstructor = propertyPresenterConstructor
         this.property = property
+        this.keyboardSelectShortcut = keyboardSelectShortcut
     }
     createFromProperty(parentShapePresenter : ShapePresenter, controller : IController) : PropertyPresenter {
         return new this._propertyPresenterConstructor(this.property, parentShapePresenter, controller)

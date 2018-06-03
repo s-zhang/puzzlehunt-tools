@@ -38614,6 +38614,7 @@ return jQuery;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const editorView_1 = __webpack_require__(/*! ./view/editorView */ "./src/view/editorView.ts");
 class Controller {
     constructor() {
         this._selectedProperty = null;
@@ -38640,6 +38641,10 @@ class Controller {
         }
         return false;
     }
+    selectPuzzle(presenter, renderer) {
+        let editor = new editorView_1.EditorView(presenter, this, renderer);
+        editor.render();
+    }
 }
 exports.Controller = Controller;
 
@@ -38657,27 +38662,34 @@ exports.Controller = Controller;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
-const sudoku_1 = __webpack_require__(/*! ./model/shapes/sudoku */ "./src/model/shapes/sudoku.ts");
 const d3Renderer_1 = __webpack_require__(/*! ./renderer/d3Renderer */ "./src/renderer/d3Renderer.ts");
-const gridCellPresenter_1 = __webpack_require__(/*! ./presenter/shapePresenters/gridCellPresenter */ "./src/presenter/shapePresenters/gridCellPresenter.ts");
-const property_1 = __webpack_require__(/*! ./model/property */ "./src/model/property.ts");
-const textPropertyPresenter_1 = __webpack_require__(/*! ./presenter/propertyPresenters/textPropertyPresenter */ "./src/presenter/propertyPresenters/textPropertyPresenter.ts");
 const controller_1 = __webpack_require__(/*! ./controller */ "./src/controller.ts");
-const propertyPresenter_1 = __webpack_require__(/*! ./presenter/propertyPresenter */ "./src/presenter/propertyPresenter.ts");
-const uiView_1 = __webpack_require__(/*! ./uiView */ "./src/uiView.ts");
+const boardSelectorView_1 = __webpack_require__(/*! ./view/boardSelectorView */ "./src/view/boardSelectorView.ts");
 $(() => {
-    let sudoku = new sudoku_1.SudokuGrid();
-    let renderer = new d3Renderer_1.D3Renderer();
     let controller = new controller_1.Controller();
-    let presenter = new gridCellPresenter_1.GridPresenter(sudoku, controller);
-    let initialPropertyPresenters = new Array();
+    let renderer = new d3Renderer_1.D3Renderer();
+    let selector = new boardSelectorView_1.BoardSelectorView(controller, renderer);
+    selector.render();
+    /*let sudoku = new SudokuGrid()
+    let slitherLink = new SlitherLinkGrid()
+    let renderer = new D3Renderer()
+    let controller = new Controller()
+    //let presenter = new GridPresenter(sudoku, controller)
+    let presenter = new GridPresenter(slitherLink, controller)
+    presenter.presentCellBorders = false
+    
+    
     for (let i = 1; i <= 9; i++) {
-        let property = new property_1.Property(i.toString());
-        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property);
-        initialPropertyPresenters.push(propertyPresenter);
+        let property = new Property(i.toString())
+        let propertyPresenter = new PropertyPresenterFactory(TextPropertyPresenter, property)
+        presenter.propertyPresenterFactories.push(propertyPresenter)
     }
-    let ui = new uiView_1.UIView(presenter, initialPropertyPresenters, controller, renderer);
-    ui.render();
+    let property = new Property("line")
+    let propertyPresenter = new PropertyPresenterFactory(LinePropertyPresenter, property)
+    presenter.propertyPresenterFactories.push(propertyPresenter)
+    
+    let ui = new EditorView(presenter, controller, renderer)
+    ui.render()*/
 });
 
 
@@ -38790,8 +38802,9 @@ class ShapeCollection {
     constructor(shapes) {
         this.shapes = shapes;
         this.constraints = new Array();
-        this.propertyNames = new Set();
+        //this.propertyNames = new Set<string>()
     }
+    //public readonly propertyNames : Set<string>
     areConstraintsSatisfied() {
         let satisfaction = constraint_1.ConstraintSatifaction.Satisfied;
         for (let constraint of this.constraints) {
@@ -38821,10 +38834,23 @@ class GridShape extends shape_1.Shape {
 }
 exports.GridShape = GridShape;
 class Cell extends GridShape {
-    constructor(row, column) {
+    constructor(row, column, grid) {
         super();
+        this._adjacentCellBorders = null;
         this.row = row;
         this.column = column;
+        this._grid = grid;
+    }
+    get adjacentCellBorders() {
+        if (this._adjacentCellBorders == null) {
+            this._adjacentCellBorders = [
+                this._grid.horizontalCellBorders[this.row][this.column],
+                this._grid.horizontalCellBorders[this.row + 1][this.column],
+                this._grid.verticalCellBorders[this.row][this.column],
+                this._grid.verticalCellBorders[this.row][this.column + 1]
+            ];
+        }
+        return this._adjacentCellBorders;
     }
 }
 exports.Cell = Cell;
@@ -38881,6 +38907,11 @@ class VerticalCellBorder extends CellBorder {
 }
 exports.VerticalCellBorder = VerticalCellBorder;
 class GridIntersection extends GridShape {
+    constructor(row, column) {
+        super();
+        this.row = row;
+        this.column = column;
+    }
 }
 exports.GridIntersection = GridIntersection;
 class Grid {
@@ -38890,25 +38921,10 @@ class Grid {
         for (let i = 0; i < height; i++) {
             this.rows[i] = new Array(width);
             for (let j = 0; j < width; j++) {
-                this.rows[i][j] = new Cell(i, j);
+                this.rows[i][j] = new Cell(i, j, this);
                 this.cells[i * width + j] = this.rows[i][j];
             }
         }
-        this.horizontalCellBorders = new Array();
-        for (let i = 0; i < height + 1; i++) {
-            for (let j = 0; j < width; j++) {
-                this.horizontalCellBorders.push(new HorizontalCellBorder(i, j, j + 1, this));
-            }
-        }
-        this.verticalCellBorders = new Array();
-        for (let i = 0; i < height; i++) {
-            for (let j = 0; j < width + 1; j++) {
-                this.verticalCellBorders.push(new VerticalCellBorder(i, i + 1, j, this));
-            }
-        }
-        this.cellBorders = new Array();
-        this.cellBorders = this.cellBorders.concat(this.horizontalCellBorders);
-        this.cellBorders = this.cellBorders.concat(this.verticalCellBorders);
         this.columns = new Array(width);
         for (let i = 0; i < width; i++) {
             this.columns[i] = new Array(height);
@@ -38916,10 +38932,35 @@ class Grid {
                 this.columns[i][j] = this.rows[j][i];
             }
         }
+        this.cellBorders = new Array();
+        this.horizontalCellBorders = new Array(height + 1);
+        for (let i = 0; i < height + 1; i++) {
+            this.horizontalCellBorders[i] = new Array(width);
+            for (let j = 0; j < width; j++) {
+                let cellBorder = new HorizontalCellBorder(i, j, j + 1, this);
+                this.horizontalCellBorders[i][j] = cellBorder;
+                this.cellBorders.push(cellBorder);
+            }
+        }
+        this.verticalCellBorders = new Array(height);
+        for (let i = 0; i < height; i++) {
+            this.verticalCellBorders[i] = new Array(width + 1);
+            for (let j = 0; j < width + 1; j++) {
+                let cellBorder = new VerticalCellBorder(i, i + 1, j, this);
+                this.verticalCellBorders[i][j] = cellBorder;
+                this.cellBorders.push(cellBorder);
+            }
+        }
+        this.intersections = new Array();
+        for (let i = 0; i < height + 1; i++) {
+            for (let j = 0; j < width + 1; j++) {
+                this.intersections.push(new GridIntersection(i, j));
+            }
+        }
         let gridShapes = new Array();
         gridShapes = gridShapes.concat(this.cells);
-        gridShapes = gridShapes.concat(this.horizontalCellBorders);
-        gridShapes = gridShapes.concat(this.verticalCellBorders);
+        gridShapes = gridShapes.concat(this.cellBorders);
+        gridShapes = gridShapes.concat(this.intersections);
         this._shapeCollection = new shape_1.ShapeCollection(gridShapes);
     }
     addRowConstraint(constraint) {
@@ -38930,6 +38971,11 @@ class Grid {
     addColumnConstraint(constraint) {
         for (let column of this.columns) {
             this.constraints.push(new constraint_1.ShapesConstraint(column, constraint));
+        }
+    }
+    addCellConstraint(constraint) {
+        for (let cell of this.cells) {
+            this.constraints.push(new constraint_1.ShapesConstraint([cell], (cells) => constraint(cells[0])));
         }
     }
     addCellBorderConstraint(constraint) {
@@ -38943,14 +38989,56 @@ class Grid {
     get constraints() {
         return this._shapeCollection.constraints;
     }
-    get propertyNames() {
-        return this._shapeCollection.propertyNames;
-    }
+    /*public get propertyNames() : Set<string> {
+        return this._shapeCollection.propertyNames
+    }*/
     areConstraintsSatisfied() {
         return this._shapeCollection.areConstraintsSatisfied();
     }
 }
 exports.Grid = Grid;
+
+
+/***/ }),
+
+/***/ "./src/model/shapes/slitherLink.ts":
+/*!*****************************************!*\
+  !*** ./src/model/shapes/slitherLink.ts ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const gridCell_1 = __webpack_require__(/*! ./gridCell */ "./src/model/shapes/gridCell.ts");
+const constraint_1 = __webpack_require__(/*! ../constraint */ "./src/model/constraint.ts");
+const SIDE_LENGTH = 9;
+class SlitherLinkGrid extends gridCell_1.Grid {
+    constructor(width, height) {
+        super(width, height);
+        this.addCellConstraint(this._borderConstraint);
+    }
+    _borderConstraint(cell) {
+        let bordersWithLine = new Array();
+        for (let cellBorder of cell.adjacentCellBorders) {
+            if (cellBorder.property != null && cellBorder.property.name == "line") {
+                bordersWithLine.push([cellBorder, cellBorder.property]);
+            }
+        }
+        if (cell.property != null) {
+            let numLinedBorders = Number(cell.property.name);
+            if (numLinedBorders < bordersWithLine.length) {
+                return new constraint_1.ConstraintCheckResult(false, bordersWithLine);
+            }
+            else if (numLinedBorders > bordersWithLine.length) {
+                return new constraint_1.ConstraintCheckResult(false, []);
+            }
+        }
+        return new constraint_1.ConstraintCheckResult(true, []);
+    }
+}
+exports.SlitherLinkGrid = SlitherLinkGrid;
 
 
 /***/ }),
@@ -38983,9 +39071,9 @@ class SudokuGrid extends gridCell_1.Grid {
                 this._blocks[i][j] = this.rows[row][column];
             }
         }
-        for (let i = 1; i <= SIDE_LENGTH; i++) {
-            this.propertyNames.add(i.toString());
-        }
+        /*for (let i = 1; i <= SIDE_LENGTH; i++) {
+            this.propertyNames.add(i.toString())
+        }*/
         this.addRowConstraint(this._sudokuConstraint);
         this.addColumnConstraint(this._sudokuConstraint);
         for (let block of this.blocks) {
@@ -39105,14 +39193,9 @@ class FixedPresenter extends Presenter {
     }
 }
 exports.FixedPresenter = FixedPresenter;
-class FlexiblePresenter {
+class FlexiblePresenter extends Presenter {
     constructor(renderLayer) {
-        this.renderedObject = renderer_1.NotRenderedObject;
-        this.renderLayer = renderLayer;
-    }
-    eraseRenderedObject() {
-        this.renderedObject.erase();
-        this.renderedObject = renderer_1.NotRenderedObject;
+        super(renderLayer, true);
     }
 }
 exports.FlexiblePresenter = FlexiblePresenter;
@@ -39153,7 +39236,7 @@ class PropertyPresenter extends presenter_1.FlexiblePresenter {
         });
     }
     erase() {
-        this.eraseRenderedObject();
+        this.eraseSelf();
         this._isViolationMarked = false;
     }
     markForViolation() {
@@ -39173,15 +39256,41 @@ class PropertyPresenter extends presenter_1.FlexiblePresenter {
 }
 exports.PropertyPresenter = PropertyPresenter;
 class PropertyPresenterFactory {
-    constructor(propertyPresenterConstructor, property) {
+    constructor(propertyPresenterConstructor, property, keyboardSelectShortcut = null) {
         this._propertyPresenterConstructor = propertyPresenterConstructor;
         this.property = property;
+        this.keyboardSelectShortcut = keyboardSelectShortcut;
     }
     createFromProperty(parentShapePresenter, controller) {
         return new this._propertyPresenterConstructor(this.property, parentShapePresenter, controller);
     }
 }
 exports.PropertyPresenterFactory = PropertyPresenterFactory;
+
+
+/***/ }),
+
+/***/ "./src/presenter/propertyPresenters/linePropertyPresenter.ts":
+/*!*******************************************************************!*\
+  !*** ./src/presenter/propertyPresenters/linePropertyPresenter.ts ***!
+  \*******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
+class LinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderRectangle(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height, this.renderLayer, "black");
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return "l";
+    }
+}
+exports.LinePropertyPresenter = LinePropertyPresenter;
 
 
 /***/ }),
@@ -39200,6 +39309,9 @@ const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./s
 class TextPropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
         return renderer.renderText(this.property.name, boundingBox, this.renderLayer);
+    }
+    static getKeyboardSelectShortcut(property) {
+        return property.name.substr(0, 1);
     }
 }
 exports.TextPropertyPresenter = TextPropertyPresenter;
@@ -39302,6 +39414,7 @@ class ShapeCollectionPresenter {
     constructor() {
         this.shapePresenters = new Map();
         this.constraintPresenters = new Array();
+        this.propertyPresenterFactories = new Array();
     }
     setPresentSelf(shapes, present) {
         for (let shape of shapes) {
@@ -39337,6 +39450,45 @@ exports.ShapeCollectionPresenter = ShapeCollectionPresenter;
 
 /***/ }),
 
+/***/ "./src/presenter/shapePresenters/customGridPresenter.ts":
+/*!**************************************************************!*\
+  !*** ./src/presenter/shapePresenters/customGridPresenter.ts ***!
+  \**************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const gridCellPresenter_1 = __webpack_require__(/*! ./gridCellPresenter */ "./src/presenter/shapePresenters/gridCellPresenter.ts");
+const gridCell_1 = __webpack_require__(/*! ../../model/shapes/gridCell */ "./src/model/shapes/gridCell.ts");
+const property_1 = __webpack_require__(/*! ../../model/property */ "./src/model/property.ts");
+const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
+const textPropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/textPropertyPresenter */ "./src/presenter/propertyPresenters/textPropertyPresenter.ts");
+const linePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/linePropertyPresenter */ "./src/presenter/propertyPresenters/linePropertyPresenter.ts");
+class CustomGridPresenter extends gridCellPresenter_1.GridPresenter {
+    constructor(width, height, controller) {
+        super(new gridCell_1.Grid(width, height), controller);
+        for (let i = 0; i <= 9; i++) {
+            let property = new property_1.Property(i.toString());
+            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
+            this.propertyPresenterFactories.push(propertyPresenter);
+        }
+        for (let letter of ["A", "B", "C", "D", "E", "X", "Y", "Z"]) {
+            let property = new property_1.Property(letter);
+            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
+            this.propertyPresenterFactories.push(propertyPresenter);
+        }
+        let property = new property_1.Property("line");
+        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(linePropertyPresenter_1.LinePropertyPresenter, property, linePropertyPresenter_1.LinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+    }
+}
+exports.CustomGridPresenter = CustomGridPresenter;
+
+
+/***/ }),
+
 /***/ "./src/presenter/shapePresenters/gridCellPresenter.ts":
 /*!************************************************************!*\
   !*** ./src/presenter/shapePresenters/gridCellPresenter.ts ***!
@@ -39360,18 +39512,13 @@ class SqaureCellPresenter extends shapePresenter_1.ShapePresenter {
         return renderer_1.NotRenderedObject;
     }
     presentSelectObject(renderer) {
-        let renderedObject = renderer.renderRectangle(this._cell.column * this._sideLength, this._cell.row * this._sideLength, this._sideLength, this._sideLength, this.renderLayer.concat(1));
+        let renderedObject = renderer.renderRectangle(this._cell.column * this._sideLength, this._cell.row * this._sideLength, this._sideLength, this._sideLength, this.renderLayer.concat(1), "none");
         //renderedObject.makeTransparent()
         return renderedObject;
     }
     getBoundingBoxes(numBoxes) {
-        if (numBoxes == 0) {
-            return new Array();
-        }
-        else if (numBoxes == 1) {
-            return [this._rect];
-        }
-        throw new Error("Cannot handle multiple properties in one cell yet.");
+        // Do this for now
+        return this._rect.divide(1, numBoxes);
     }
 }
 exports.SqaureCellPresenter = SqaureCellPresenter;
@@ -39380,15 +39527,40 @@ class CellBorderPresenter extends shapePresenter_1.ShapePresenter {
         super(cellBorder, renderLayer, affectedConstraints, controller);
         this._cellBorder = cellBorder;
         this._sideLength = sideLength;
+        this._boudingBox = new renderer_1.Rect(cellBorder.fromColumn * sideLength - 4, cellBorder.fromRow * sideLength - 4, (cellBorder.toColumn - cellBorder.fromColumn) * sideLength + 8, (cellBorder.toRow - cellBorder.fromRow) * sideLength + 8);
     }
     presentSelf(renderer) {
         return renderer.renderLine(this._cellBorder.fromColumn * this._sideLength, this._cellBorder.fromRow * this._sideLength, this._cellBorder.toColumn * this._sideLength, this._cellBorder.toRow * this._sideLength, this.renderLayer.concat(0));
     }
     presentSelectObject(renderer) {
-        let mouseEventObject = renderer.renderRectangle(this._cellBorder.fromColumn * this._sideLength - 3, this._cellBorder.fromRow * this._sideLength - 3, (this._cellBorder.toColumn - this._cellBorder.fromColumn) * this._sideLength + 6, (this._cellBorder.toRow - this._cellBorder.fromRow) * this._sideLength + 6, this.renderLayer.concat(1));
-        mouseEventObject.makeTransparent();
-        return mouseEventObject;
-        //return NotRenderedObject
+        let selectObject = renderer.renderRectangle(this._boudingBox.x, this._boudingBox.y, this._boudingBox.width, this._boudingBox.height, this.renderLayer.concat(1), "none");
+        selectObject.makeTransparent();
+        return selectObject;
+    }
+    getBoundingBoxes(numBoxes) {
+        let boudingBoxes = new Array();
+        if (this._boudingBox.height > this._boudingBox.width) {
+            return this._boudingBox.divide(numBoxes, 1);
+        }
+        else {
+            return this._boudingBox.divide(1, numBoxes);
+        }
+    }
+}
+exports.CellBorderPresenter = CellBorderPresenter;
+class GridIntersectionPresenter extends shapePresenter_1.ShapePresenter {
+    constructor(intersection, sideLength, renderLayer, affectedConstraints, controller) {
+        super(intersection, renderLayer, affectedConstraints, controller);
+        this._intersection = intersection;
+        this._sideLength = sideLength;
+    }
+    presentSelf(renderer) {
+        return renderer.renderCircle(this._intersection.column * this._sideLength, this._intersection.row * this._sideLength, 3, this.renderLayer.concat(0));
+    }
+    presentSelectObject(renderer) {
+        let selectObject = renderer.renderCircle(this._intersection.column * this._sideLength, this._intersection.row * this._sideLength, 7, this.renderLayer.concat(1));
+        selectObject.makeTransparent();
+        return selectObject;
     }
     getBoundingBoxes(numBoxes) {
         if (numBoxes != 0) {
@@ -39397,7 +39569,7 @@ class CellBorderPresenter extends shapePresenter_1.ShapePresenter {
         return new Array();
     }
 }
-exports.CellBorderPresenter = CellBorderPresenter;
+exports.GridIntersectionPresenter = GridIntersectionPresenter;
 class GridPresenter extends shapePresenter_1.ShapeCollectionPresenter {
     constructor(grid, controller) {
         super();
@@ -39412,6 +39584,9 @@ class GridPresenter extends shapePresenter_1.ShapeCollectionPresenter {
         for (let cellBorder of grid.cellBorders) {
             this.addShapePresenter(cellBorder, new CellBorderPresenter(cellBorder, this._sideLength, [1], this.constraintPresenters, controller));
         }
+        for (let intersection of grid.intersections) {
+            this.addShapePresenter(intersection, new GridIntersectionPresenter(intersection, this._sideLength, [2], this.constraintPresenters, controller));
+        }
     }
     set presentCells(present) {
         this.setPresentSelf(this._grid.cells, present);
@@ -39419,8 +39594,80 @@ class GridPresenter extends shapePresenter_1.ShapeCollectionPresenter {
     set presentCellBorders(present) {
         this.setPresentSelf(this._grid.cellBorders, present);
     }
+    set presentIntersections(present) {
+        this.setPresentSelf(this._grid.intersections, present);
+    }
 }
 exports.GridPresenter = GridPresenter;
+
+
+/***/ }),
+
+/***/ "./src/presenter/shapePresenters/slitherLinkPresenter.ts":
+/*!***************************************************************!*\
+  !*** ./src/presenter/shapePresenters/slitherLinkPresenter.ts ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const gridCellPresenter_1 = __webpack_require__(/*! ./gridCellPresenter */ "./src/presenter/shapePresenters/gridCellPresenter.ts");
+const slitherLink_1 = __webpack_require__(/*! ../../model/shapes/slitherLink */ "./src/model/shapes/slitherLink.ts");
+const property_1 = __webpack_require__(/*! ../../model/property */ "./src/model/property.ts");
+const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
+const textPropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/textPropertyPresenter */ "./src/presenter/propertyPresenters/textPropertyPresenter.ts");
+const linePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/linePropertyPresenter */ "./src/presenter/propertyPresenters/linePropertyPresenter.ts");
+class SlitherLinkPresenter extends gridCellPresenter_1.GridPresenter {
+    constructor(width, height, controller) {
+        super(new slitherLink_1.SlitherLinkGrid(width, height), controller);
+        this.presentCellBorders = false;
+        for (let i = 0; i <= 4; i++) {
+            let property = new property_1.Property(i.toString());
+            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
+            this.propertyPresenterFactories.push(propertyPresenter);
+        }
+        let property = new property_1.Property("line");
+        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(linePropertyPresenter_1.LinePropertyPresenter, property, linePropertyPresenter_1.LinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("X");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+    }
+}
+exports.SlitherLinkPresenter = SlitherLinkPresenter;
+
+
+/***/ }),
+
+/***/ "./src/presenter/shapePresenters/sudokuPresenter.ts":
+/*!**********************************************************!*\
+  !*** ./src/presenter/shapePresenters/sudokuPresenter.ts ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const gridCellPresenter_1 = __webpack_require__(/*! ./gridCellPresenter */ "./src/presenter/shapePresenters/gridCellPresenter.ts");
+const sudoku_1 = __webpack_require__(/*! ../../model/shapes/sudoku */ "./src/model/shapes/sudoku.ts");
+const property_1 = __webpack_require__(/*! ../../model/property */ "./src/model/property.ts");
+const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
+const textPropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/textPropertyPresenter */ "./src/presenter/propertyPresenters/textPropertyPresenter.ts");
+class SudokuPresenter extends gridCellPresenter_1.GridPresenter {
+    constructor(controller) {
+        super(new sudoku_1.SudokuGrid(), controller);
+        this.presentIntersections = false;
+        for (let i = 1; i <= 9; i++) {
+            let property = new property_1.Property(i.toString());
+            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
+            this.propertyPresenterFactories.push(propertyPresenter);
+        }
+    }
+}
+exports.SudokuPresenter = SudokuPresenter;
 
 
 /***/ }),
@@ -39453,17 +39700,22 @@ class D3Renderer {
     get renderArea() {
         return this._renderArea;
     }
-    renderCircle(x, y, radius) {
-        throw new Error("Method not implemented.");
+    renderCircle(x, y, radius, layer) {
+        return new D3RenderedObject(this.getLayer(layer).append("circle")
+            .attr("cx", this._xOffset + x)
+            .attr("cy", this._yOffset + y)
+            .attr("r", radius)
+            .attr("pointer-events", "all")
+            .style("fill", "black"));
     }
-    renderRectangle(x, y, width, height, layer) {
+    renderRectangle(x, y, width, height, layer, color) {
         return new D3RenderedObject(this.getLayer(layer).append("rect")
             .attr("x", this._xOffset + x)
             .attr("y", this._yOffset + y)
             .attr("width", width)
             .attr("height", height)
             .attr("pointer-events", "all")
-            .style("fill", "none")
+            .style("fill", color)
             .style("stroke", "none"));
     }
     renderLine(fromX, fromY, toX, toY, layer) {
@@ -39481,7 +39733,9 @@ class D3Renderer {
         return new JQueryRenderedObject(line)*/
     }
     renderText(text, boundingBox, layer) {
-        let fontSize = 32;
+        //let fontSize = 15
+        //let fontSize = 32
+        let fontSize = (32 - 15) / (50 - 8) * (boundingBox.minSide - 50) + 32;
         return new D3RenderedObject(this.getLayer(layer).append("text")
             .attr("x", this._xOffset + boundingBox.centerX)
             .attr("y", this._yOffset + boundingBox.centerY + Math.floor(fontSize / 2) - 3)
@@ -39620,9 +39874,22 @@ class Rect {
     get centerY() {
         return this.y + Math.floor(this.height / 2);
     }
+    divide(rows, columns) {
+        let subRects = new Array();
+        let subRectWidth = this.width / columns;
+        let subRectHeight = this.height / rows;
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                subRects.push(new Rect(this.x + subRectWidth * j, this.y + subRectHeight * i, subRectWidth, subRectHeight));
+            }
+        }
+        return subRects;
+    }
+    get minSide() {
+        return this.width < this.height ? this.width : this.height;
+    }
 }
 exports.Rect = Rect;
-exports.NO_BOUNDING_BOX = new Rect(-1, -1, -1, -1);
 exports.NotRenderedObject = {
     onclick(handler) {
         ThrowObjectNotRenderedError();
@@ -39647,34 +39914,110 @@ function ThrowObjectNotRenderedError() {
 
 /***/ }),
 
-/***/ "./src/uiView.ts":
-/*!***********************!*\
-  !*** ./src/uiView.ts ***!
-  \***********************/
+/***/ "./src/view/boardSelectorView.ts":
+/*!***************************************!*\
+  !*** ./src/view/boardSelectorView.ts ***!
+  \***************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-class UIView {
-    constructor(shapeCollectionPresenter, initialPropertyPresenters, controller, renderer) {
-        this._shapeCollectionPresenter = shapeCollectionPresenter;
-        this._initialPropertyPresenters = initialPropertyPresenters;
-        this._controller = controller;
-        this._renderer = renderer;
-    }
+const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+const view_1 = __webpack_require__(/*! ./view */ "./src/view/view.ts");
+const sudokuPresenter_1 = __webpack_require__(/*! ../presenter/shapePresenters/sudokuPresenter */ "./src/presenter/shapePresenters/sudokuPresenter.ts");
+const slitherLinkPresenter_1 = __webpack_require__(/*! ../presenter/shapePresenters/slitherLinkPresenter */ "./src/presenter/shapePresenters/slitherLinkPresenter.ts");
+const customGridPresenter_1 = __webpack_require__(/*! ../presenter/shapePresenters/customGridPresenter */ "./src/presenter/shapePresenters/customGridPresenter.ts");
+class BoardSelectorView extends view_1.View {
     render() {
-        this._shapeCollectionPresenter.present(this._renderer);
-        for (let propertyPresenter of this._initialPropertyPresenters) {
-            let propertySelectorButton = this._renderer.renderButton(propertyPresenter.property.name, "toolbar");
-            propertySelectorButton.onclick(() => this._controller.addPropertyMode(propertyPresenter));
-        }
-        let propertyRemoveButton = this._renderer.renderButton("remove", "toolbar");
-        propertyRemoveButton.onclick(() => this._controller.removePropertyMode());
+        let button = $(`<input type="button" value="Sudoku" />`);
+        button.click(() => this._selectPuzzle(new sudokuPresenter_1.SudokuPresenter(this.controller)));
+        button.appendTo($("#selector"));
+        button = $(`<input type="button" value="SlitherLink" />`);
+        button.click(() => this._selectPuzzle(new slitherLinkPresenter_1.SlitherLinkPresenter(Number($("#boardWidth").val()), Number($("#boardHeight").val()), this.controller)));
+        button.appendTo($("#selector"));
+        button = $(`<input type="button" value="Custom" />`);
+        button.click(() => this._selectPuzzle(new customGridPresenter_1.CustomGridPresenter(Number($("#boardWidth").val()), Number($("#boardHeight").val()), this.controller)));
+        button.appendTo($("#selector"));
+        $("#selector")
+            .append("Size: ")
+            .append('<input id="boardWidth" type="text" />')
+            .append("wide by ")
+            .append('<input id="boardHeight" type="text" />')
+            .append("high");
+    }
+    _selectPuzzle(shapeCollectionPresenter) {
+        this.controller.selectPuzzle(shapeCollectionPresenter, this.renderer);
+        $("#selector").remove();
     }
 }
-exports.UIView = UIView;
+exports.BoardSelectorView = BoardSelectorView;
+
+
+/***/ }),
+
+/***/ "./src/view/editorView.ts":
+/*!********************************!*\
+  !*** ./src/view/editorView.ts ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+const view_1 = __webpack_require__(/*! ./view */ "./src/view/view.ts");
+class EditorView extends view_1.View {
+    constructor(shapeCollectionPresenter, controller, renderer) {
+        super(controller, renderer);
+        this._shapeCollectionPresenter = shapeCollectionPresenter;
+    }
+    render() {
+        this._shapeCollectionPresenter.present(this.renderer);
+        for (let propertyPresenter of this._shapeCollectionPresenter.propertyPresenterFactories) {
+            let propertySelectorButton = this.renderer.renderButton(propertyPresenter.property.name, "toolbar");
+            propertySelectorButton.onclick(() => this.controller.addPropertyMode(propertyPresenter));
+            if (propertyPresenter.keyboardSelectShortcut != null) {
+                $(document).keypress(event => {
+                    if (event.which == propertyPresenter.keyboardSelectShortcut.toLowerCase().charCodeAt(0)) {
+                        this.controller.addPropertyMode(propertyPresenter);
+                    }
+                });
+            }
+        }
+        let propertyRemoveButton = this.renderer.renderButton("remove", "toolbar");
+        propertyRemoveButton.onclick(() => this.controller.removePropertyMode());
+        $(document).keypress(event => {
+            if (event.which == "r".charCodeAt(0)) {
+                this.controller.removePropertyMode();
+            }
+        });
+    }
+}
+exports.EditorView = EditorView;
+
+
+/***/ }),
+
+/***/ "./src/view/view.ts":
+/*!**************************!*\
+  !*** ./src/view/view.ts ***!
+  \**************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class View {
+    constructor(controller, renderer) {
+        this.controller = controller;
+        this.renderer = renderer;
+    }
+}
+exports.View = View;
 
 
 /***/ })

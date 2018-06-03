@@ -1,9 +1,9 @@
 import { Property } from "../model/property"
 import { Shape } from "../model/shape"
-import { PropertyPresenter } from "./propertyPresenter"
+import { PropertyPresenter, PropertyPresenterFactory } from "./propertyPresenter"
 import { ConstraintPresenter } from "./constraintPresenter"
 import { IFixedPresenter, FixedPresenter, IMarkablePresenter } from "./presenter"
-import { IRenderer, Rect, IRenderedObject, NO_BOUNDING_BOX, NotRenderedObject } from "../renderer/renderer"
+import { IRenderer, Rect, IRenderedObject, NotRenderedObject } from "../renderer/renderer"
 import { IController } from "../controller";
 import { IConstraint } from "../model/constraint";
 
@@ -101,9 +101,11 @@ export abstract class ShapePresenter extends FixedPresenter implements IFixedPre
 export class ShapeCollectionPresenter implements IFixedPresenter {
     protected readonly shapePresenters : Map<Shape, ShapePresenter>
     protected readonly constraintPresenters : ConstraintPresenter[]
+    public readonly propertyPresenterFactories : PropertyPresenterFactory[]
     protected constructor() {
         this.shapePresenters = new Map<Shape, ShapePresenter>()
         this.constraintPresenters = new Array<ConstraintPresenter>()
+        this.propertyPresenterFactories = new Array<PropertyPresenterFactory>()
     }
     
     protected setPresentSelf(shapes : Shape[], present : boolean): void {

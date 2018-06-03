@@ -1,7 +1,7 @@
 export interface IRenderer {
     renderArea : Rect
-    renderCircle(x : number, y : number, radius : number) : IRenderedObject
-    renderRectangle(x : number, y : number, width : number, height : number, layer : number[]) : IRenderedObject
+    renderCircle(x : number, y : number, radius : number, layer : number[]) : IRenderedObject
+    renderRectangle(x : number, y : number, width : number, height : number, layer : number[], color : string) : IRenderedObject
     renderLine(fromX : number, fromY : number, toX : number, toY : number, layer : number[]) : IRenderedObject
     renderText(text : string, boundingBox : Rect, layer : number[]) : IRenderedObject
     renderButton(text : string, divId : string) : IRenderedObject
@@ -25,9 +25,25 @@ export class Rect {
     get centerY(): number {
         return this.y + Math.floor(this.height / 2)
     }
+    divide(rows : number, columns : number) : Rect[] {
+        let subRects = new Array<Rect>()
+        let subRectWidth = this.width / columns
+        let subRectHeight = this.height / rows
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                subRects.push(new Rect(
+                    this.x + subRectWidth * j,
+                    this.y + subRectHeight * i,
+                    subRectWidth,
+                    subRectHeight))
+            }
+        }
+        return subRects
+    }
+    get minSide() : number {
+        return this.width < this.height ? this.width : this.height
+    }
 }
-
-export const NO_BOUNDING_BOX = new Rect(-1, -1, -1, -1)
 
 export interface IRenderedObject {
     onclick(handler : () => void) : void

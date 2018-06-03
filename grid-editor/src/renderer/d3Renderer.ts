@@ -19,17 +19,22 @@ export class D3Renderer implements IRenderer {
     get renderArea() : Rect {
         return this._renderArea
     }
-    renderCircle(x: number, y: number, radius: number): IRenderedObject {
-        throw new Error("Method not implemented.");
+    renderCircle(x: number, y: number, radius: number, layer : number[]): IRenderedObject {
+        return new D3RenderedObject(this.getLayer(layer).append("circle")
+            .attr("cx", this._xOffset + x)
+            .attr("cy", this._yOffset + y)
+            .attr("r", radius)
+            .attr("pointer-events", "all")
+            .style("fill", "black"))
     }
-    renderRectangle(x: number, y: number, width: number, height: number, layer : number[]): IRenderedObject {
+    renderRectangle(x: number, y: number, width: number, height: number, layer : number[], color : string): IRenderedObject {
         return new D3RenderedObject(this.getLayer(layer).append("rect")
             .attr("x", this._xOffset + x)
             .attr("y", this._yOffset + y)
             .attr("width", width)
             .attr("height", height)
             .attr("pointer-events", "all")
-            .style("fill", "none")
+            .style("fill", color)
             .style("stroke", "none"))
     }
     renderLine(fromX: number, fromY: number, toX: number, toY: number, layer : number[]): IRenderedObject {
@@ -48,7 +53,9 @@ export class D3Renderer implements IRenderer {
         return new JQueryRenderedObject(line)*/
     }
     renderText(text: string, boundingBox : Rect, layer : number[]): IRenderedObject {
-        let fontSize = 32
+        //let fontSize = 15
+        //let fontSize = 32
+        let fontSize = (32 - 15) / (50 - 8) * (boundingBox.minSide - 50) + 32
         return new D3RenderedObject(this.getLayer(layer).append("text")
             .attr("x", this._xOffset + boundingBox.centerX)
             .attr("y", this._yOffset + boundingBox.centerY + Math.floor(fontSize / 2) - 3)

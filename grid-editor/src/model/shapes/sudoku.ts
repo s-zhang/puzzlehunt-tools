@@ -19,9 +19,9 @@ export class SudokuGrid extends Grid {
                 this._blocks[i][j] = this.rows[row][column]
             }
         }
-        for (let i = 1; i <= SIDE_LENGTH; i++) {
+        /*for (let i = 1; i <= SIDE_LENGTH; i++) {
             this.propertyNames.add(i.toString())
-        }
+        }*/
         this.addRowConstraint(this._sudokuConstraint)
         this.addColumnConstraint(this._sudokuConstraint)
         for (let block of this.blocks) {

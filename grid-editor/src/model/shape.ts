@@ -26,7 +26,7 @@ export abstract class Shape {
 export interface IShapeCollection<TShape extends Shape> {
     readonly shapes : TShape[]
     readonly constraints : IConstraint[]
-    readonly propertyNames : Set<string>
+    //readonly propertyNames : Set<string>
     areConstraintsSatisfied() : ConstraintSatifaction
 }
 
@@ -34,11 +34,11 @@ export class ShapeCollection<TShape extends Shape> implements IShapeCollection<T
     public constructor(shapes : TShape[]) {
         this.shapes = shapes
         this.constraints = new Array<IConstraint>()
-        this.propertyNames = new Set<string>()
+        //this.propertyNames = new Set<string>()
     }
     public readonly shapes : TShape[]
     public readonly constraints : IConstraint[]
-    public readonly propertyNames : Set<string>
+    //public readonly propertyNames : Set<string>
     public areConstraintsSatisfied() : ConstraintSatifaction {
         let satisfaction = ConstraintSatifaction.Satisfied
         for (let constraint of this.constraints) {

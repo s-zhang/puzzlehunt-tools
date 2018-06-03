@@ -1,6 +1,6 @@
 import { ShapePresenter, ShapeCollectionPresenter } from "../shapePresenter"
 import { Property } from "../../model/property"
-import { Cell, Grid, CellBorder } from "../../model/shapes/gridCell"
+import { Cell, Grid, CellBorder, GridIntersection } from "../../model/shapes/gridCell"
 import { TextPropertyPresenter } from "../propertyPresenters/textPropertyPresenter"
 import { IRenderer, Rect, IRenderedObject, NotRenderedObject } from "../../renderer/renderer"
 import { IController } from "../../controller";
@@ -31,30 +31,31 @@ export class SqaureCellPresenter extends ShapePresenter {
             this._cell.row * this._sideLength,
             this._sideLength,
             this._sideLength,
-            this.renderLayer.concat(1))
+            this.renderLayer.concat(1),
+            "none")
         //renderedObject.makeTransparent()
         return renderedObject
     }
     getBoundingBoxes(numBoxes: number): Rect[] {
-        if (numBoxes == 0) {
-            return new Array<Rect>()
-        } else if (numBoxes == 1) {
-            return [this._rect]
-        }
-        throw new Error("Cannot handle multiple properties in one cell yet.")
+        // Do this for now
+        return this._rect.divide(1, numBoxes)
     }
 }
-
-type CellBorderOrientation = "horizontal" | "vertical"
 
 export class CellBorderPresenter extends ShapePresenter {
     private readonly _cellBorder : CellBorder
     private readonly _sideLength : number
+    private _boudingBox : Rect
     constructor(cellBorder : CellBorder, sideLength : number, renderLayer : number[],
         affectedConstraints : ConstraintPresenter[], controller : IController) {
         super(cellBorder, renderLayer, affectedConstraints, controller)
         this._cellBorder = cellBorder
         this._sideLength = sideLength
+        this._boudingBox = new Rect(
+            cellBorder.fromColumn * sideLength - 4,
+            cellBorder.fromRow * sideLength - 4,
+            (cellBorder.toColumn - cellBorder.fromColumn) * sideLength + 8,
+            (cellBorder.toRow - cellBorder.fromRow) * sideLength + 8)
     }
     protected presentSelf(renderer: IRenderer): IRenderedObject {
         return renderer.renderLine(
@@ -65,15 +66,49 @@ export class CellBorderPresenter extends ShapePresenter {
             this.renderLayer.concat(0))
     }
     protected presentSelectObject(renderer: IRenderer): IRenderedObject {
-        let mouseEventObject = renderer.renderRectangle(
-            this._cellBorder.fromColumn * this._sideLength - 3,
-            this._cellBorder.fromRow * this._sideLength - 3,
-            (this._cellBorder.toColumn - this._cellBorder.fromColumn) * this._sideLength + 6,
-            (this._cellBorder.toRow - this._cellBorder.fromRow) * this._sideLength + 6,
+        let selectObject = renderer.renderRectangle(
+            this._boudingBox.x,
+            this._boudingBox.y,
+            this._boudingBox.width,
+            this._boudingBox.height,
+            this.renderLayer.concat(1),
+            "none")
+        selectObject.makeTransparent()
+        return selectObject
+    }
+    getBoundingBoxes(numBoxes: number): Rect[] {
+        let boudingBoxes = new Array<Rect>()
+        if (this._boudingBox.height > this._boudingBox.width) {
+            return this._boudingBox.divide(numBoxes, 1)
+        } else {
+            return this._boudingBox.divide(1, numBoxes)
+        }
+    }
+}
+
+export class GridIntersectionPresenter extends ShapePresenter {
+    private readonly _intersection : GridIntersection
+    private readonly _sideLength : number
+    constructor(intersection : GridIntersection, sideLength : number, renderLayer : number[],
+        affectedConstraints : ConstraintPresenter[], controller : IController) {
+        super(intersection, renderLayer, affectedConstraints, controller)
+        this._intersection = intersection
+        this._sideLength = sideLength
+    }
+    protected presentSelf(renderer: IRenderer): IRenderedObject {
+        return renderer.renderCircle(
+            this._intersection.column * this._sideLength,
+            this._intersection.row * this._sideLength,
+            3,
+            this.renderLayer.concat(0))
+    }
+    protected presentSelectObject(renderer: IRenderer): IRenderedObject {
+        let selectObject = renderer.renderCircle(this._intersection.column * this._sideLength,
+            this._intersection.row * this._sideLength,
+            7,
             this.renderLayer.concat(1))
-        mouseEventObject.makeTransparent()
-        return mouseEventObject
-        //return NotRenderedObject
+        selectObject.makeTransparent()
+        return selectObject
     }
     getBoundingBoxes(numBoxes: number): Rect[] {
         if (numBoxes != 0) {
@@ -92,6 +127,9 @@ export class GridPresenter extends ShapeCollectionPresenter {
     public set presentCellBorders(present : boolean) {
         this.setPresentSelf(this._grid.cellBorders, present)
     }
+    public set presentIntersections(present : boolean) {
+        this.setPresentSelf(this._grid.intersections, present)
+    }
     constructor(grid : Grid, controller : IController) {
         super()
         this._grid = grid
@@ -103,6 +141,9 @@ export class GridPresenter extends ShapeCollectionPresenter {
         }
         for (let cellBorder of grid.cellBorders) {
             this.addShapePresenter(cellBorder, new CellBorderPresenter(cellBorder, this._sideLength, [1], this.constraintPresenters, controller))
+        }
+        for (let intersection of grid.intersections) {
+            this.addShapePresenter(intersection, new GridIntersectionPresenter(intersection, this._sideLength, [2], this.constraintPresenters, controller))
         }
     }
 }
