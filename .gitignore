@@ -124,3 +124,6 @@ Temporary Items
 
 # VIM
 *.swp
+
+# Visual Studio Code
+.vscode
