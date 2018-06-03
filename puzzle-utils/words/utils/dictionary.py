@@ -4,7 +4,7 @@ import json
 from .word import get_character_histogram, histogram_to_string
 
 class Dictionary:
-	dictionariesDir = os.path.join(os.getcwd(), "dictionaries")
+	dictionariesDir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dictionaries")
 
 	@classmethod
 	def import_dictionary(cls, words_list_path, dictionary_name):
@@ -85,8 +85,15 @@ class Dictionary:
 def get_current_dictionary():
 	return CURRENT_DICTIONARY
 
+def set_current_dictionary(dictionary):
+	global CURRENT_DICTIONARY
+	CURRENT_DICTIONARY = dictionary
+
+PETER_NORVIG_IN_COLLINS = Dictionary("Peter Norvig in Collins")
+COLLINS_SCRABBLE_WORDS_2015 = Dictionary("Collins Scrabble Words (2015)")
+GOOGLE_10000_ENGLISH_USA = Dictionary("google-10000-english-usa")
+
 CURRENT_DICTIONARY = Dictionary("Collins Scrabble Words (2015)")
-#CURRENT_DICTIONARY = Dictionary("google-10000-english-usa")
 
 EXCLUSIONS = set([
 	"pa",

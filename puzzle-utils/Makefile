@@ -14,6 +14,6 @@ activate:
 	pipenv shell
 
 test:
-	pipenv run -- pytest tests --verbose
+	pipenv run -- pytest --verbose
 
 .PHONY: help activate test
