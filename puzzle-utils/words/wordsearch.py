@@ -1,74 +1,12 @@
 from copy import deepcopy
 from .utils.dictionary import get_current_dictionary
 
-def wordsearch_find(grid, words):
-    normalized_words = []
-    for word in words:
-        normalized_words.append(word.lower())
-
-    results = []    
-    for row in range(len(grid)):
-        for column in range(len(grid[row])):
-            results += wordsearch_find_point(grid, row, column, normalized_words)
-
-    return results
-
-def wordsearch_find_point(grid, row, column, words):
-    results = []
-    for direction in direction_to_increment_mapping:
-        results += wordsearch_find_point_direction(grid, row, column, direction, words)
-
-    return results
-
-def wordsearch_find_point_direction(grid, row, column, direction, words):
-    results = []
-    word = ''
-    row_current = row
-    column_current = column
-    row_increment, column_increment = direction_to_increment_mapping[direction]
-    while wordsearch_is_point_inside_grid(grid, row_current, column_current):
-        word += grid[row_current][column_current].lower()
-        row_current += row_increment
-        column_current += column_increment
-        
-        if word in words:
-            results.append(WordSearchResult(word, row, column, direction))
-    
-    return results
-
-def wordsearch_brute(grid, min_length):
-    results = []
-    for row in range(len(grid)):
-        for column in range(len(grid[row])):
-            results += wordsearch_brute_point(grid, row, column, min_length)
-
-    return results
-
-def wordsearch_brute_point(grid, row, column, min_length):
-    results = []
-    for direction in direction_to_increment_mapping:
-        results += wordsearch_brute_point_direction(grid, row, column, direction, min_length)
-
-    return results
-
-def wordsearch_brute_point_direction(grid, row, column, direction, min_length):
-    results = []
-    word = ''
-    row_current = row
-    column_current = column
-    row_increment, column_increment = direction_to_increment_mapping[direction]
-    while wordsearch_is_point_inside_grid(grid, row_current, column_current):
-        word += grid[row_current][column_current].lower()
-        row_current += row_increment
-        column_current += column_increment
-
-        if len(word) < min_length:
-            continue
-        
-        if word in get_current_dictionary().words:
-            results.append(WordSearchResult(word, row, column, direction))
-    
-    return results
+class WordSearchResult:
+    def __init__(self, word, row, column, direction):
+        self.word = word
+        self.row = row
+        self.column = column
+        self.direction = direction
 
 def wordsearch_reduce(grid, words):
     results = wordsearch_find(grid, words)
@@ -99,8 +37,54 @@ def wordsearch_reduce_sentence(grid, words):
     
     return sentence
 
-def wordsearch_is_point_inside_grid(grid, row, column):
-    return row > -1 and row < len(grid) and column > -1 and column < len(grid[row])
+def wordsearch_find(grid, words):
+    normalized_words = []
+    for word in words:
+        normalized_words.append(word.lower())
+
+    return wordsearch_grid(grid, wordsearch_find_function, normalized_words)
+
+def wordsearch_find_function(word, row, column, direction, words):
+    if word in words:
+        return WordSearchResult(word, row, column, direction)
+
+def wordsearch_brute(grid, min_length):
+    return wordsearch_grid(grid, wordsearch_brute_function, min_length)
+
+def wordsearch_brute_function(word, row, column, direction, min_length):
+    if len(word) >= min_length and word in get_current_dictionary().words:
+        return WordSearchResult(word, row, column, direction)
+
+def wordsearch_grid(grid, function, parameters):
+    results = []
+    for row in range(len(grid)):
+        for column in range(len(grid[row])):
+            results += wordsearch_point(grid, row, column, function, parameters)
+
+    return results
+
+def wordsearch_point(grid, row, column, function, parameters):
+    results = []
+    for direction in direction_to_increment_mapping:
+        results += wordsearch_point_direction(grid, row, column, direction, function, parameters)
+
+    return results
+
+def wordsearch_point_direction(grid, row, column, direction, function, parameters):
+    results = []
+    word = ''
+    row_current = row
+    column_current = column
+    row_increment, column_increment = direction_to_increment_mapping[direction]
+    while row_current > -1 and row_current < len(grid) and column_current > -1 and column_current < len(grid[row_current]):
+        word += grid[row_current][column_current].lower()
+        row_current += row_increment
+        column_current += column_increment
+        result = function(word, row, column, direction, parameters)
+        if result != None:
+            results.append(result)
+    
+    return results
 
 direction_to_increment_mapping = {
     'n': [-1, 0],
@@ -112,10 +96,3 @@ direction_to_increment_mapping = {
     'w': [0, -1],
     'nw': [-1, -1]
 }
-
-class WordSearchResult:
-    def __init__(self, word, row, column, direction):
-        self.word = word
-        self.row = row
-        self.column = column
-        self.direction = direction
