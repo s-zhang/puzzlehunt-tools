@@ -9,17 +9,17 @@ def test_wrapper():
     yield
 
 grid = [
-    ['M','E','S','S','A','G','E','S','E','E','L'],
-    ['E','A','T','T','E','R','S','A','T','I','N'],
-    ['T','E','N','R','S','E','C','T','I','O','N'],
-    ['S','O','R','I','E','N','D','S','D','R','A'],
-    ['W','L','N','I','F','N','E','S','B','E','L'],
-    ['T','T','W','E','E','E','N','G','U','E','L'],
-    ['O','I','D','E','D','B','S','Y','T','N','I'],
-    ['O','P','N','S','E','N','S','T','E','D','F'],
-    ['R','A','E','W','N','E','E','W','I','L','E'],
-    ['T','T','E','N','R','R','S','S','P','N','E'],
-    ['L','L','N','E','S','W','W','O','R','D','G']
+    'MESSAGESEEL',
+    'EATTERSATIN',
+    'TENRSECTION',
+    'SORIENDSDRA',
+    'WLNIFNESBEL',
+    'TTWEEENGUEL',
+    'OIDEDBSYTNI',
+    'OPNSENSTEDF',
+    'RAEWNEEWILE',
+    'TTENRRSSPNE',
+    'LLNESWWORDG'
 ]
 words = ['opens', 'message', 'manifesting', 'into', 'fill', 'letters']
 

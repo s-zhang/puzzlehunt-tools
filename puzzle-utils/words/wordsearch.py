@@ -1,4 +1,3 @@
-from copy import deepcopy
 from .utils.dictionary import get_current_dictionary
 
 class WordSearchResult:
@@ -9,8 +8,25 @@ class WordSearchResult:
         self.direction = direction
 
 def wordsearch_reduce(grid, words):
+    """
+        Finds the provided words in the grid and produces an grid with the letters that were not used.
+        Example:
+        >>> grid = [
+                'MHEL',
+                'LOOS',
+                'WOOU',
+                'RLDN'
+            ]
+        >>> words = ['moon', 'sun']
+        >>> wordsearch_reduce(grid, words)
+        ['HEL', 'LO', 'WO', 'RLD']
+    """
     results = wordsearch_find(grid, words)
-    working_grid = deepcopy(grid)
+
+    working_grid = []
+    for row in grid:
+        working_grid.append(list(row))
+
     for result in results:
         row = result.row
         column = result.column
@@ -22,22 +38,43 @@ def wordsearch_reduce(grid, words):
     
     reduced_grid = []
     for row in range(len(working_grid)):
-        reduced_grid.append([])
+        reduced_grid.append('')
         for char in working_grid[row]:
             if char != None:
-                reduced_grid[row].append(char)
+                reduced_grid[row] += char
     
     return reduced_grid
 
 def wordsearch_reduce_sentence(grid, words):
+    """
+        Finds the provided words in the grid and produces string with the letters that were not used.
+        Example:
+        >>> grid = [
+                'MHEL',
+                'LOOS',
+                'WOOU',
+                'RLDN'
+            ]
+        >>> words = ['moon', 'sun']
+        >>> wordsearch_reduce_sentence(grid, words)
+        'HELLOWORLD'
+    """
     reduced_grid = wordsearch_reduce(grid, words)
-    sentence = ''
-    for row in reduced_grid:
-        sentence += ''.join(row)
-    
-    return sentence
+    return ''.join(reduced_grid)
 
 def wordsearch_find(grid, words):
+    """
+        Finds the provided words and returns their location and direction in the grid.
+        Example:
+        >>> grid = [
+                'MHEL',
+                'LOOS',
+                'WOOU',
+                'RLDN'
+            ]
+        >>> words = ['moon', 'sun']
+        >>> wordsearch_find(grid, words)
+    """
     normalized_words = []
     for word in words:
         normalized_words.append(word.lower())
@@ -49,6 +86,18 @@ def wordsearch_find_function(word, row, column, direction, words):
         return WordSearchResult(word, row, column, direction)
 
 def wordsearch_brute(grid, min_length):
+    """
+        Finds all words and returns their location and direction in the grid.
+        Example:
+        >>> grid = [
+                'MHEL',
+                'LOOS',
+                'WOOU',
+                'RLDN'
+            ]
+        >>> min_length = 4
+        >>> wordsearch_find(grid, min_length)
+    """
     return wordsearch_grid(grid, wordsearch_brute_function, min_length)
 
 def wordsearch_brute_function(word, row, column, direction, min_length):
