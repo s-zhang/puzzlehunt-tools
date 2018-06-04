@@ -1,5 +1,5 @@
 from copy import deepcopy
-from utils.dictionary import get_current_dictionary
+from .utils.dictionary import get_current_dictionary
 
 def wordsearch_find(grid, words):
     normalized_words = []
@@ -119,22 +119,3 @@ class WordSearchResult:
         self.row = row
         self.column = column
         self.direction = direction
-
-#grid = [
-#    ['M','E','S','S','A','G','E','S','E','E','L'],
-#    ['E','A','T','T','E','R','S','A','T','I','N'],
-#    ['T','E','N','R','S','E','C','T','I','O','N'],
-#    ['S','O','R','I','E','N','D','S','D','R','A'],
-#    ['W','L','N','I','F','N','E','S','B','E','L'],
-#    ['T','T','W','E','E','E','N','G','U','E','L'],
-#    ['O','I','D','E','D','B','S','Y','T','N','I'],
-#    ['O','P','N','S','E','N','S','T','E','D','F'],
-#    ['R','A','E','W','N','E','E','W','I','L','E'],
-#    ['T','T','E','N','R','R','S','S','P','N','E'],
-#    ['L','L','N','E','S','W','W','O','R','D','G']
-#]
-#words = ['opens', 'message', 'manifesting', 'into', 'fill', 'letters']
-#
-#results = wordsearch_brute(grid, 4)
-#for result in results:
-#    print(result.word)

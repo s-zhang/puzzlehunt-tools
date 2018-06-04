@@ -1,4 +1,12 @@
-from wordsearch import wordsearch_find, wordsearch_brute, wordsearch_reduce_sentence, WordSearchResult
+from ..wordsearch import wordsearch_find, wordsearch_brute, wordsearch_reduce_sentence, WordSearchResult
+from ..utils import dictionary
+from ..utils.dictionary import Dictionary
+import pytest
+
+@pytest.yield_fixture(autouse=True)
+def test_wrapper():
+    dictionary.CURRENT_DICTIONARY = Dictionary("Collins Scrabble Words (2015)")
+    yield
 
 grid = [
     ['M','E','S','S','A','G','E','S','E','E','L'],
@@ -30,9 +38,6 @@ def test_wordsearch_find():
     assert_wordsearch_results(expectedResults, actualResults)
 
 def test_wordsearch_brute():
-    results = wordsearch_brute(grid, 4)
-    for result in results:
-        print(result.word)
     assert_wordsearch_results(expectedResults, wordsearch_brute(grid, 4))
     
 def test_wordsearch_reduce_sentence():
