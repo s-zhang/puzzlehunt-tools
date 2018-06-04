@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 pytest = "*"
 pyreadline = "*"
+requests = "*"
+"bs4" = "*"
 
 [dev-packages]
 
