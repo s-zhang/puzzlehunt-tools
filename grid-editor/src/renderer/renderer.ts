@@ -1,3 +1,7 @@
+/**
+ * Renderer is a low level class (compared to @see Presenter and @see View) that handles rendering shapes and text 
+ * on certain locations on a canvas
+ */
 export interface IRenderer {
     renderArea : Rect
     renderCircle(x : number, y : number, radius : number, layer : number[]) : IRenderedObject

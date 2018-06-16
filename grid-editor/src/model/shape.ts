@@ -1,6 +1,9 @@
 import { Property } from "./property"
 import { IConstraint, ConstraintSatifaction } from "./constraint"
 
+/**
+ * Shapes represents components of a puzzle board. E.g. the border of a cell in a grid
+ */
 export abstract class Shape {
     constructor() {
         this._properties = new Set<Property>();
@@ -23,6 +26,10 @@ export abstract class Shape {
     }
 }
 
+/**
+ * ShapeCollections represent the puzzle board and keeps track of the @see Shape s that
+ * consist the board
+ */
 export interface IShapeCollection<TShape extends Shape> {
     readonly shapes : TShape[]
     readonly constraints : IConstraint[]

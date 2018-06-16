@@ -1,6 +1,5 @@
 import * as $ from "jquery"
 import { IRenderer, Rect } from "../renderer/renderer";
-import { PropertyPresenter, PropertyPresenterFactory } from "../presenter/propertyPresenter";
 import { ShapeCollectionPresenter } from "../presenter/shapePresenter";
 import { IController } from "../controller";
 import { View } from "./view";

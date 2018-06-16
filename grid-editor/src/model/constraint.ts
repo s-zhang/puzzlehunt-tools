@@ -1,6 +1,9 @@
 import { Shape } from "./shape"
 import { Property } from "./property";
 
+/**
+ * Constraints act on @see Property s define the rules of the puzzle
+ */
 export interface IConstraint {
     check() : ConstraintCheckResult
 }

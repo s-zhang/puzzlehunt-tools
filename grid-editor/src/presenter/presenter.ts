@@ -1,5 +1,8 @@
 import { IRenderer, IRenderedObject, NotRenderedObject, Rect } from "../renderer/renderer"
 
+/**
+ * IFixedPresenters handle rendering of shapes etc. It renders on a fixed location on the canvas
+ */
 export interface IFixedPresenter {
     present(renderer : IRenderer) : void
     erase() : void
@@ -28,6 +31,9 @@ export abstract class FixedPresenter extends Presenter implements IFixedPresente
     abstract present(renderer: IRenderer): void
 }
 
+/**
+ * IFlexiblePresenters handle rendering of properties. Its rendering location can be changed.
+ */
 export interface IFlexiblePresenter {
     present(renderer : IRenderer, boudingBox : Rect) : void
     erase() : void

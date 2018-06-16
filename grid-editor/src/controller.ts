@@ -1,9 +1,12 @@
-import { IFixedPresenter } from "./presenter/presenter"
 import { IRenderer, Rect } from "./renderer/renderer"
 import { PropertyPresenter, PropertyPresenterFactory } from "./presenter/propertyPresenter";
 import { ShapePresenter, ShapeCollectionPresenter } from "./presenter/shapePresenter";
 import { EditorView } from "./view/editorView";
 
+/**
+ * The controller handles user inputs. It decides what happens when e.g. user clicks
+ * on a cell
+ */
 export interface IController {
     addPropertyMode(propertyPresenterFactory : PropertyPresenterFactory) : void
     removePropertyMode() : void
