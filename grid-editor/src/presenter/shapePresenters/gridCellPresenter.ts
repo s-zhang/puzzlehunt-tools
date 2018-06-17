@@ -32,7 +32,8 @@ export class SqaureCellPresenter extends ShapePresenter {
             this._sideLength,
             this._sideLength,
             this.renderLayer.concat(1),
-            "none")
+            "none",
+            1)
         //renderedObject.makeTransparent()
         return renderedObject
     }
@@ -63,7 +64,8 @@ export class CellBorderPresenter extends ShapePresenter {
             this._cellBorder.fromRow * this._sideLength,
             this._cellBorder.toColumn * this._sideLength,
             this._cellBorder.toRow * this._sideLength,
-            this.renderLayer.concat(0))
+            this.renderLayer.concat(0),
+            1)
     }
     protected presentSelectObject(renderer: IRenderer): IRenderedObject {
         let selectObject = renderer.renderRectangle(
@@ -72,7 +74,8 @@ export class CellBorderPresenter extends ShapePresenter {
             this._boudingBox.width,
             this._boudingBox.height,
             this.renderLayer.concat(1),
-            "none")
+            "none",
+            1)
         selectObject.makeTransparent()
         return selectObject
     }
@@ -100,13 +103,15 @@ export class GridIntersectionPresenter extends ShapePresenter {
             this._intersection.column * this._sideLength,
             this._intersection.row * this._sideLength,
             3,
-            this.renderLayer.concat(0))
+            this.renderLayer.concat(0),
+            1)
     }
     protected presentSelectObject(renderer: IRenderer): IRenderedObject {
         let selectObject = renderer.renderCircle(this._intersection.column * this._sideLength,
             this._intersection.row * this._sideLength,
             7,
-            this.renderLayer.concat(1))
+            this.renderLayer.concat(1),
+            1)
         selectObject.makeTransparent()
         return selectObject
     }

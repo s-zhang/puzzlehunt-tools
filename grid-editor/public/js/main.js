@@ -36,32 +36,17 @@
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -38633,6 +38618,7 @@ const editorView_1 = __webpack_require__(/*! ./view/editorView */ "./src/view/ed
 class Controller {
     constructor() {
         this._selectedProperty = null;
+        this.forkNumber = 0;
     }
     addPropertyMode(propertyPresenterFactory) {
         this._selectedProperty = propertyPresenterFactory;
@@ -39164,12 +39150,10 @@ class ConstraintPresenter {
             let shape = violation[0];
             let shapePresenter = this._getShapePresenter(shape);
             shapePresenter.markForViolation();
-            //shapePresenter.selectObject.color("#ffcc00")
             this._affectedPresenters.push(shapePresenter);
             let property = violation[1];
             let propertyPresenter = shapePresenter.getPropertyPresenter(property);
             propertyPresenter.markForViolation();
-            //propertyPresenter.renderedObject.color("red")
             this._affectedPresenters.push(propertyPresenter);
         }
     }
@@ -39196,6 +39180,9 @@ exports.ConstraintPresenter = ConstraintPresenter;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
+/**
+ * Utility class shared among presenters
+ */
 class Presenter {
     constructor(renderLayer, isVisible) {
         this.renderedObject = renderer_1.NotRenderedObject;
@@ -39209,18 +39196,6 @@ class Presenter {
     }
 }
 exports.Presenter = Presenter;
-class FixedPresenter extends Presenter {
-    constructor(renderLayer, isVisible = true) {
-        super(renderLayer, isVisible);
-    }
-}
-exports.FixedPresenter = FixedPresenter;
-class FlexiblePresenter extends Presenter {
-    constructor(renderLayer) {
-        super(renderLayer, true);
-    }
-}
-exports.FlexiblePresenter = FlexiblePresenter;
 
 
 /***/ }),
@@ -39236,9 +39211,9 @@ exports.FlexiblePresenter = FlexiblePresenter;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
-class PropertyPresenter extends presenter_1.FlexiblePresenter {
+class PropertyPresenter extends presenter_1.Presenter {
     constructor(property, parentShapePresenter, controller) {
-        super(parentShapePresenter.renderLayer.concat(2));
+        super(parentShapePresenter.renderLayer.concat(2), true);
         this.property = property;
         this.parentShapePresenter = parentShapePresenter;
         this._controller = controller;
@@ -39275,6 +39250,21 @@ class PropertyPresenter extends presenter_1.FlexiblePresenter {
         this.renderedObject.reset();
         this._isViolationMarked = false;
     }
+    /**
+     * The opacity to render the property determined by @see IController#forkNumber.
+     * Use a fainter color jumping from forkNumber = 0 to 1 to better distinguish the first fork.
+     * @returns 1, 0.4, 0.2, 0.1, etc when @see IController#forkNumber is 0, 1, 2, 3, etc.
+     */
+    get forkOpacity() {
+        let opacity;
+        if (this._controller.forkNumber == 0) {
+            opacity = 1;
+        }
+        else {
+            opacity = 0.8 / (Math.pow(2, this._controller.forkNumber));
+        }
+        return opacity;
+    }
 }
 exports.PropertyPresenter = PropertyPresenter;
 class PropertyPresenterFactory {
@@ -39305,7 +39295,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
 class LinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
-        let renderedObject = renderer.renderRectangle(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height, this.renderLayer, "black");
+        let renderedObject = renderer.renderRectangle(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height, this.renderLayer, "black", this.forkOpacity);
         return renderedObject;
     }
     static getKeyboardSelectShortcut(property) {
@@ -39330,7 +39320,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
 class TextPropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
-        return renderer.renderText(this.property.name, boundingBox, this.renderLayer);
+        return renderer.renderText(this.property.name, boundingBox, this.renderLayer, this.forkOpacity);
     }
     static getKeyboardSelectShortcut(property) {
         return property.name.substr(0, 1);
@@ -39354,9 +39344,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const constraintPresenter_1 = __webpack_require__(/*! ./constraintPresenter */ "./src/presenter/constraintPresenter.ts");
 const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
 const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
-class ShapePresenter extends presenter_1.FixedPresenter {
+/**
+ * Presenter that handles the rendering of @see Shape s
+ */
+class ShapePresenter extends presenter_1.Presenter {
     constructor(shape, renderLayer, affectedConstraints, controller, isSelfPresented = true) {
-        super(renderLayer);
+        super(renderLayer, isSelfPresented);
         this._shape = shape;
         this.isSelfPresented = isSelfPresented;
         this._propertyPresenters = new Map();
@@ -39432,6 +39425,9 @@ class ShapePresenter extends presenter_1.FixedPresenter {
     }
 }
 exports.ShapePresenter = ShapePresenter;
+/**
+ * Presenter that handles the rendering of @see Shape s that make up a puzzle board.
+ */
 class ShapeCollectionPresenter {
     constructor() {
         this.shapePresenters = new Map();
@@ -39534,7 +39530,7 @@ class SqaureCellPresenter extends shapePresenter_1.ShapePresenter {
         return renderer_1.NotRenderedObject;
     }
     presentSelectObject(renderer) {
-        let renderedObject = renderer.renderRectangle(this._cell.column * this._sideLength, this._cell.row * this._sideLength, this._sideLength, this._sideLength, this.renderLayer.concat(1), "none");
+        let renderedObject = renderer.renderRectangle(this._cell.column * this._sideLength, this._cell.row * this._sideLength, this._sideLength, this._sideLength, this.renderLayer.concat(1), "none", 1);
         //renderedObject.makeTransparent()
         return renderedObject;
     }
@@ -39552,10 +39548,10 @@ class CellBorderPresenter extends shapePresenter_1.ShapePresenter {
         this._boudingBox = new renderer_1.Rect(cellBorder.fromColumn * sideLength - 4, cellBorder.fromRow * sideLength - 4, (cellBorder.toColumn - cellBorder.fromColumn) * sideLength + 8, (cellBorder.toRow - cellBorder.fromRow) * sideLength + 8);
     }
     presentSelf(renderer) {
-        return renderer.renderLine(this._cellBorder.fromColumn * this._sideLength, this._cellBorder.fromRow * this._sideLength, this._cellBorder.toColumn * this._sideLength, this._cellBorder.toRow * this._sideLength, this.renderLayer.concat(0));
+        return renderer.renderLine(this._cellBorder.fromColumn * this._sideLength, this._cellBorder.fromRow * this._sideLength, this._cellBorder.toColumn * this._sideLength, this._cellBorder.toRow * this._sideLength, this.renderLayer.concat(0), 1);
     }
     presentSelectObject(renderer) {
-        let selectObject = renderer.renderRectangle(this._boudingBox.x, this._boudingBox.y, this._boudingBox.width, this._boudingBox.height, this.renderLayer.concat(1), "none");
+        let selectObject = renderer.renderRectangle(this._boudingBox.x, this._boudingBox.y, this._boudingBox.width, this._boudingBox.height, this.renderLayer.concat(1), "none", 1);
         selectObject.makeTransparent();
         return selectObject;
     }
@@ -39577,10 +39573,10 @@ class GridIntersectionPresenter extends shapePresenter_1.ShapePresenter {
         this._sideLength = sideLength;
     }
     presentSelf(renderer) {
-        return renderer.renderCircle(this._intersection.column * this._sideLength, this._intersection.row * this._sideLength, 3, this.renderLayer.concat(0));
+        return renderer.renderCircle(this._intersection.column * this._sideLength, this._intersection.row * this._sideLength, 3, this.renderLayer.concat(0), 1);
     }
     presentSelectObject(renderer) {
-        let selectObject = renderer.renderCircle(this._intersection.column * this._sideLength, this._intersection.row * this._sideLength, 7, this.renderLayer.concat(1));
+        let selectObject = renderer.renderCircle(this._intersection.column * this._sideLength, this._intersection.row * this._sideLength, 7, this.renderLayer.concat(1), 1);
         selectObject.makeTransparent();
         return selectObject;
     }
@@ -39717,20 +39713,20 @@ class D3Renderer {
             .attr("id", "svgcanvas")
             .attr("width", `${this._renderArea.width}px`)
             .attr("height", `${this._renderArea.height}px`);
-        //$("#mysvg")[0].getBoundingClientRect()
     }
     get renderArea() {
         return this._renderArea;
     }
-    renderCircle(x, y, radius, layer) {
+    renderCircle(x, y, radius, layer, opacity) {
         return new D3RenderedObject(this.getLayer(layer).append("circle")
             .attr("cx", this._xOffset + x)
             .attr("cy", this._yOffset + y)
             .attr("r", radius)
             .attr("pointer-events", "all")
-            .style("fill", "black"));
+            .style("fill", "black")
+            .style("opacity", opacity));
     }
-    renderRectangle(x, y, width, height, layer, color) {
+    renderRectangle(x, y, width, height, layer, color, opacity) {
         return new D3RenderedObject(this.getLayer(layer).append("rect")
             .attr("x", this._xOffset + x)
             .attr("y", this._yOffset + y)
@@ -39738,23 +39734,25 @@ class D3Renderer {
             .attr("height", height)
             .attr("pointer-events", "all")
             .style("fill", color)
+            .style("opacity", opacity)
             .style("stroke", "none"));
     }
-    renderLine(fromX, fromY, toX, toY, layer) {
+    renderLine(fromX, fromY, toX, toY, layer, opacity) {
         return new D3RenderedObject(this.getLayer(layer).append("line")
             .attr("x1", this._xOffset + fromX)
             .attr("y1", this._yOffset + fromY)
             .attr("x2", this._xOffset + toX)
             .attr("y2", this._yOffset + toY)
             .style("stroke", "#000")
-            .style("stroke-width", "2"));
+            .style("stroke-width", "2")
+            .style("opacity", opacity));
         /*
         using jquery doesn't seem to trigger redraw of svg
         let line = $(`<line x1="${this._xOffset + fromX}" y1="${this._yOffset + fromY}" x2="${this._xOffset + toX}" y2="${this._yOffset + toY}" style="stroke:#000;stroke-width:2" />`)
         line.appendTo($("#svgcanvas"))
         return new JQueryRenderedObject(line)*/
     }
-    renderText(text, boundingBox, layer) {
+    renderText(text, boundingBox, layer, opacity) {
         //let fontSize = 15
         //let fontSize = 32
         let fontSize = (32 - 15) / (50 - 8) * (boundingBox.minSide - 50) + 32;
@@ -39764,6 +39762,7 @@ class D3Renderer {
             .attr("font-size", fontSize)
             .attr("text-anchor", "middle")
             .attr("font-family", "Verdana")
+            .style("opacity", opacity)
             .text(text));
     }
     renderButton(text, divId) {
@@ -40016,6 +40015,29 @@ class EditorView extends view_1.View {
                 this.controller.removePropertyMode();
             }
         });
+        this.renderForking();
+    }
+    /**
+     * Renders the fork button and textbox
+     */
+    renderForking() {
+        let forkButton = $(`<input type="button" value="fork" />`);
+        forkButton.click(() => {
+            let newForkNumber;
+            if (!$("#forkNumber").val()) {
+                newForkNumber = this.controller.forkNumber + 1;
+            }
+            else {
+                newForkNumber = Number($("#forkNumber").val());
+            }
+            this.controller.forkNumber = newForkNumber;
+            $("#forkNumber")
+                .attr("placeholder", `current fork number: ${newForkNumber}`)
+                .val("");
+        });
+        forkButton.appendTo($("#toolbar"));
+        $("#toolbar")
+            .append('<input id="forkNumber" type="text" placeholder="current fork number: 0"/>');
     }
 }
 exports.EditorView = EditorView;

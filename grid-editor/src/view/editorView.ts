@@ -34,5 +34,30 @@ export class EditorView extends View {
                 this.controller.removePropertyMode()
             }
         })
+
+        this.renderForking();
+    }
+
+    /**
+     * Renders the fork button and textbox
+     */
+    private renderForking() {
+        let forkButton = $(`<input type="button" value="fork" />`);
+        forkButton.click(() => {
+            let newForkNumber: number;
+            if (!$("#forkNumber").val()) {
+                newForkNumber = this.controller.forkNumber + 1
+            }
+            else {
+                newForkNumber = Number($("#forkNumber").val())
+            }
+            this.controller.forkNumber = newForkNumber;
+            $("#forkNumber")
+                .attr("placeholder", `current fork number: ${newForkNumber}`)
+                .val("");
+        });
+        forkButton.appendTo($("#toolbar"));
+        $("#toolbar")
+            .append('<input id="forkNumber" type="text" placeholder="current fork number: 0"/>');
     }
 }

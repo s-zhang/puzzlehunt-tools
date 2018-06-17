@@ -2,12 +2,15 @@ import { Property } from "../model/property"
 import { Shape } from "../model/shape"
 import { PropertyPresenter, PropertyPresenterFactory } from "./propertyPresenter"
 import { ConstraintPresenter } from "./constraintPresenter"
-import { IFixedPresenter, FixedPresenter, IMarkablePresenter } from "./presenter"
+import { Presenter, IMarkablePresenter } from "./presenter"
 import { IRenderer, Rect, IRenderedObject, NotRenderedObject } from "../renderer/renderer"
 import { IController } from "../controller";
 import { IConstraint } from "../model/constraint";
 
-export abstract class ShapePresenter extends FixedPresenter implements IFixedPresenter, IMarkablePresenter {
+/**
+ * Presenter that handles the rendering of @see Shape s
+ */
+export abstract class ShapePresenter extends Presenter implements IMarkablePresenter {
     private readonly _shape : Shape
     public isSelfPresented : boolean
     private readonly _propertyPresenters : Map<Property, PropertyPresenter>
@@ -16,7 +19,7 @@ export abstract class ShapePresenter extends FixedPresenter implements IFixedPre
     private _isViolationMarked : boolean
     protected selectObject : IRenderedObject
     constructor(shape : Shape, renderLayer : number[], affectedConstraints : ConstraintPresenter[], controller : IController, isSelfPresented : boolean = true) {
-        super(renderLayer)
+        super(renderLayer, isSelfPresented)
         this._shape = shape
         this.isSelfPresented = isSelfPresented
         this._propertyPresenters = new Map<Property, PropertyPresenter>()
@@ -98,7 +101,10 @@ export abstract class ShapePresenter extends FixedPresenter implements IFixedPre
     }
 }
 
-export class ShapeCollectionPresenter implements IFixedPresenter {
+/**
+ * Presenter that handles the rendering of @see Shape s that make up a puzzle board.
+ */
+export class ShapeCollectionPresenter {
     protected readonly shapePresenters : Map<Shape, ShapePresenter>
     protected readonly constraintPresenters : ConstraintPresenter[]
     public readonly propertyPresenterFactories : PropertyPresenterFactory[]
