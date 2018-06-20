@@ -2,6 +2,7 @@ from words.utils.dictionary import set_current_dictionary, PETER_NORVIG_IN_COLLI
 from words.anagram import anagram, anagram_multi
 from words.crossword_clue import crossword_clue, crossword_clue_multi
 from words.search import search
+from words.ladder import ladder
 from encoders.semaphore import semaphore, semaphore_multi
 from encoders.caesar import independent_caesar, brute_caesar, caesar
 
