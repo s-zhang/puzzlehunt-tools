@@ -72,6 +72,26 @@ export class D3Renderer implements IRenderer {
         button.appendTo($(`#${divId}`))
         return new JQueryRenderedObject(button)
     }
+    private _appendLineOfWidth(element: d3.Selection<d3.BaseType, {}, HTMLElement, any>, fromX: number, fromY: number, toX: number, toY: number, halfWidth: number): void {
+        let width : number = halfWidth * 2;
+        [fromX, toX] = [fromX, toX].sort((a, b) => a - b);
+        [fromY, toY] = [fromY, toY].sort((a, b) => a - b);
+        element.append("rect")
+            .attr("x", this._xOffset + fromX - halfWidth)
+            .attr("y", this._yOffset + fromY - halfWidth)
+            .attr("width", toX - fromX == 0 ? width : toX - fromX + 8)
+            .attr("height", toY - fromY == 0 ? width : toY - fromY + 8)
+    }
+    renderTurn(x1 : number, y1 : number, x2 : number, y2 : number, x3 : number, y3 : number, halfWidth: number, layer : number[], opacity : number): IRenderedObject {
+        let group = this.getLayer(layer).append("g")
+            .attr("pointer-events", "all")
+            .style("fill", "black")
+            .style("opacity", opacity)
+            .style("stroke", "none")
+        this._appendLineOfWidth(group, x1, y1, x2, y2, halfWidth)
+        this._appendLineOfWidth(group, x2, y2, x3, y3, halfWidth)
+        return new D3RenderedObject(group)
+    }
     clear(): void {
         this._canvas.selectAll("*").remove()
     }
