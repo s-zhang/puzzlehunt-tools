@@ -52,17 +52,9 @@ export abstract class PropertyPresenter extends Presenter implements IMarkablePr
 
     /**
      * The opacity to render the property determined by @see IController#forkNumber.
-     * Use a fainter color jumping from forkNumber = 0 to 1 to better distinguish the first fork.
-     * @returns 1, 0.4, 0.2, 0.1, etc when @see IController#forkNumber is 0, 1, 2, 3, etc.
      */
     protected get forkOpacity() : number {
-        let opacity : number
-        if (this._controller.forkNumber == 0) {
-            opacity = 1
-        } else {
-            opacity = 0.8 / (2 ** this._controller.forkNumber)
-        }
-        return opacity
+        return 1 / (2 ** this._controller.forkNumber)
     }
 }
 
