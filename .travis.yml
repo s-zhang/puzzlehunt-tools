@@ -2,11 +2,21 @@ matrix:
   include:
     - language: python
       env:
-        global:
-          - PIPENV_VENV_IN_PROJECT=1
-          - PIPENV_IGNORE_VIRTUALENVS=1
+        - PIPENV_VENV_IN_PROJECT=1
+        - PIPENV_IGNORE_VIRTUALENVS=1
       before_install: cd puzzle-utils
       # command to install dependencies
       install: make setup
       # # command to run tests
       script: make test
+
+    - language: node_js
+      node_js:
+        - "lts/*"
+      before_install: cd grid-editor
+      # command to install dependencies
+      install: npm install
+      # # command to run tests
+      script:
+        - ./node_modules/typescript/bin/tsc
+        - npm run webpack-prod
