@@ -124,3 +124,7 @@ Temporary Items
 
 # VIM
 *.swp
+
+# Pip
+Pipfile
+Pipfile.lock
