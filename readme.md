@@ -47,12 +47,24 @@ Install all the dependencies by running
 >.\setup.bat
 ```
 
+For Mac Users, run
+```
+>.\sh macsetup.sh
+```
+
 ### Usage
 
 (Once per use)
 Start `puzzle-utils` interactively by running
 ```
 >.\run.bat
+>>> anagram("silent")
+['listen', 'inlets', 'tinsel', 'elints', 'silent', 'intels', 'enlist']
+```
+
+For Mac Users, run
+```
+>.\macrun.sh
 >>> anagram("silent")
 ['listen', 'inlets', 'tinsel', 'elints', 'silent', 'intels', 'enlist']
 ```
