@@ -3,6 +3,7 @@ from words.anagram import anagram, anagram_multi
 from words.crossword_clue import crossword_clue, crossword_clue_multi
 from words.search import search
 from encoders.semaphore import semaphore, semaphore_multi
+from encoders.caesar import independent_caesar, brute_caesar, caesar
 
 # Sets up tab completion
 import rlcompleter, readline
