@@ -51,6 +51,9 @@ export class Rect {
 
 export interface IRenderedObject {
     onclick(handler : () => void) : void
+    onmousedown(handler : () => void) : void
+    onmouseup(handler: () => void) : void
+    onmouseover(handler : () => void) : void
     erase() : void
     color(color : string) : void
     reset() : void
@@ -63,6 +66,15 @@ export interface IRenderedEffect {
 
 export const NotRenderedObject : IRenderedObject = {
     onclick(handler : () => void) : void {
+        ThrowObjectNotRenderedError()
+    },
+    onmousedown(handler : () => void) : void {
+        ThrowObjectNotRenderedError()
+    },
+    onmouseup(handler: () => void) : void {
+        ThrowObjectNotRenderedError()
+    },
+    onmouseover(handler : () => void) : void {
         ThrowObjectNotRenderedError()
     },
     erase() : void {

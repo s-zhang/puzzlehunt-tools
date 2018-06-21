@@ -100,6 +100,9 @@ abstract class RenderedObject<TElement> implements IRenderedObject {
         this.element = element
     }
     abstract onclick(handler: () => void): void
+    abstract onmousedown(handler: () => void): void
+    abstract onmouseup(handler: () => void): void
+    abstract onmouseover(handler: () => void): void
     abstract erase(): void
     
     private _renderedEffects : IRenderedEffect[] = new Array<IRenderedEffect>()
@@ -127,6 +130,15 @@ class D3RenderedObject extends RenderedObject<d3.Selection<d3.BaseType, {}, HTML
     }
     onclick(handler: () => void): void {
         this.element.on("click", handler)
+    }
+    onmousedown(handler: () => void): void {
+        this.element.on("mousedown", handler)
+    }
+    onmouseup(handler: () => void): void {
+        this.element.on("mouseup", handler)
+    }
+    onmouseover(handler: () => void): void {
+        this.element.on("mouseover", handler)
     }
     erase(): void {
         this.element.remove()
@@ -159,6 +171,15 @@ class JQueryRenderedObject extends RenderedObject<JQuery<HTMLElement>> implement
     }
     onclick(handler: () => void): void {
         this.element.click(handler)
+    }
+    onmousedown(handler: () => void): void {
+        this.element.mousedown(handler)
+    }
+    onmouseup(handler: () => void): void {
+        this.element.mouseup(handler)
+    }
+    onmouseover(handler: () => void): void {
+        this.element.mouseover(handler)
     }
     erase(): void {
         this.element.remove()

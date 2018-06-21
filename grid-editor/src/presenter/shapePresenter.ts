@@ -8,6 +8,7 @@ import { IController } from "../controller";
 import { IConstraint } from "../model/constraint";
 
 export abstract class ShapePresenter extends FixedPresenter implements IFixedPresenter, IMarkablePresenter {
+    private static MouseDownType : string | null
     private readonly _shape : Shape
     public isSelfPresented : boolean
     private readonly _propertyPresenters : Map<Property, PropertyPresenter>
@@ -33,9 +34,26 @@ export abstract class ShapePresenter extends FixedPresenter implements IFixedPre
         }
         this.selectObject = this.presentSelectObject(renderer)
         this.selectObject.onclick(() => {
+            //this.erase()
+            //this._controller.selectShape(this)
+            //this.present(renderer)
+        })
+        this.selectObject.onmousedown(() => {
+            ShapePresenter.MouseDownType = this.constructor.name;
             this.erase()
             this._controller.selectShape(this)
             this.present(renderer)
+        })
+        this.selectObject.onmouseup(() => {
+            ShapePresenter.MouseDownType = null;
+        })
+        this.selectObject.onmouseover(() => {
+            if (ShapePresenter.MouseDownType == this.constructor.name)
+            {
+                this.erase()
+                this._controller.selectShape(this)
+                this.present(renderer)
+            }
         })
         let boundingBoxes : Rect[] = this.getBoundingBoxes(this._propertyPresenters.size)
         let i = 0
