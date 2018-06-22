@@ -1,5 +1,16 @@
 from .search import search
 
+class DropQuoteSnapshot:
+    def __init__(self):
+        self.grid = []
+        self.letters = []
+        self.words = {}
+
+class DropQuoteWords:
+    def __init__(self, letters, words):
+        self.letters = letters
+        self.words = words
+
 def dropquote(grid, letters):
     dropquote_validate(grid, letters)
 
@@ -11,9 +22,14 @@ def dropquote(grid, letters):
     for column in letters:
         letters_working.append(column.lower())
 
+    dropQuoteSnapshots = []
+
     stuck = False
     while not stuck:
         stuck = True
+        dropQuoteSnapshot = DropQuoteSnapshot()
+        dropQuoteSnapshot.grid = grid_working[:]
+        dropQuoteSnapshot.letters = letters_working[:]
         word_index = 0
         word_current = ''
         letters_current = []
@@ -22,26 +38,13 @@ def dropquote(grid, letters):
         while row_current < len(grid) and column_current < len(grid[0]):
             if grid_working[row_current][column_current] == '-':
                 if word_current.find(' ') != -1:
-                    # Edge case: if the word is long enough to overlap columns then the word search could produce invalid results 
-                    results = dropquote_word(word_current, letters_current)
-                    print(f'{word_index}: {letters_current} | {results}')
-                    if len(results) == 1:
+                    # Edge case: if the word is long enough to overlap columns then the word search could produce invalid results
+                    words = dropquote_word(word_current, letters_current)
+                    dropQuoteWords = DropQuoteWords(letters_current[:], words[:])
+                    dropQuoteSnapshot.words[word_index] = dropQuoteWords
+                    if len(words) == 1:
                         stuck = False
-                        result = results[0]
-                        quotient, remainder = divmod(len(result), len(grid[0]))
-                        row_current -= quotient
-                        column_current -= remainder
-                        if column_current < 0:
-                            row_current -= 1
-                            column_current = len(grid[0]) + column_current
-                        
-                        for letter in result:
-                            grid_working[row_current] = grid_working[row_current][:column_current] + letter + grid_working[row_current][column_current + 1:]
-                            letters_working[column_current] = letters_working[column_current].replace(letter, '', 1)
-                            column_current += 1
-                            if column_current >= len(grid_working[row_current]):
-                                row_current += 1
-                                column_current = 0
+                        dropquote_apply_reverse(grid_working, letters_working, words[0], row_current, column_current)
                 
                 word_index += 1
                 word_current = ''
@@ -58,9 +61,9 @@ def dropquote(grid, letters):
                 row_current += 1
                 column_current = 0
 
-        print()
+        dropQuoteSnapshots.append(dropQuoteSnapshot)
     
-    return grid_working, letters_working
+    return dropQuoteSnapshots
 
 def dropquote_validate(grid, letters):
     row_length = len(grid[0])
@@ -86,3 +89,22 @@ def dropquote_word(word, letters):
             pattern += word[index]
     pattern += '$'
     return search(pattern)
+
+def dropquote_apply_reverse(grid, letters, word, row, column):
+    quotient, remainder = divmod(len(word), len(grid[0]))
+    row -= quotient
+    column -= remainder
+    if column < 0:
+        row -= 1
+        column = len(grid[0]) + column
+    
+    dropquote_apply(grid, letters, word, row, column)
+
+def dropquote_apply(grid, letters, word, row, column):
+    for letter in word:
+        grid[row] = grid[row][:column] + letter + grid[row][column + 1:]
+        letters[column] = letters[column].replace(letter, '', 1)
+        column += 1
+        if column >= len(grid[row]):
+            row += 1
+            column = 0
