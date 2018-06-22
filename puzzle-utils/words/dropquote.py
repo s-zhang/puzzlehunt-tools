@@ -87,9 +87,9 @@ def dropquote_search(grid, letters):
     current_letters = []
     while row < len(grid) and column < len(grid[0]):
         if grid[row][column] == '-':
-            # Edge case: back to back '-' will result in an extra increment in the word
+            # TODO: edge case - back to back '-' will result in an extra increment in the word
             if current_word.find(' ') != -1:
-                # Edge case: if the word is long enough to overlap columns then the word search could produce invalid results
+                # TODO: edge case - if the word is long enough to overlap columns then the word search could produce invalid results
                 snapshot.words[word_index] = DropQuoteWords(current_letters[:], dropquote_search_words(current_word, current_letters))
             
             word_index += 1
@@ -108,7 +108,7 @@ def dropquote_search(grid, letters):
             column = 0
     
     if current_word.find(' ') != -1:
-        # Edge case: if the word is long enough to overlap columns then the word search could produce invalid results
+        # TODO: edge case - if the word is long enough to overlap columns then the word search could produce invalid results
         snapshot.words[word_index] = DropQuoteWords(current_letters[:], dropquote_search_words(current_word, current_letters))
 
     return snapshot
@@ -142,8 +142,7 @@ def dropquote_apply_word(grid, letters, word_index, word):
         if grid[row][column] == '-' and new_word == False:
             current_word_index += 1
             new_word = True
-        
-        if grid[row][column] != '-' and new_word == True:
+        elif grid[row][column] != '-' and new_word == True:
             new_word = False
             if current_word_index == word_index:
                 break
@@ -157,10 +156,14 @@ def dropquote_apply_word(grid, letters, word_index, word):
     dropquote_apply_word_at_location(grid, letters, word, row, column)
 
 def dropquote_apply_word_validate(grid, letters, word, row, column):
-    # TODO: Validate the length of the words match (check if we run into '-')
-    # TODO: Validate the word matches any existing letters in the grid
     current_letters = letters[:]
     for letter in word:
+        if letter == '-':
+            raise ValueError('The provided word was longer than the word in the grid.')
+
+        if letter != grid[row][column]:
+            raise ValueError('The word conflicts with existing letters in grid.')
+
         if current_letters[column].find(letter) == -1:
             raise ValueError(f'There were not enough \'{letter}\' found in column {column}.')
 
