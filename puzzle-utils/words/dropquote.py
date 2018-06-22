@@ -5,6 +5,13 @@ class DropQuoteSnapshot:
         self.grid = []
         self.letters = []
         self.words = {}
+    
+    def print(self):
+        print(self.grid)
+        print(self.letters)
+        for index, words in self.words.items():
+            print(f'{index}: {words.letters} | {words.words}')
+        print()
 
 class DropQuoteWords:
     def __init__(self, letters, words):
@@ -12,6 +19,23 @@ class DropQuoteWords:
         self.words = words
 
 def dropquote(grid, letters):
+    """
+    This solver will attempt to drop quote puzzle and returns a set of snapshots on the iterations performed.
+    >>> grid = ['    -', '  -  ', '     ']
+    >>> letters = ['gor', 'afo', 'mn', 'ete', 'hs']
+    >>> snapshots = dropquote(grid, letters)
+    >>> print(snapshots[0].grid) # prints the initial state of the grid
+    ['    -', '  -  ', '     ']
+    >>> print(snapshots[0].letters) # prints the initial state of available letters
+    ['gor', 'afo', 'mn', 'ete', 'hs']
+    >>> for index, words in snapshots[0].words.items():
+    >>>     print(f'{index}: {words.letters} | {words.words}') # prints the index of the word, available letters, and found words
+    0: ['gor', 'afo', 'mn', 'ete'] | ['gant', 'rone', 'ront', 'oont', 'gone', 'rant', 'game', 'gane']
+    1: ['gor', 'afo'] | ['go', 'of']
+    2: ['ete', 'hs', 'gor', 'afo', 'mn', 'ete', 'hs'] | ['thrones']
+    >>> print(snapshots[-1].grid) # prints the current state of the grid
+    ['game-', 'of-th', 'rones']
+    """
     dropquote_validate(grid, letters)
 
     current_grid = []
@@ -32,7 +56,7 @@ def dropquote(grid, letters):
         for index, words in dropQuoteSnapshot.words.items():
             if len(words.words) == 1:
                 stuck = False
-                dropquote_apply_word(current_grid, current_letters, words.words[0], index)
+                dropquote_apply_word(current_grid, current_letters, index, words.words[0])
     
     return dropQuoteSnapshots
 
@@ -52,9 +76,9 @@ def dropquote_validate(grid, letters):
             raise ValueError(f'Column {column} has {len(letters[column])} letters but has {column_lengths[column]} blanks.')
 
 def dropquote_search(grid, letters):
-    dropQuoteSnapshot = DropQuoteSnapshot()
-    dropQuoteSnapshot.grid = grid[:]
-    dropQuoteSnapshot.letters = letters[:]
+    snapshot = DropQuoteSnapshot()
+    snapshot.grid = grid[:]
+    snapshot.letters = letters[:]
 
     row = 0
     column = 0
@@ -63,11 +87,10 @@ def dropquote_search(grid, letters):
     current_letters = []
     while row < len(grid) and column < len(grid[0]):
         if grid[row][column] == '-':
+            # Edge case: back to back '-' will result in an extra increment in the word
             if current_word.find(' ') != -1:
                 # Edge case: if the word is long enough to overlap columns then the word search could produce invalid results
-                words = dropquote_search_words(current_word, current_letters)
-                dropQuoteWords = DropQuoteWords(current_letters[:], words[:])
-                dropQuoteSnapshot.words[word_index] = dropQuoteWords
+                snapshot.words[word_index] = DropQuoteWords(current_letters[:], dropquote_search_words(current_word, current_letters))
             
             word_index += 1
             current_word = ''
@@ -83,8 +106,12 @@ def dropquote_search(grid, letters):
         if column >= len(grid[row]):
             row += 1
             column = 0
+    
+    if current_word.find(' ') != -1:
+        # Edge case: if the word is long enough to overlap columns then the word search could produce invalid results
+        snapshot.words[word_index] = DropQuoteWords(current_letters[:], dropquote_search_words(current_word, current_letters))
 
-    return dropQuoteSnapshot
+    return snapshot
 
 def dropquote_search_words(word, letters):
     pattern = '^'
@@ -96,7 +123,17 @@ def dropquote_search_words(word, letters):
     pattern += '$'
     return search(pattern)
 
-def dropquote_apply_word(grid, letters, word, word_index):
+def dropquote_apply_word(grid, letters, word_index, word):
+    """
+    Applies a word at the word index to the grid and removes the consumed letters.
+    >>> grid = ['    -', '  -  ', '     ']
+    >>> letters = ['gor', 'afo', 'mn', 'ete', 'hs']
+    >>> dropquote_apply_word(grid, letters, 2, 'thrones')
+    >>> print(grid)
+    ['    -', '  -th', 'rones']
+    >>> print(letters)
+    ['go', 'af', 'm', 'e', '']
+    """
     row = 0
     column = 0
     current_word_index = 0
@@ -120,6 +157,8 @@ def dropquote_apply_word(grid, letters, word, word_index):
     dropquote_apply_word_at_location(grid, letters, word, row, column)
 
 def dropquote_apply_word_validate(grid, letters, word, row, column):
+    # TODO: Validate the length of the words match (check if we run into '-')
+    # TODO: Validate the word matches any existing letters in the grid
     current_letters = letters[:]
     for letter in word:
         if current_letters[column].find(letter) == -1:
