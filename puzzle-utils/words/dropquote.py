@@ -20,7 +20,7 @@ class DropQuoteWords:
 
 def dropquote(grid, letters):
     """
-    This solver will attempt to drop quote puzzle and returns a set of snapshots on the iterations performed.
+    This solver will attempt to solve the drop quote puzzle and returns a set of snapshots on the iterations performed.
     >>> grid = ['    -', '  -  ', '     ']
     >>> letters = ['gor', 'afo', 'mn', 'ete', 'hs']
     >>> snapshots = dropquote(grid, letters)
@@ -137,6 +137,11 @@ def dropquote_apply_word(grid, letters, word_index, word):
     >>> print(letters)
     ['go', 'af', 'm', 'e', '']
     """
+    row, column = dropquote_locate_word(grid, letters, word_index)
+    dropquote_apply_word_validate(grid, letters, word, row, column)
+    dropquote_apply_word_at_location(grid, letters, word, row, column)
+
+def dropquote_locate_word(grid, letters, word_index):
     row = 0
     column = 0
     current_word_index = 0
@@ -155,8 +160,10 @@ def dropquote_apply_word(grid, letters, word_index, word):
             row += 1
             column = 0
     
-    dropquote_apply_word_validate(grid, letters, word, row, column)
-    dropquote_apply_word_at_location(grid, letters, word, row, column)
+    if row >= len(grid) or column > len(grid[0]):
+        raise ValueError('The word index is greater than the number of words.')
+    
+    return row, column
 
 def dropquote_apply_word_validate(grid, letters, word, row, column):
     current_letters = letters[:]
