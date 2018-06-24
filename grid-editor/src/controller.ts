@@ -13,10 +13,17 @@ export interface IController {
     selectShape(shapePresenter : ShapePresenter) : void
     selectProperty(propertyPresenter : PropertyPresenter) : boolean
     selectPuzzle(presenter : ShapeCollectionPresenter, renderer : IRenderer) : void
+    /**
+     * Keeps track of the number of times the user has forked. Currently forking serves
+     * as a guidance for rendering @see PropertyPresenter s before full checkpointing
+     * functionality is implemented.
+     */
+    forkNumber : number
 }
 
 export class Controller implements IController {
     constructor() {
+        this.forkNumber = 0
     }
     private _selectedProperty : PropertyPresenterFactory | null = null
     addPropertyMode(propertyPresenterFactory : PropertyPresenterFactory) : void {
@@ -45,4 +52,5 @@ export class Controller implements IController {
         let editor = new EditorView(presenter, this, renderer)
         editor.render()
     }
+    forkNumber : number
 }

@@ -1,12 +1,12 @@
 import { IConstraint, ConstraintCheckResult } from "../model/constraint"
-import { IFixedPresenter, IMarkablePresenter } from "./presenter"
+import { Presenter, IMarkablePresenter } from "./presenter"
 import { IRenderer, Rect, IRenderedEffect, IRenderedObject } from "../renderer/renderer"
 import { Shape } from "../model/shape";
 import { ShapePresenter } from "./shapePresenter";
 import { Property } from "../model/property";
 import { PropertyPresenter } from "./propertyPresenter";
 
-export class ConstraintPresenter implements IFixedPresenter {
+export class ConstraintPresenter {
     private readonly _constraint : IConstraint
     private readonly _shapePresenters : Map<Shape, ShapePresenter>
     private _affectedPresenters : IMarkablePresenter[]
@@ -30,13 +30,11 @@ export class ConstraintPresenter implements IFixedPresenter {
             let shape : Shape = violation[0]
             let shapePresenter : ShapePresenter = this._getShapePresenter(shape)
             shapePresenter.markForViolation()
-            //shapePresenter.selectObject.color("#ffcc00")
             this._affectedPresenters.push(shapePresenter)
 
             let property : Property = violation[1]
             let propertyPresenter : PropertyPresenter = shapePresenter.getPropertyPresenter(property)
             propertyPresenter.markForViolation()
-            //propertyPresenter.renderedObject.color("red")
             this._affectedPresenters.push(propertyPresenter)
         }
     }

@@ -32,7 +32,8 @@ export class SqaureCellPresenter extends ShapePresenter {
             this._sideLength,
             this._sideLength,
             this.renderLayer.concat(1),
-            "none")
+            "none",
+            1)
         //renderedObject.makeTransparent()
         return renderedObject
     }
@@ -45,13 +46,13 @@ export class SqaureCellPresenter extends ShapePresenter {
 export class CellBorderPresenter extends ShapePresenter {
     private readonly _cellBorder : CellBorder
     private readonly _sideLength : number
-    private _boudingBox : Rect
+    private _boundingBox : Rect
     constructor(cellBorder : CellBorder, sideLength : number, renderLayer : number[],
         affectedConstraints : ConstraintPresenter[], controller : IController) {
         super(cellBorder, renderLayer, affectedConstraints, controller)
         this._cellBorder = cellBorder
         this._sideLength = sideLength
-        this._boudingBox = new Rect(
+        this._boundingBox = new Rect(
             cellBorder.fromColumn * sideLength - 4,
             cellBorder.fromRow * sideLength - 4,
             (cellBorder.toColumn - cellBorder.fromColumn) * sideLength + 8,
@@ -63,25 +64,27 @@ export class CellBorderPresenter extends ShapePresenter {
             this._cellBorder.fromRow * this._sideLength,
             this._cellBorder.toColumn * this._sideLength,
             this._cellBorder.toRow * this._sideLength,
-            this.renderLayer.concat(0))
+            this.renderLayer.concat(0),
+            1)
     }
     protected presentSelectObject(renderer: IRenderer): IRenderedObject {
         let selectObject = renderer.renderRectangle(
-            this._boudingBox.x,
-            this._boudingBox.y,
-            this._boudingBox.width,
-            this._boudingBox.height,
+            this._boundingBox.x,
+            this._boundingBox.y,
+            this._boundingBox.width,
+            this._boundingBox.height,
             this.renderLayer.concat(1),
-            "none")
+            "none",
+            1)
         selectObject.makeTransparent()
         return selectObject
     }
     getBoundingBoxes(numBoxes: number): Rect[] {
         let boudingBoxes = new Array<Rect>()
-        if (this._boudingBox.height > this._boudingBox.width) {
-            return this._boudingBox.divide(numBoxes, 1)
+        if (this._boundingBox.height > this._boundingBox.width) {
+            return this._boundingBox.divide(numBoxes, 1)
         } else {
-            return this._boudingBox.divide(1, numBoxes)
+            return this._boundingBox.divide(1, numBoxes)
         }
     }
 }
@@ -100,13 +103,15 @@ export class GridIntersectionPresenter extends ShapePresenter {
             this._intersection.column * this._sideLength,
             this._intersection.row * this._sideLength,
             3,
-            this.renderLayer.concat(0))
+            this.renderLayer.concat(0),
+            1)
     }
     protected presentSelectObject(renderer: IRenderer): IRenderedObject {
         let selectObject = renderer.renderCircle(this._intersection.column * this._sideLength,
             this._intersection.row * this._sideLength,
             7,
-            this.renderLayer.concat(1))
+            this.renderLayer.concat(1),
+            1)
         selectObject.makeTransparent()
         return selectObject
     }
