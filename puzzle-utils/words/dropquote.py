@@ -85,22 +85,25 @@ def dropquote_search(grid, letters):
     word_index = 0
     current_word = ''
     current_letters = []
+    new_word = True
     while row < len(grid) and column < len(grid[0]):
-        if grid[row][column] == '-':
-            # TODO: edge case - back to back '-' will result in an extra increment in the word
+        if grid[row][column] == '-' and new_word == False:
             if current_word.find(' ') != -1:
-                # TODO: edge case - if the word is long enough to overlap columns then the word search could produce invalid results
+                # Overlapped columns could produce a superset of the actual possible words
                 snapshot.words[word_index] = DropQuoteWords(current_letters[:], dropquote_search_words(current_word, current_letters))
             
             word_index += 1
             current_word = ''
             current_letters = []
+            new_word = True
         elif grid[row][column] == ' ':
             current_word += ' '
             current_letters.append(letters[column])
+            new_word = False
         else:
             current_word += grid[row][column]
             current_letters.append('')
+            new_word = False
         
         column += 1
         if column >= len(grid[row]):
@@ -108,7 +111,7 @@ def dropquote_search(grid, letters):
             column = 0
     
     if current_word.find(' ') != -1:
-        # TODO: edge case - if the word is long enough to overlap columns then the word search could produce invalid results
+        # Overlapped columns could produce a superset of the actual possible words
         snapshot.words[word_index] = DropQuoteWords(current_letters[:], dropquote_search_words(current_word, current_letters))
 
     return snapshot
@@ -161,7 +164,7 @@ def dropquote_apply_word_validate(grid, letters, word, row, column):
         if letter == '-':
             raise ValueError('The provided word was longer than the word in the grid.')
 
-        if letter != grid[row][column]:
+        if letter != grid[row][column] and grid[row][column] != ' ':
             raise ValueError('The word conflicts with existing letters in grid.')
 
         if current_letters[column].find(letter) == -1:
