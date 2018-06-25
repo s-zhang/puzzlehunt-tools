@@ -4,10 +4,10 @@
  */
 export interface IRenderer {
     renderArea : Rect
-    renderCircle(x : number, y : number, radius : number, layer : number[]) : IRenderedObject
-    renderRectangle(x : number, y : number, width : number, height : number, layer : number[], color : string) : IRenderedObject
-    renderLine(fromX : number, fromY : number, toX : number, toY : number, layer : number[]) : IRenderedObject
-    renderText(text : string, boundingBox : Rect, layer : number[]) : IRenderedObject
+    renderCircle(x : number, y : number, radius : number, layer : number[], opacity : number) : IRenderedObject
+    renderRectangle(x : number, y : number, width : number, height : number, layer : number[], color : string, opacity : number) : IRenderedObject
+    renderLine(fromX : number, fromY : number, toX : number, toY : number, layer : number[], opacity : number) : IRenderedObject
+    renderText(text : string, boundingBox : Rect, layer : number[], opacity : number) : IRenderedObject
     renderButton(text : string, divId : string) : IRenderedObject
     clear() : void
 }
