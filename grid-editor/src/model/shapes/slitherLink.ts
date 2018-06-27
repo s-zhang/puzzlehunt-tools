@@ -12,7 +12,7 @@ export class SlitherLinkGrid extends Grid {
     private _borderConstraint(cell : Cell) : ConstraintCheckResult {
         let bordersWithLine = new Array<[CellBorder, Property]>()
         for (let cellBorder of cell.adjacentCellBorders) {
-            if (cellBorder.property != null && cellBorder.property.name == "line") {
+            if (cellBorder.property != null && cellBorder.property.name == "border line") {
                 bordersWithLine.push([cellBorder, cellBorder.property])
             }
         }

@@ -4,7 +4,7 @@ import { SlitherLinkGrid } from "../../model/shapes/slitherLink";
 import { Property } from "../../model/property";
 import { PropertyPresenterFactory } from "../propertyPresenter";
 import { TextPropertyPresenter } from "../propertyPresenters/textPropertyPresenter";
-import { LinePropertyPresenter } from "../propertyPresenters/linePropertyPresenter";
+import { CellBorderLinePropertyPresenter } from "../propertyPresenters/cellBorderLinePropertyPresenter";
 
 export class SlitherLinkPresenter extends GridPresenter {
     constructor(width : number, height : number, controller : IController) {
@@ -18,9 +18,9 @@ export class SlitherLinkPresenter extends GridPresenter {
             this.propertyPresenterFactories.push(propertyPresenter)
         }
 
-        let property = new Property("line")
-        let propertyPresenter = new PropertyPresenterFactory(LinePropertyPresenter,
-            property, LinePropertyPresenter.getKeyboardSelectShortcut(property))
+        let property = new Property("border line")
+        let propertyPresenter = new PropertyPresenterFactory(CellBorderLinePropertyPresenter,
+            property, CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(property))
         this.propertyPresenterFactories.push(propertyPresenter)
 
         property = new Property("X")

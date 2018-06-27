@@ -7,7 +7,7 @@ import { TextPropertyPresenter } from "./presenter/propertyPresenters/textProper
 import { Controller } from "./controller";
 import { PropertyPresenter, PropertyPresenterFactory } from "./presenter/propertyPresenter";
 import { EditorView } from "./view/editorView";
-import { LinePropertyPresenter } from "./presenter/propertyPresenters/linePropertyPresenter";
+import { CellBorderLinePropertyPresenter } from "./presenter/propertyPresenters/cellBorderLinePropertyPresenter";
 import { SlitherLinkGrid } from "./model/shapes/slitherLink";
 import { BoardSelectorView } from "./view/boardSelectorView";
 

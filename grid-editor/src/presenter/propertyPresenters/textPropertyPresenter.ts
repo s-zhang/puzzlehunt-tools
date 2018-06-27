@@ -12,7 +12,7 @@ export class TextPropertyPresenter extends PropertyPresenter {
             this.renderLayer,
             this.forkOpacity)
     }
-    public static getKeyboardSelectShortcut(property : Property) : string {
+    public static getKeyboardSelectShortcut(property : Property) : string | null {
         return property.name.substr(0, 1)
     }
 }
