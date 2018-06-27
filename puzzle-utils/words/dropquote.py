@@ -4,19 +4,16 @@ class DropQuoteSnapshot:
     def __init__(self):
         self.grid = []
         self.letters = []
-        self.words = {}
-    
-    def print(self):
-        print(self.grid)
-        print(self.letters)
-        for index, words in self.words.items():
-            print(f'{index}: {words.letters} | {words.words}')
-        print()
+        self.words = []
 
-class DropQuoteWords:
-    def __init__(self, letters, words):
+class DropQuoteWord:
+    def __init__(self, index, word, letters, start_row, start_column, possibilities):
+        self.index = index
+        self.word = word
         self.letters = letters
-        self.words = words
+        self.start_row = start_row
+        self.start_column = start_column
+        self.possibilities = possibilities
 
 def dropquote(grid, letters):
     """
@@ -46,17 +43,19 @@ def dropquote(grid, letters):
     for column in letters:
         current_letters.append(column.lower())
 
+    words = dropquote_parse_words(grid, letters)
+
     stuck = False
     dropQuoteSnapshots = []
     while not stuck:
         stuck = True
-        dropQuoteSnapshot = dropquote_search(current_grid, current_letters)
+        dropQuoteSnapshot = dropquote_search(current_grid, current_letters, words)
         dropQuoteSnapshots.append(dropQuoteSnapshot)
 
-        for index, words in dropQuoteSnapshot.words.items():
-            if len(words.words) == 1:
+        for word in dropQuoteSnapshot.words:
+            if len(word.possibilities) == 1:
                 stuck = False
-                dropquote_apply_word(current_grid, current_letters, index, words.words[0])
+                dropquote_apply_word_at_location(current_grid, current_letters, word.possibilities[0], word.row, word.column)
     
     return dropQuoteSnapshots
 
@@ -75,45 +74,56 @@ def dropquote_validate(grid, letters):
         if len(letters[column]) != column_lengths[column]:
             raise ValueError(f'Column {column} has {len(letters[column])} letters but has {column_lengths[column]} blanks.')
 
-def dropquote_search(grid, letters):
-    snapshot = DropQuoteSnapshot()
-    snapshot.grid = grid[:]
-    snapshot.letters = letters[:]
-
+def dropquote_parse_words(grid, letters):
     row = 0
     column = 0
-    word_index = 0
+    index = 0
     current_word = ''
     current_letters = []
-    new_word = True
+    new = True
+    words = []
     while row < len(grid) and column < len(grid[0]):
-        if grid[row][column] == '-' and new_word == False:
-            if current_word.find(' ') != -1:
-                # Overlapped columns could produce a superset of the actual possible words
-                snapshot.words[word_index] = DropQuoteWords(current_letters[:], dropquote_search_words(current_word, current_letters))
-            
-            word_index += 1
+        if grid[row][column] == '-' and new == False:
+            words.append(DropQuoteWord(index, current_word, current_letters, row, column, []))
+            index += 1
             current_word = ''
             current_letters = []
-            new_word = True
+            new = True
         elif grid[row][column] == ' ':
             current_word += ' '
             current_letters.append(letters[column])
-            new_word = False
+            new = False
         else:
             current_word += grid[row][column]
             current_letters.append('')
-            new_word = False
+            new = False
         
         column += 1
         if column >= len(grid[row]):
             row += 1
             column = 0
     
-    if current_word.find(' ') != -1:
-        # Overlapped columns could produce a superset of the actual possible words
-        snapshot.words[word_index] = DropQuoteWords(current_letters[:], dropquote_search_words(current_word, current_letters))
+    return words
 
+def dropquote_search(grid, letters, words):
+    snapshot = DropQuoteSnapshot()
+    snapshot.grid = grid[:]
+    snapshot.letters = letters[:]
+
+    for word in words:
+        possibilities = []
+        if word.word.find(' ') != -1:
+            # Overlapped columns could produce a superset of the actual possible words
+            possibilities = dropquote_search_words(word.word, word.letters)
+
+        snapshot.words.append(DropQuoteWord(
+            word.index,
+            word.word,
+            word.letters,
+            word.start_row,
+            word.start_column,
+            word.possibilities))
+    
     return snapshot
 
 def dropquote_search_words(word, letters):
