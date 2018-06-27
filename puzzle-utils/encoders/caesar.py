@@ -13,19 +13,19 @@ def shift_letter(letter, shift_count):
     char_code = (char_code + shift_count) % ALPHABET_SIZE
     return chr(char_code + CHARACTER_OFFSET)
 
-def shift_word(word, shift_count):
+def caesar(word, shift_count):
     new_word = ''
     for letter in word.upper():
         new_word += shift_letter(letter, shift_count)
     return new_word
 
-def brute_force(word):
+def brute_caesar(word):
     shifted_words = []
     for shift_by in range(1, ALPHABET_SIZE):
-        shifted_words.append(shift_word(word, shift_by))
+        shifted_words.append(caesar(word, shift_by))
     return shifted_words
 
-def independent_shift(letters, shiftCounts):
+def independent_caesar(letters, shiftCounts):
     if len(letters) != len(shiftCounts):
         raise ValueError("Word length must be the same as shift counts length")
 

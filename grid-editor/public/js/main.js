@@ -39323,18 +39323,9 @@ class PropertyPresenter extends presenter_1.Presenter {
     }
     /**
      * The opacity to render the property determined by @see IController#forkNumber.
-     * Use a fainter color jumping from forkNumber = 0 to 1 to better distinguish the first fork.
-     * @returns 1, 0.4, 0.2, 0.1, etc when @see IController#forkNumber is 0, 1, 2, 3, etc.
      */
     get forkOpacity() {
-        let opacity;
-        if (this._controller.forkNumber == 0) {
-            opacity = 1;
-        }
-        else {
-            opacity = 0.8 / (Math.pow(2, this._controller.forkNumber));
-        }
-        return opacity;
+        return 1 / (Math.pow(2, this._controller.forkNumber));
     }
 }
 exports.PropertyPresenter = PropertyPresenter;
@@ -39719,23 +39710,23 @@ class CellBorderPresenter extends shapePresenter_1.ShapePresenter {
         super(cellBorder, renderLayer, affectedConstraints, controller);
         this._cellBorder = cellBorder;
         this._sideLength = sideLength;
-        this._boudingBox = new renderer_1.Rect(cellBorder.fromColumn * sideLength - 4, cellBorder.fromRow * sideLength - 4, (cellBorder.toColumn - cellBorder.fromColumn) * sideLength + 8, (cellBorder.toRow - cellBorder.fromRow) * sideLength + 8);
+        this._boundingBox = new renderer_1.Rect(cellBorder.fromColumn * sideLength - 4, cellBorder.fromRow * sideLength - 4, (cellBorder.toColumn - cellBorder.fromColumn) * sideLength + 8, (cellBorder.toRow - cellBorder.fromRow) * sideLength + 8);
     }
     presentSelf(renderer) {
         return renderer.renderLine(this._cellBorder.fromColumn * this._sideLength, this._cellBorder.fromRow * this._sideLength, this._cellBorder.toColumn * this._sideLength, this._cellBorder.toRow * this._sideLength, this.renderLayer.concat(0), 1);
     }
     presentSelectObject(renderer) {
-        let selectObject = renderer.renderRectangle(this._boudingBox.x, this._boudingBox.y, this._boudingBox.width, this._boudingBox.height, this.renderLayer.concat(1), "none", 1);
+        let selectObject = renderer.renderRectangle(this._boundingBox.x, this._boundingBox.y, this._boundingBox.width, this._boundingBox.height, this.renderLayer.concat(1), "none", 1);
         selectObject.makeTransparent();
         return selectObject;
     }
     getBoundingBoxes(numBoxes) {
         let boudingBoxes = new Array();
-        if (this._boudingBox.height > this._boudingBox.width) {
-            return this._boudingBox.divide(numBoxes, 1);
+        if (this._boundingBox.height > this._boundingBox.width) {
+            return this._boundingBox.divide(numBoxes, 1);
         }
         else {
-            return this._boudingBox.divide(1, numBoxes);
+            return this._boundingBox.divide(1, numBoxes);
         }
     }
 }

@@ -68,7 +68,7 @@ class Dictionary:
 	@property
 	def words(self):
 		if self.__words == None:
-			self.__words = list(filter(lambda w: w not in EXCLUSIONS, self.__get_dictionary()["words"]))
+			self.__words = frozenset(filter(lambda w: w not in EXCLUSIONS, self.__get_dictionary()["words"]))
 		return self.__words
 
 	@property
