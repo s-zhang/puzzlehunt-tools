@@ -39412,7 +39412,7 @@ exports.VerticalCellLinePropertyPresenter = VerticalCellLinePropertyPresenter;
 /**
  * Presenter of a line that goes down and then turns left in a @see Cell
  */
-class NorthEastBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+class NorthWestBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.top + 4, boundingBox.centerX, boundingBox.centerY, boundingBox.left + 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
         return renderedObject;
@@ -39421,11 +39421,11 @@ class NorthEastBendCellLinePropertyPresenter extends propertyPresenter_1.Propert
         return null;
     }
 }
-exports.NorthEastBendCellLinePropertyPresenter = NorthEastBendCellLinePropertyPresenter;
+exports.NorthWestBendCellLinePropertyPresenter = NorthWestBendCellLinePropertyPresenter;
 /**
- * @see NorthEastBendCellLinePropertyPresenter
+ * @see NorthWestBendCellLinePropertyPresenter
  */
-class NorthWestBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+class NorthEastBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.top + 4, boundingBox.centerX, boundingBox.centerY, boundingBox.right - 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
         return renderedObject;
@@ -39434,11 +39434,11 @@ class NorthWestBendCellLinePropertyPresenter extends propertyPresenter_1.Propert
         return null;
     }
 }
-exports.NorthWestBendCellLinePropertyPresenter = NorthWestBendCellLinePropertyPresenter;
+exports.NorthEastBendCellLinePropertyPresenter = NorthEastBendCellLinePropertyPresenter;
 /**
- * @see NorthEastBendCellLinePropertyPresenter
+ * @see NorthWestBendCellLinePropertyPresenter
  */
-class SouthEastBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+class SouthWestBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.bottom - 4, boundingBox.centerX, boundingBox.centerY, boundingBox.left + 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
         return renderedObject;
@@ -39447,11 +39447,11 @@ class SouthEastBendCellLinePropertyPresenter extends propertyPresenter_1.Propert
         return null;
     }
 }
-exports.SouthEastBendCellLinePropertyPresenter = SouthEastBendCellLinePropertyPresenter;
+exports.SouthWestBendCellLinePropertyPresenter = SouthWestBendCellLinePropertyPresenter;
 /**
- * @see NorthEastBendCellLinePropertyPresenter
+ * @see NorthWestBendCellLinePropertyPresenter
  */
-class SouthWestBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+class SouthEastBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.bottom - 4, boundingBox.centerX, boundingBox.centerY, boundingBox.right - 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
         return renderedObject;
@@ -39460,7 +39460,7 @@ class SouthWestBendCellLinePropertyPresenter extends propertyPresenter_1.Propert
         return null;
     }
 }
-exports.SouthWestBendCellLinePropertyPresenter = SouthWestBendCellLinePropertyPresenter;
+exports.SouthEastBendCellLinePropertyPresenter = SouthEastBendCellLinePropertyPresenter;
 
 
 /***/ }),
@@ -39666,16 +39666,16 @@ class CustomGridPresenter extends gridCellPresenter_1.GridPresenter {
         propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.VerticalCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.VerticalCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
         this.propertyPresenterFactories.push(propertyPresenter);
         property = new property_1.Property("⌟");
-        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
-        this.propertyPresenterFactories.push(propertyPresenter);
-        property = new property_1.Property("⌞");
         propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.NorthWestBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.NorthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
         this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("⌞");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
         property = new property_1.Property("⌝");
-        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
         this.propertyPresenterFactories.push(propertyPresenter);
         property = new property_1.Property("⌜");
-        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
         this.propertyPresenterFactories.push(propertyPresenter);
     }
 }

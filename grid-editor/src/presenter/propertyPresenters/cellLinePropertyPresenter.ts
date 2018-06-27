@@ -45,7 +45,7 @@ export class VerticalCellLinePropertyPresenter extends PropertyPresenter {
 /**
  * Presenter of a line that goes down and then turns left in a @see Cell
  */
-export class NorthEastBendCellLinePropertyPresenter extends PropertyPresenter {
+export class NorthWestBendCellLinePropertyPresenter extends PropertyPresenter {
     protected presentProperty(renderer: IRenderer, boundingBox: Rect): IRenderedObject {
         let renderedObject = renderer.renderTurn(
             boundingBox.centerX, boundingBox.top + 4,
@@ -63,9 +63,9 @@ export class NorthEastBendCellLinePropertyPresenter extends PropertyPresenter {
 }
 
 /**
- * @see NorthEastBendCellLinePropertyPresenter
+ * @see NorthWestBendCellLinePropertyPresenter
  */
-export class NorthWestBendCellLinePropertyPresenter extends PropertyPresenter {
+export class NorthEastBendCellLinePropertyPresenter extends PropertyPresenter {
     protected presentProperty(renderer: IRenderer, boundingBox: Rect): IRenderedObject {
         let renderedObject = renderer.renderTurn(
             boundingBox.centerX, boundingBox.top + 4,
@@ -83,9 +83,9 @@ export class NorthWestBendCellLinePropertyPresenter extends PropertyPresenter {
 }
 
 /**
- * @see NorthEastBendCellLinePropertyPresenter
+ * @see NorthWestBendCellLinePropertyPresenter
  */
-export class SouthEastBendCellLinePropertyPresenter extends PropertyPresenter {
+export class SouthWestBendCellLinePropertyPresenter extends PropertyPresenter {
     protected presentProperty(renderer: IRenderer, boundingBox: Rect): IRenderedObject {
         let renderedObject = renderer.renderTurn(
             boundingBox.centerX, boundingBox.bottom - 4,
@@ -103,9 +103,9 @@ export class SouthEastBendCellLinePropertyPresenter extends PropertyPresenter {
 }
 
 /**
- * @see NorthEastBendCellLinePropertyPresenter
+ * @see NorthWestBendCellLinePropertyPresenter
  */
-export class SouthWestBendCellLinePropertyPresenter extends PropertyPresenter {
+export class SouthEastBendCellLinePropertyPresenter extends PropertyPresenter {
     protected presentProperty(renderer: IRenderer, boundingBox: Rect): IRenderedObject {
         let renderedObject = renderer.renderTurn(
             boundingBox.centerX, boundingBox.bottom - 4,

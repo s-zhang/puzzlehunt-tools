@@ -5,7 +5,7 @@ import { Property } from "../../model/property";
 import { PropertyPresenterFactory } from "../propertyPresenter";
 import { TextPropertyPresenter } from "../propertyPresenters/textPropertyPresenter";
 import { CellBorderLinePropertyPresenter } from "../propertyPresenters/cellBorderLinePropertyPresenter";
-import { HorizontalCellLinePropertyPresenter, VerticalCellLinePropertyPresenter, NorthEastBendCellLinePropertyPresenter, NorthWestBendCellLinePropertyPresenter, SouthEastBendCellLinePropertyPresenter, SouthWestBendCellLinePropertyPresenter } from "../propertyPresenters/cellLinePropertyPresenter";
+import { HorizontalCellLinePropertyPresenter, VerticalCellLinePropertyPresenter, NorthWestBendCellLinePropertyPresenter, NorthEastBendCellLinePropertyPresenter, SouthWestBendCellLinePropertyPresenter, SouthEastBendCellLinePropertyPresenter } from "../propertyPresenters/cellLinePropertyPresenter";
 
 export class CustomGridPresenter extends GridPresenter {
     constructor(width : number, height : number, controller : IController) {
@@ -41,23 +41,23 @@ export class CustomGridPresenter extends GridPresenter {
         this.propertyPresenterFactories.push(propertyPresenter)
 
         property = new Property("⌟")
-        propertyPresenter = new PropertyPresenterFactory(NorthEastBendCellLinePropertyPresenter,
-            property, NorthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
-        this.propertyPresenterFactories.push(propertyPresenter)
-
-        property = new Property("⌞")
         propertyPresenter = new PropertyPresenterFactory(NorthWestBendCellLinePropertyPresenter,
             property, NorthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
         this.propertyPresenterFactories.push(propertyPresenter)
 
+        property = new Property("⌞")
+        propertyPresenter = new PropertyPresenterFactory(NorthEastBendCellLinePropertyPresenter,
+            property, NorthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
+        this.propertyPresenterFactories.push(propertyPresenter)
+
         property = new Property("⌝")
-        propertyPresenter = new PropertyPresenterFactory(SouthEastBendCellLinePropertyPresenter,
-            property, SouthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
+        propertyPresenter = new PropertyPresenterFactory(SouthWestBendCellLinePropertyPresenter,
+            property, SouthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
         this.propertyPresenterFactories.push(propertyPresenter)
 
         property = new Property("⌜")
-        propertyPresenter = new PropertyPresenterFactory(SouthWestBendCellLinePropertyPresenter,
-            property, SouthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
+        propertyPresenter = new PropertyPresenterFactory(SouthEastBendCellLinePropertyPresenter,
+            property, SouthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
         this.propertyPresenterFactories.push(propertyPresenter)
     }
 }
