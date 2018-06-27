@@ -72,6 +72,9 @@ export class D3Renderer implements IRenderer {
         button.appendTo($(`#${divId}`))
         return new JQueryRenderedObject(button)
     }
+    /**
+     * Append a line of a certain width to a d3 element selection
+     */
     private _appendLineOfWidth(element: d3.Selection<d3.BaseType, {}, HTMLElement, any>, fromX: number, fromY: number, toX: number, toY: number, halfWidth: number): void {
         let width : number = halfWidth * 2;
         [fromX, toX] = [fromX, toX].sort((a, b) => a - b);
@@ -82,6 +85,9 @@ export class D3Renderer implements IRenderer {
             .attr("width", toX - fromX == 0 ? width : toX - fromX + 8)
             .attr("height", toY - fromY == 0 ? width : toY - fromY + 8)
     }
+    /**
+     * @see IRenderer#renderTurn
+     */
     renderTurn(x1 : number, y1 : number, x2 : number, y2 : number, x3 : number, y3 : number, halfWidth: number, layer : number[], opacity : number): IRenderedObject {
         let group = this.getLayer(layer).append("g")
             .attr("pointer-events", "all")

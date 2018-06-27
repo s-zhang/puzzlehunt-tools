@@ -39409,6 +39409,9 @@ class VerticalCellLinePropertyPresenter extends propertyPresenter_1.PropertyPres
     }
 }
 exports.VerticalCellLinePropertyPresenter = VerticalCellLinePropertyPresenter;
+/**
+ * Presenter of a line that goes down and then turns left in a @see Cell
+ */
 class NorthEastBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.top + 4, boundingBox.centerX, boundingBox.centerY, boundingBox.left + 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
@@ -39419,6 +39422,9 @@ class NorthEastBendCellLinePropertyPresenter extends propertyPresenter_1.Propert
     }
 }
 exports.NorthEastBendCellLinePropertyPresenter = NorthEastBendCellLinePropertyPresenter;
+/**
+ * @see NorthEastBendCellLinePropertyPresenter
+ */
 class NorthWestBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.top + 4, boundingBox.centerX, boundingBox.centerY, boundingBox.right - 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
@@ -39429,6 +39435,9 @@ class NorthWestBendCellLinePropertyPresenter extends propertyPresenter_1.Propert
     }
 }
 exports.NorthWestBendCellLinePropertyPresenter = NorthWestBendCellLinePropertyPresenter;
+/**
+ * @see NorthEastBendCellLinePropertyPresenter
+ */
 class SouthEastBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.bottom - 4, boundingBox.centerX, boundingBox.centerY, boundingBox.left + 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
@@ -39439,6 +39448,9 @@ class SouthEastBendCellLinePropertyPresenter extends propertyPresenter_1.Propert
     }
 }
 exports.SouthEastBendCellLinePropertyPresenter = SouthEastBendCellLinePropertyPresenter;
+/**
+ * @see NorthEastBendCellLinePropertyPresenter
+ */
 class SouthWestBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.bottom - 4, boundingBox.centerX, boundingBox.centerY, boundingBox.right - 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
@@ -39935,6 +39947,9 @@ class D3Renderer {
         button.appendTo($(`#${divId}`));
         return new JQueryRenderedObject(button);
     }
+    /**
+     * Append a line of a certain width to a d3 element selection
+     */
     _appendLineOfWidth(element, fromX, fromY, toX, toY, halfWidth) {
         let width = halfWidth * 2;
         [fromX, toX] = [fromX, toX].sort((a, b) => a - b);
@@ -39945,6 +39960,9 @@ class D3Renderer {
             .attr("width", toX - fromX == 0 ? width : toX - fromX + 8)
             .attr("height", toY - fromY == 0 ? width : toY - fromY + 8);
     }
+    /**
+     * @see IRenderer#renderTurn
+     */
     renderTurn(x1, y1, x2, y2, x3, y3, halfWidth, layer, opacity) {
         let group = this.getLayer(layer).append("g")
             .attr("pointer-events", "all")

@@ -42,6 +42,9 @@ export class VerticalCellLinePropertyPresenter extends PropertyPresenter {
     }
 }
 
+/**
+ * Presenter of a line that goes down and then turns left in a @see Cell
+ */
 export class NorthEastBendCellLinePropertyPresenter extends PropertyPresenter {
     protected presentProperty(renderer: IRenderer, boundingBox: Rect): IRenderedObject {
         let renderedObject = renderer.renderTurn(
@@ -59,6 +62,9 @@ export class NorthEastBendCellLinePropertyPresenter extends PropertyPresenter {
     }
 }
 
+/**
+ * @see NorthEastBendCellLinePropertyPresenter
+ */
 export class NorthWestBendCellLinePropertyPresenter extends PropertyPresenter {
     protected presentProperty(renderer: IRenderer, boundingBox: Rect): IRenderedObject {
         let renderedObject = renderer.renderTurn(
@@ -76,6 +82,9 @@ export class NorthWestBendCellLinePropertyPresenter extends PropertyPresenter {
     }
 }
 
+/**
+ * @see NorthEastBendCellLinePropertyPresenter
+ */
 export class SouthEastBendCellLinePropertyPresenter extends PropertyPresenter {
     protected presentProperty(renderer: IRenderer, boundingBox: Rect): IRenderedObject {
         let renderedObject = renderer.renderTurn(
@@ -93,6 +102,9 @@ export class SouthEastBendCellLinePropertyPresenter extends PropertyPresenter {
     }
 }
 
+/**
+ * @see NorthEastBendCellLinePropertyPresenter
+ */
 export class SouthWestBendCellLinePropertyPresenter extends PropertyPresenter {
     protected presentProperty(renderer: IRenderer, boundingBox: Rect): IRenderedObject {
         let renderedObject = renderer.renderTurn(
