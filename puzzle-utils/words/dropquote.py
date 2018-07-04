@@ -151,7 +151,7 @@ def dropquote_apply_word(grid, letters, word_index, word):
     for column in letters:
         current_letters.append(list(column.lower()))
 
-    row, column = dropquote_locate_word(grid, letters, word_index)
+    row, column = dropquote_locate_word(grid, word_index)
     dropquote_apply_word_validate(grid, letters, word, row, column)
     dropquote_apply_word_at_location(grid, current_letters, word, row, column)
 
@@ -159,9 +159,7 @@ def dropquote_apply_word(grid, letters, word_index, word):
     for column in current_letters:
         letters.append(''.join(column))
 
-def dropquote_locate_word(grid, letters, word_index):
-    grid[-1] += '-'
-
+def dropquote_locate_word(grid, word_index):
     index = 0
     new = True
     found = False
@@ -180,8 +178,6 @@ def dropquote_locate_word(grid, letters, word_index):
         
         if found == True:
             break
-
-    grid[-1] = grid[-1][:-1]
     
     if found == False:
         raise ValueError('The word index is greater than the number of words.')
