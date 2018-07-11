@@ -14,20 +14,20 @@ export class D3Renderer implements IRenderer {
             .attr("id", "svgcanvas")
             .attr("width", `${this._renderArea.width}px`)
             .attr("height", `${this._renderArea.height}px`)
-        //$("#mysvg")[0].getBoundingClientRect()
     }
     get renderArea() : Rect {
         return this._renderArea
     }
-    renderCircle(x: number, y: number, radius: number, layer : number[]): IRenderedObject {
+    renderCircle(x: number, y: number, radius: number, layer : number[], opacity : number): IRenderedObject {
         return new D3RenderedObject(this.getLayer(layer).append("circle")
             .attr("cx", this._xOffset + x)
             .attr("cy", this._yOffset + y)
             .attr("r", radius)
             .attr("pointer-events", "all")
-            .style("fill", "black"))
+            .style("fill", "black")
+            .style("opacity", opacity))
     }
-    renderRectangle(x: number, y: number, width: number, height: number, layer : number[], color : string): IRenderedObject {
+    renderRectangle(x: number, y: number, width: number, height: number, layer : number[], color : string, opacity : number): IRenderedObject {
         return new D3RenderedObject(this.getLayer(layer).append("rect")
             .attr("x", this._xOffset + x)
             .attr("y", this._yOffset + y)
@@ -35,16 +35,18 @@ export class D3Renderer implements IRenderer {
             .attr("height", height)
             .attr("pointer-events", "all")
             .style("fill", color)
+            .style("opacity", opacity)
             .style("stroke", "none"))
     }
-    renderLine(fromX: number, fromY: number, toX: number, toY: number, layer : number[]): IRenderedObject {
+    renderLine(fromX: number, fromY: number, toX: number, toY: number, layer : number[], opacity : number): IRenderedObject {
         return new D3RenderedObject(this.getLayer(layer).append("line")
             .attr("x1", this._xOffset + fromX)
             .attr("y1", this._yOffset + fromY)
             .attr("x2", this._xOffset + toX)
             .attr("y2", this._yOffset + toY)
             .style("stroke", "#000")
-            .style("stroke-width", "2"))
+            .style("stroke-width", "2")
+            .style("opacity", opacity))
             
         /*
         using jquery doesn't seem to trigger redraw of svg
@@ -52,7 +54,7 @@ export class D3Renderer implements IRenderer {
         line.appendTo($("#svgcanvas"))
         return new JQueryRenderedObject(line)*/
     }
-    renderText(text: string, boundingBox : Rect, layer : number[]): IRenderedObject {
+    renderText(text: string, boundingBox : Rect, layer : number[], opacity : number): IRenderedObject {
         //let fontSize = 15
         //let fontSize = 32
         let fontSize = (32 - 15) / (50 - 8) * (boundingBox.minSide - 50) + 32
@@ -62,12 +64,39 @@ export class D3Renderer implements IRenderer {
             .attr("font-size", fontSize)
             .attr("text-anchor", "middle")
             .attr("font-family", "Verdana")
+            .style("opacity", opacity)
             .text(text))
     }
     renderButton(text : string, divId : string) : IRenderedObject {
         let button = $(`<input type="button" value="${text}" />`)
         button.appendTo($(`#${divId}`))
         return new JQueryRenderedObject(button)
+    }
+    /**
+     * Append a line of a certain width to a d3 element selection
+     */
+    private _appendLineOfWidth(element: d3.Selection<d3.BaseType, {}, HTMLElement, any>, fromX: number, fromY: number, toX: number, toY: number, halfWidth: number): void {
+        let width : number = halfWidth * 2;
+        [fromX, toX] = [fromX, toX].sort((a, b) => a - b);
+        [fromY, toY] = [fromY, toY].sort((a, b) => a - b);
+        element.append("rect")
+            .attr("x", this._xOffset + fromX - halfWidth)
+            .attr("y", this._yOffset + fromY - halfWidth)
+            .attr("width", toX - fromX == 0 ? width : toX - fromX + 8)
+            .attr("height", toY - fromY == 0 ? width : toY - fromY + 8)
+    }
+    /**
+     * @see IRenderer#renderTurn
+     */
+    renderTurn(x1 : number, y1 : number, x2 : number, y2 : number, x3 : number, y3 : number, halfWidth: number, layer : number[], opacity : number): IRenderedObject {
+        let group = this.getLayer(layer).append("g")
+            .attr("pointer-events", "all")
+            .style("fill", "black")
+            .style("opacity", opacity)
+            .style("stroke", "none")
+        this._appendLineOfWidth(group, x1, y1, x2, y2, halfWidth)
+        this._appendLineOfWidth(group, x2, y2, x3, y3, halfWidth)
+        return new D3RenderedObject(group)
     }
     clear(): void {
         this._canvas.selectAll("*").remove()

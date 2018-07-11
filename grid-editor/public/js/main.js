@@ -16427,7 +16427,7 @@ var scheme = new Array(3).concat(
 /*!****************************************!*\
   !*** ./node_modules/d3-scale/index.js ***!
   \****************************************/
-/*! exports provided: scaleBand, scalePoint, scaleIdentity, scaleLinear, scaleLog, scaleOrdinal, scaleImplicit, scalePow, scaleSqrt, scaleQuantile, scaleQuantize, scaleThreshold, scaleTime, scaleUtc, scaleSequential */
+/*! exports provided: scaleBand, scalePoint, scaleIdentity, scaleLinear, scaleLog, scaleOrdinal, scaleImplicit, scalePow, scaleSqrt, scaleQuantile, scaleQuantize, scaleThreshold, scaleTime, scaleUtc, scaleSequential, scaleDiverging */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -16473,6 +16473,11 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony import */ var _src_sequential__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./src/sequential */ "./node_modules/d3-scale/src/sequential.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "scaleSequential", function() { return _src_sequential__WEBPACK_IMPORTED_MODULE_11__["default"]; });
+
+/* harmony import */ var _src_diverging__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./src/diverging */ "./node_modules/d3-scale/src/diverging.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "scaleDiverging", function() { return _src_diverging__WEBPACK_IMPORTED_MODULE_12__["default"]; });
+
+
 
 
 
@@ -16785,6 +16790,54 @@ function continuous(deinterpolate, reinterpolate) {
   };
 
   return rescale();
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/d3-scale/src/diverging.js":
+/*!************************************************!*\
+  !*** ./node_modules/d3-scale/src/diverging.js ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return diverging; });
+/* harmony import */ var _linear__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./linear */ "./node_modules/d3-scale/src/linear.js");
+
+
+function diverging(interpolator) {
+  var x0 = 0,
+      x1 = 0.5,
+      x2 = 1,
+      k10 = 1,
+      k21 = 1,
+      clamp = false;
+
+  function scale(x) {
+    var t = 0.5 + ((x = +x) - x1) * (x < x1 ? k10 : k21);
+    return interpolator(clamp ? Math.max(0, Math.min(1, t)) : t);
+  }
+
+  scale.domain = function(_) {
+    return arguments.length ? (x0 = +_[0], x1 = +_[1], x2 = +_[2], k10 = x0 === x1 ? 0 : 0.5 / (x1 - x0), k21 = x1 === x2 ? 0 : 0.5 / (x2 - x1), scale) : [x0, x1, x2];
+  };
+
+  scale.clamp = function(_) {
+    return arguments.length ? (clamp = !!_, scale) : clamp;
+  };
+
+  scale.interpolator = function(_) {
+    return arguments.length ? (interpolator = _, scale) : interpolator;
+  };
+
+  scale.copy = function() {
+    return diverging(interpolator).domain([x0, x1, x2]).clamp(clamp);
+  };
+
+  return Object(_linear__WEBPACK_IMPORTED_MODULE_0__["linearish"])(scale);
 }
 
 
@@ -17377,15 +17430,16 @@ __webpack_require__.r(__webpack_exports__);
 function sequential(interpolator) {
   var x0 = 0,
       x1 = 1,
+      k10 = 1,
       clamp = false;
 
   function scale(x) {
-    var t = (x - x0) / (x1 - x0);
+    var t = (x - x0) * k10;
     return interpolator(clamp ? Math.max(0, Math.min(1, t)) : t);
   }
 
   scale.domain = function(_) {
-    return arguments.length ? (x0 = +_[0], x1 = +_[1], scale) : [x0, x1];
+    return arguments.length ? (x0 = +_[0], x1 = +_[1], k10 = x0 === x1 ? 0 : 1 / (x1 - x0), scale) : [x0, x1];
   };
 
   scale.clamp = function(_) {
@@ -27206,7 +27260,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "devDependencies", function() { return devDependencies; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "dependencies", function() { return dependencies; });
 var name = "d3";
-var version = "5.4.0";
+var version = "5.5.0";
 var description = "Data-Driven Documents";
 var keywords = ["dom","visualization","svg","animation","canvas"];
 var homepage = "https://d3js.org";
@@ -27228,7 +27282,7 @@ var dependencies = {"d3-array":"1","d3-axis":"1","d3-brush":"1","d3-chord":"1","
 /*!**********************************!*\
   !*** ./node_modules/d3/index.js ***!
   \**********************************/
-/*! exports provided: version, bisect, bisectRight, bisectLeft, ascending, bisector, cross, descending, deviation, extent, histogram, thresholdFreedmanDiaconis, thresholdScott, thresholdSturges, max, mean, median, merge, min, pairs, permute, quantile, range, scan, shuffle, sum, ticks, tickIncrement, tickStep, transpose, variance, zip, axisTop, axisRight, axisBottom, axisLeft, brush, brushX, brushY, brushSelection, chord, ribbon, nest, set, map, keys, values, entries, color, rgb, hsl, lab, hcl, lch, gray, cubehelix, contours, contourDensity, dispatch, drag, dragDisable, dragEnable, dsvFormat, csvParse, csvParseRows, csvFormat, csvFormatRows, tsvParse, tsvParseRows, tsvFormat, tsvFormatRows, easeLinear, easeQuad, easeQuadIn, easeQuadOut, easeQuadInOut, easeCubic, easeCubicIn, easeCubicOut, easeCubicInOut, easePoly, easePolyIn, easePolyOut, easePolyInOut, easeSin, easeSinIn, easeSinOut, easeSinInOut, easeExp, easeExpIn, easeExpOut, easeExpInOut, easeCircle, easeCircleIn, easeCircleOut, easeCircleInOut, easeBounce, easeBounceIn, easeBounceOut, easeBounceInOut, easeBack, easeBackIn, easeBackOut, easeBackInOut, easeElastic, easeElasticIn, easeElasticOut, easeElasticInOut, blob, buffer, dsv, csv, tsv, image, json, text, xml, html, svg, forceCenter, forceCollide, forceLink, forceManyBody, forceRadial, forceSimulation, forceX, forceY, formatDefaultLocale, format, formatPrefix, formatLocale, formatSpecifier, precisionFixed, precisionPrefix, precisionRound, geoArea, geoBounds, geoCentroid, geoCircle, geoClipAntimeridian, geoClipCircle, geoClipExtent, geoClipRectangle, geoContains, geoDistance, geoGraticule, geoGraticule10, geoInterpolate, geoLength, geoPath, geoAlbers, geoAlbersUsa, geoAzimuthalEqualArea, geoAzimuthalEqualAreaRaw, geoAzimuthalEquidistant, geoAzimuthalEquidistantRaw, geoConicConformal, geoConicConformalRaw, geoConicEqualArea, geoConicEqualAreaRaw, geoConicEquidistant, geoConicEquidistantRaw, geoEquirectangular, geoEquirectangularRaw, geoGnomonic, geoGnomonicRaw, geoIdentity, geoProjection, geoProjectionMutator, geoMercator, geoMercatorRaw, geoNaturalEarth1, geoNaturalEarth1Raw, geoOrthographic, geoOrthographicRaw, geoStereographic, geoStereographicRaw, geoTransverseMercator, geoTransverseMercatorRaw, geoRotation, geoStream, geoTransform, cluster, hierarchy, pack, packSiblings, packEnclose, partition, stratify, tree, treemap, treemapBinary, treemapDice, treemapSlice, treemapSliceDice, treemapSquarify, treemapResquarify, interpolate, interpolateArray, interpolateBasis, interpolateBasisClosed, interpolateDate, interpolateNumber, interpolateObject, interpolateRound, interpolateString, interpolateTransformCss, interpolateTransformSvg, interpolateZoom, interpolateRgb, interpolateRgbBasis, interpolateRgbBasisClosed, interpolateHsl, interpolateHslLong, interpolateLab, interpolateHcl, interpolateHclLong, interpolateCubehelix, interpolateCubehelixLong, piecewise, quantize, path, polygonArea, polygonCentroid, polygonHull, polygonContains, polygonLength, quadtree, randomUniform, randomNormal, randomLogNormal, randomBates, randomIrwinHall, randomExponential, scaleBand, scalePoint, scaleIdentity, scaleLinear, scaleLog, scaleOrdinal, scaleImplicit, scalePow, scaleSqrt, scaleQuantile, scaleQuantize, scaleThreshold, scaleTime, scaleUtc, scaleSequential, schemeCategory10, schemeAccent, schemeDark2, schemePaired, schemePastel1, schemePastel2, schemeSet1, schemeSet2, schemeSet3, interpolateBrBG, schemeBrBG, interpolatePRGn, schemePRGn, interpolatePiYG, schemePiYG, interpolatePuOr, schemePuOr, interpolateRdBu, schemeRdBu, interpolateRdGy, schemeRdGy, interpolateRdYlBu, schemeRdYlBu, interpolateRdYlGn, schemeRdYlGn, interpolateSpectral, schemeSpectral, interpolateBuGn, schemeBuGn, interpolateBuPu, schemeBuPu, interpolateGnBu, schemeGnBu, interpolateOrRd, schemeOrRd, interpolatePuBuGn, schemePuBuGn, interpolatePuBu, schemePuBu, interpolatePuRd, schemePuRd, interpolateRdPu, schemeRdPu, interpolateYlGnBu, schemeYlGnBu, interpolateYlGn, schemeYlGn, interpolateYlOrBr, schemeYlOrBr, interpolateYlOrRd, schemeYlOrRd, interpolateBlues, schemeBlues, interpolateGreens, schemeGreens, interpolateGreys, schemeGreys, interpolatePurples, schemePurples, interpolateReds, schemeReds, interpolateOranges, schemeOranges, interpolateCubehelixDefault, interpolateRainbow, interpolateWarm, interpolateCool, interpolateSinebow, interpolateViridis, interpolateMagma, interpolateInferno, interpolatePlasma, create, creator, local, matcher, mouse, namespace, namespaces, clientPoint, select, selectAll, selection, selector, selectorAll, style, touch, touches, window, event, customEvent, arc, area, line, pie, areaRadial, radialArea, lineRadial, radialLine, pointRadial, linkHorizontal, linkVertical, linkRadial, symbol, symbols, symbolCircle, symbolCross, symbolDiamond, symbolSquare, symbolStar, symbolTriangle, symbolWye, curveBasisClosed, curveBasisOpen, curveBasis, curveBundle, curveCardinalClosed, curveCardinalOpen, curveCardinal, curveCatmullRomClosed, curveCatmullRomOpen, curveCatmullRom, curveLinearClosed, curveLinear, curveMonotoneX, curveMonotoneY, curveNatural, curveStep, curveStepAfter, curveStepBefore, stack, stackOffsetExpand, stackOffsetDiverging, stackOffsetNone, stackOffsetSilhouette, stackOffsetWiggle, stackOrderAscending, stackOrderDescending, stackOrderInsideOut, stackOrderNone, stackOrderReverse, timeInterval, timeMillisecond, timeMilliseconds, utcMillisecond, utcMilliseconds, timeSecond, timeSeconds, utcSecond, utcSeconds, timeMinute, timeMinutes, timeHour, timeHours, timeDay, timeDays, timeWeek, timeWeeks, timeSunday, timeSundays, timeMonday, timeMondays, timeTuesday, timeTuesdays, timeWednesday, timeWednesdays, timeThursday, timeThursdays, timeFriday, timeFridays, timeSaturday, timeSaturdays, timeMonth, timeMonths, timeYear, timeYears, utcMinute, utcMinutes, utcHour, utcHours, utcDay, utcDays, utcWeek, utcWeeks, utcSunday, utcSundays, utcMonday, utcMondays, utcTuesday, utcTuesdays, utcWednesday, utcWednesdays, utcThursday, utcThursdays, utcFriday, utcFridays, utcSaturday, utcSaturdays, utcMonth, utcMonths, utcYear, utcYears, timeFormatDefaultLocale, timeFormat, timeParse, utcFormat, utcParse, timeFormatLocale, isoFormat, isoParse, now, timer, timerFlush, timeout, interval, transition, active, interrupt, voronoi, zoom, zoomTransform, zoomIdentity */
+/*! exports provided: version, bisect, bisectRight, bisectLeft, ascending, bisector, cross, descending, deviation, extent, histogram, thresholdFreedmanDiaconis, thresholdScott, thresholdSturges, max, mean, median, merge, min, pairs, permute, quantile, range, scan, shuffle, sum, ticks, tickIncrement, tickStep, transpose, variance, zip, axisTop, axisRight, axisBottom, axisLeft, brush, brushX, brushY, brushSelection, chord, ribbon, nest, set, map, keys, values, entries, color, rgb, hsl, lab, hcl, lch, gray, cubehelix, contours, contourDensity, dispatch, drag, dragDisable, dragEnable, dsvFormat, csvParse, csvParseRows, csvFormat, csvFormatRows, tsvParse, tsvParseRows, tsvFormat, tsvFormatRows, easeLinear, easeQuad, easeQuadIn, easeQuadOut, easeQuadInOut, easeCubic, easeCubicIn, easeCubicOut, easeCubicInOut, easePoly, easePolyIn, easePolyOut, easePolyInOut, easeSin, easeSinIn, easeSinOut, easeSinInOut, easeExp, easeExpIn, easeExpOut, easeExpInOut, easeCircle, easeCircleIn, easeCircleOut, easeCircleInOut, easeBounce, easeBounceIn, easeBounceOut, easeBounceInOut, easeBack, easeBackIn, easeBackOut, easeBackInOut, easeElastic, easeElasticIn, easeElasticOut, easeElasticInOut, blob, buffer, dsv, csv, tsv, image, json, text, xml, html, svg, forceCenter, forceCollide, forceLink, forceManyBody, forceRadial, forceSimulation, forceX, forceY, formatDefaultLocale, format, formatPrefix, formatLocale, formatSpecifier, precisionFixed, precisionPrefix, precisionRound, geoArea, geoBounds, geoCentroid, geoCircle, geoClipAntimeridian, geoClipCircle, geoClipExtent, geoClipRectangle, geoContains, geoDistance, geoGraticule, geoGraticule10, geoInterpolate, geoLength, geoPath, geoAlbers, geoAlbersUsa, geoAzimuthalEqualArea, geoAzimuthalEqualAreaRaw, geoAzimuthalEquidistant, geoAzimuthalEquidistantRaw, geoConicConformal, geoConicConformalRaw, geoConicEqualArea, geoConicEqualAreaRaw, geoConicEquidistant, geoConicEquidistantRaw, geoEquirectangular, geoEquirectangularRaw, geoGnomonic, geoGnomonicRaw, geoIdentity, geoProjection, geoProjectionMutator, geoMercator, geoMercatorRaw, geoNaturalEarth1, geoNaturalEarth1Raw, geoOrthographic, geoOrthographicRaw, geoStereographic, geoStereographicRaw, geoTransverseMercator, geoTransverseMercatorRaw, geoRotation, geoStream, geoTransform, cluster, hierarchy, pack, packSiblings, packEnclose, partition, stratify, tree, treemap, treemapBinary, treemapDice, treemapSlice, treemapSliceDice, treemapSquarify, treemapResquarify, interpolate, interpolateArray, interpolateBasis, interpolateBasisClosed, interpolateDate, interpolateNumber, interpolateObject, interpolateRound, interpolateString, interpolateTransformCss, interpolateTransformSvg, interpolateZoom, interpolateRgb, interpolateRgbBasis, interpolateRgbBasisClosed, interpolateHsl, interpolateHslLong, interpolateLab, interpolateHcl, interpolateHclLong, interpolateCubehelix, interpolateCubehelixLong, piecewise, quantize, path, polygonArea, polygonCentroid, polygonHull, polygonContains, polygonLength, quadtree, randomUniform, randomNormal, randomLogNormal, randomBates, randomIrwinHall, randomExponential, scaleBand, scalePoint, scaleIdentity, scaleLinear, scaleLog, scaleOrdinal, scaleImplicit, scalePow, scaleSqrt, scaleQuantile, scaleQuantize, scaleThreshold, scaleTime, scaleUtc, scaleSequential, scaleDiverging, schemeCategory10, schemeAccent, schemeDark2, schemePaired, schemePastel1, schemePastel2, schemeSet1, schemeSet2, schemeSet3, interpolateBrBG, schemeBrBG, interpolatePRGn, schemePRGn, interpolatePiYG, schemePiYG, interpolatePuOr, schemePuOr, interpolateRdBu, schemeRdBu, interpolateRdGy, schemeRdGy, interpolateRdYlBu, schemeRdYlBu, interpolateRdYlGn, schemeRdYlGn, interpolateSpectral, schemeSpectral, interpolateBuGn, schemeBuGn, interpolateBuPu, schemeBuPu, interpolateGnBu, schemeGnBu, interpolateOrRd, schemeOrRd, interpolatePuBuGn, schemePuBuGn, interpolatePuBu, schemePuBu, interpolatePuRd, schemePuRd, interpolateRdPu, schemeRdPu, interpolateYlGnBu, schemeYlGnBu, interpolateYlGn, schemeYlGn, interpolateYlOrBr, schemeYlOrBr, interpolateYlOrRd, schemeYlOrRd, interpolateBlues, schemeBlues, interpolateGreens, schemeGreens, interpolateGreys, schemeGreys, interpolatePurples, schemePurples, interpolateReds, schemeReds, interpolateOranges, schemeOranges, interpolateCubehelixDefault, interpolateRainbow, interpolateWarm, interpolateCool, interpolateSinebow, interpolateViridis, interpolateMagma, interpolateInferno, interpolatePlasma, create, creator, local, matcher, mouse, namespace, namespaces, clientPoint, select, selectAll, selection, selector, selectorAll, style, touch, touches, window, event, customEvent, arc, area, line, pie, areaRadial, radialArea, lineRadial, radialLine, pointRadial, linkHorizontal, linkVertical, linkRadial, symbol, symbols, symbolCircle, symbolCross, symbolDiamond, symbolSquare, symbolStar, symbolTriangle, symbolWye, curveBasisClosed, curveBasisOpen, curveBasis, curveBundle, curveCardinalClosed, curveCardinalOpen, curveCardinal, curveCatmullRomClosed, curveCatmullRomOpen, curveCatmullRom, curveLinearClosed, curveLinear, curveMonotoneX, curveMonotoneY, curveNatural, curveStep, curveStepAfter, curveStepBefore, stack, stackOffsetExpand, stackOffsetDiverging, stackOffsetNone, stackOffsetSilhouette, stackOffsetWiggle, stackOrderAscending, stackOrderDescending, stackOrderInsideOut, stackOrderNone, stackOrderReverse, timeInterval, timeMillisecond, timeMilliseconds, utcMillisecond, utcMilliseconds, timeSecond, timeSeconds, utcSecond, utcSeconds, timeMinute, timeMinutes, timeHour, timeHours, timeDay, timeDays, timeWeek, timeWeeks, timeSunday, timeSundays, timeMonday, timeMondays, timeTuesday, timeTuesdays, timeWednesday, timeWednesdays, timeThursday, timeThursdays, timeFriday, timeFridays, timeSaturday, timeSaturdays, timeMonth, timeMonths, timeYear, timeYears, utcMinute, utcMinutes, utcHour, utcHours, utcDay, utcDays, utcWeek, utcWeeks, utcSunday, utcSundays, utcMonday, utcMondays, utcTuesday, utcTuesdays, utcWednesday, utcWednesdays, utcThursday, utcThursdays, utcFriday, utcFridays, utcSaturday, utcSaturdays, utcMonth, utcMonths, utcYear, utcYears, timeFormatDefaultLocale, timeFormat, timeParse, utcFormat, utcParse, timeFormatLocale, isoFormat, isoParse, now, timer, timerFlush, timeout, interval, transition, active, interrupt, voronoi, zoom, zoomTransform, zoomIdentity */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -27753,6 +27807,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "scaleUtc", function() { return d3_scale__WEBPACK_IMPORTED_MODULE_22__["scaleUtc"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "scaleSequential", function() { return d3_scale__WEBPACK_IMPORTED_MODULE_22__["scaleSequential"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "scaleDiverging", function() { return d3_scale__WEBPACK_IMPORTED_MODULE_22__["scaleDiverging"]; });
 
 /* harmony import */ var d3_scale_chromatic__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! d3-scale-chromatic */ "./node_modules/d3-scale-chromatic/index.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "schemeCategory10", function() { return d3_scale_chromatic__WEBPACK_IMPORTED_MODULE_23__["schemeCategory10"]; });
@@ -38633,6 +38689,7 @@ const editorView_1 = __webpack_require__(/*! ./view/editorView */ "./src/view/ed
 class Controller {
     constructor() {
         this._selectedProperty = null;
+        this.forkNumber = 0;
     }
     addPropertyMode(propertyPresenterFactory) {
         this._selectedProperty = propertyPresenterFactory;
@@ -39044,7 +39101,7 @@ class SlitherLinkGrid extends gridCell_1.Grid {
     _borderConstraint(cell) {
         let bordersWithLine = new Array();
         for (let cellBorder of cell.adjacentCellBorders) {
-            if (cellBorder.property != null && cellBorder.property.name == "line") {
+            if (cellBorder.property != null && cellBorder.property.name == "border line") {
                 bordersWithLine.push([cellBorder, cellBorder.property]);
             }
         }
@@ -39164,12 +39221,10 @@ class ConstraintPresenter {
             let shape = violation[0];
             let shapePresenter = this._getShapePresenter(shape);
             shapePresenter.markForViolation();
-            //shapePresenter.selectObject.color("#ffcc00")
             this._affectedPresenters.push(shapePresenter);
             let property = violation[1];
             let propertyPresenter = shapePresenter.getPropertyPresenter(property);
             propertyPresenter.markForViolation();
-            //propertyPresenter.renderedObject.color("red")
             this._affectedPresenters.push(propertyPresenter);
         }
     }
@@ -39196,6 +39251,9 @@ exports.ConstraintPresenter = ConstraintPresenter;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
+/**
+ * Utility class shared among presenters
+ */
 class Presenter {
     constructor(renderLayer, isVisible) {
         this.renderedObject = renderer_1.NotRenderedObject;
@@ -39209,18 +39267,6 @@ class Presenter {
     }
 }
 exports.Presenter = Presenter;
-class FixedPresenter extends Presenter {
-    constructor(renderLayer, isVisible = true) {
-        super(renderLayer, isVisible);
-    }
-}
-exports.FixedPresenter = FixedPresenter;
-class FlexiblePresenter extends Presenter {
-    constructor(renderLayer) {
-        super(renderLayer, true);
-    }
-}
-exports.FlexiblePresenter = FlexiblePresenter;
 
 
 /***/ }),
@@ -39236,9 +39282,9 @@ exports.FlexiblePresenter = FlexiblePresenter;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
-class PropertyPresenter extends presenter_1.FlexiblePresenter {
+class PropertyPresenter extends presenter_1.Presenter {
     constructor(property, parentShapePresenter, controller) {
-        super(parentShapePresenter.renderLayer.concat(2));
+        super(parentShapePresenter.renderLayer.concat(2), true);
         this.property = property;
         this.parentShapePresenter = parentShapePresenter;
         this._controller = controller;
@@ -39275,6 +39321,12 @@ class PropertyPresenter extends presenter_1.FlexiblePresenter {
         this.renderedObject.reset();
         this._isViolationMarked = false;
     }
+    /**
+     * The opacity to render the property determined by @see IController#forkNumber.
+     */
+    get forkOpacity() {
+        return 1 / (Math.pow(2, this._controller.forkNumber));
+    }
 }
 exports.PropertyPresenter = PropertyPresenter;
 class PropertyPresenterFactory {
@@ -39292,10 +39344,10 @@ exports.PropertyPresenterFactory = PropertyPresenterFactory;
 
 /***/ }),
 
-/***/ "./src/presenter/propertyPresenters/linePropertyPresenter.ts":
-/*!*******************************************************************!*\
-  !*** ./src/presenter/propertyPresenters/linePropertyPresenter.ts ***!
-  \*******************************************************************/
+/***/ "./src/presenter/propertyPresenters/cellBorderLinePropertyPresenter.ts":
+/*!*****************************************************************************!*\
+  !*** ./src/presenter/propertyPresenters/cellBorderLinePropertyPresenter.ts ***!
+  \*****************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -39303,16 +39355,112 @@ exports.PropertyPresenterFactory = PropertyPresenterFactory;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
-class LinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+/**
+ * Presenter of lines on a @see CellBorder
+ */
+class CellBorderLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
-        let renderedObject = renderer.renderRectangle(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height, this.renderLayer, "black");
+        let renderedObject = renderer.renderRectangle(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height, this.renderLayer, "black", this.forkOpacity);
         return renderedObject;
     }
     static getKeyboardSelectShortcut(property) {
         return "l";
     }
 }
-exports.LinePropertyPresenter = LinePropertyPresenter;
+exports.CellBorderLinePropertyPresenter = CellBorderLinePropertyPresenter;
+
+
+/***/ }),
+
+/***/ "./src/presenter/propertyPresenters/cellLinePropertyPresenter.ts":
+/*!***********************************************************************!*\
+  !*** ./src/presenter/propertyPresenters/cellLinePropertyPresenter.ts ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
+/**
+ * Presenter of a horizontal line in a @see Cell
+ */
+class HorizontalCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderRectangle(boundingBox.x, boundingBox.centerY - 4, boundingBox.width, 8, this.renderLayer, "black", this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return "-";
+    }
+}
+exports.HorizontalCellLinePropertyPresenter = HorizontalCellLinePropertyPresenter;
+/**
+ * Presenter of a vertical line in a @see Cell
+ */
+class VerticalCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderRectangle(boundingBox.centerX - 4, boundingBox.y, 8, boundingBox.height, this.renderLayer, "black", this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return "|";
+    }
+}
+exports.VerticalCellLinePropertyPresenter = VerticalCellLinePropertyPresenter;
+/**
+ * Presenter of a line that goes down and then turns left in a @see Cell
+ */
+class NorthWestBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.top + 4, boundingBox.centerX, boundingBox.centerY, boundingBox.left + 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return null;
+    }
+}
+exports.NorthWestBendCellLinePropertyPresenter = NorthWestBendCellLinePropertyPresenter;
+/**
+ * @see NorthWestBendCellLinePropertyPresenter
+ */
+class NorthEastBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.top + 4, boundingBox.centerX, boundingBox.centerY, boundingBox.right - 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return null;
+    }
+}
+exports.NorthEastBendCellLinePropertyPresenter = NorthEastBendCellLinePropertyPresenter;
+/**
+ * @see NorthWestBendCellLinePropertyPresenter
+ */
+class SouthWestBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.bottom - 4, boundingBox.centerX, boundingBox.centerY, boundingBox.left + 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return null;
+    }
+}
+exports.SouthWestBendCellLinePropertyPresenter = SouthWestBendCellLinePropertyPresenter;
+/**
+ * @see NorthWestBendCellLinePropertyPresenter
+ */
+class SouthEastBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.bottom - 4, boundingBox.centerX, boundingBox.centerY, boundingBox.right - 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return null;
+    }
+}
+exports.SouthEastBendCellLinePropertyPresenter = SouthEastBendCellLinePropertyPresenter;
 
 
 /***/ }),
@@ -39330,7 +39478,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
 class TextPropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
-        return renderer.renderText(this.property.name, boundingBox, this.renderLayer);
+        return renderer.renderText(this.property.name, boundingBox, this.renderLayer, this.forkOpacity);
     }
     static getKeyboardSelectShortcut(property) {
         return property.name.substr(0, 1);
@@ -39354,9 +39502,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const constraintPresenter_1 = __webpack_require__(/*! ./constraintPresenter */ "./src/presenter/constraintPresenter.ts");
 const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
 const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
-class ShapePresenter extends presenter_1.FixedPresenter {
+/**
+ * Presenter that handles the rendering of @see Shape s
+ */
+class ShapePresenter extends presenter_1.Presenter {
     constructor(shape, renderLayer, affectedConstraints, controller, isSelfPresented = true) {
-        super(renderLayer);
+        super(renderLayer, isSelfPresented);
         this._shape = shape;
         this.isSelfPresented = isSelfPresented;
         this._propertyPresenters = new Map();
@@ -39432,6 +39583,9 @@ class ShapePresenter extends presenter_1.FixedPresenter {
     }
 }
 exports.ShapePresenter = ShapePresenter;
+/**
+ * Presenter that handles the rendering of @see Shape s that make up a puzzle board.
+ */
 class ShapeCollectionPresenter {
     constructor() {
         this.shapePresenters = new Map();
@@ -39487,7 +39641,8 @@ const gridCell_1 = __webpack_require__(/*! ../../model/shapes/gridCell */ "./src
 const property_1 = __webpack_require__(/*! ../../model/property */ "./src/model/property.ts");
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
 const textPropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/textPropertyPresenter */ "./src/presenter/propertyPresenters/textPropertyPresenter.ts");
-const linePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/linePropertyPresenter */ "./src/presenter/propertyPresenters/linePropertyPresenter.ts");
+const cellBorderLinePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/cellBorderLinePropertyPresenter */ "./src/presenter/propertyPresenters/cellBorderLinePropertyPresenter.ts");
+const cellLinePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/cellLinePropertyPresenter */ "./src/presenter/propertyPresenters/cellLinePropertyPresenter.ts");
 class CustomGridPresenter extends gridCellPresenter_1.GridPresenter {
     constructor(width, height, controller) {
         super(new gridCell_1.Grid(width, height), controller);
@@ -39501,8 +39656,26 @@ class CustomGridPresenter extends gridCellPresenter_1.GridPresenter {
             let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
             this.propertyPresenterFactories.push(propertyPresenter);
         }
-        let property = new property_1.Property("line");
-        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(linePropertyPresenter_1.LinePropertyPresenter, property, linePropertyPresenter_1.LinePropertyPresenter.getKeyboardSelectShortcut(property));
+        let property = new property_1.Property("border line");
+        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter, property, cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("-");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.HorizontalCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.HorizontalCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("|");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.VerticalCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.VerticalCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("⌟");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.NorthWestBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.NorthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("⌞");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("⌝");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("⌜");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
         this.propertyPresenterFactories.push(propertyPresenter);
     }
 }
@@ -39534,7 +39707,7 @@ class SqaureCellPresenter extends shapePresenter_1.ShapePresenter {
         return renderer_1.NotRenderedObject;
     }
     presentSelectObject(renderer) {
-        let renderedObject = renderer.renderRectangle(this._cell.column * this._sideLength, this._cell.row * this._sideLength, this._sideLength, this._sideLength, this.renderLayer.concat(1), "none");
+        let renderedObject = renderer.renderRectangle(this._cell.column * this._sideLength, this._cell.row * this._sideLength, this._sideLength, this._sideLength, this.renderLayer.concat(1), "none", 1);
         //renderedObject.makeTransparent()
         return renderedObject;
     }
@@ -39549,23 +39722,23 @@ class CellBorderPresenter extends shapePresenter_1.ShapePresenter {
         super(cellBorder, renderLayer, affectedConstraints, controller);
         this._cellBorder = cellBorder;
         this._sideLength = sideLength;
-        this._boudingBox = new renderer_1.Rect(cellBorder.fromColumn * sideLength - 4, cellBorder.fromRow * sideLength - 4, (cellBorder.toColumn - cellBorder.fromColumn) * sideLength + 8, (cellBorder.toRow - cellBorder.fromRow) * sideLength + 8);
+        this._boundingBox = new renderer_1.Rect(cellBorder.fromColumn * sideLength - 4, cellBorder.fromRow * sideLength - 4, (cellBorder.toColumn - cellBorder.fromColumn) * sideLength + 8, (cellBorder.toRow - cellBorder.fromRow) * sideLength + 8);
     }
     presentSelf(renderer) {
-        return renderer.renderLine(this._cellBorder.fromColumn * this._sideLength, this._cellBorder.fromRow * this._sideLength, this._cellBorder.toColumn * this._sideLength, this._cellBorder.toRow * this._sideLength, this.renderLayer.concat(0));
+        return renderer.renderLine(this._cellBorder.fromColumn * this._sideLength, this._cellBorder.fromRow * this._sideLength, this._cellBorder.toColumn * this._sideLength, this._cellBorder.toRow * this._sideLength, this.renderLayer.concat(0), 1);
     }
     presentSelectObject(renderer) {
-        let selectObject = renderer.renderRectangle(this._boudingBox.x, this._boudingBox.y, this._boudingBox.width, this._boudingBox.height, this.renderLayer.concat(1), "none");
+        let selectObject = renderer.renderRectangle(this._boundingBox.x, this._boundingBox.y, this._boundingBox.width, this._boundingBox.height, this.renderLayer.concat(1), "none", 1);
         selectObject.makeTransparent();
         return selectObject;
     }
     getBoundingBoxes(numBoxes) {
         let boudingBoxes = new Array();
-        if (this._boudingBox.height > this._boudingBox.width) {
-            return this._boudingBox.divide(numBoxes, 1);
+        if (this._boundingBox.height > this._boundingBox.width) {
+            return this._boundingBox.divide(numBoxes, 1);
         }
         else {
-            return this._boudingBox.divide(1, numBoxes);
+            return this._boundingBox.divide(1, numBoxes);
         }
     }
 }
@@ -39577,10 +39750,10 @@ class GridIntersectionPresenter extends shapePresenter_1.ShapePresenter {
         this._sideLength = sideLength;
     }
     presentSelf(renderer) {
-        return renderer.renderCircle(this._intersection.column * this._sideLength, this._intersection.row * this._sideLength, 3, this.renderLayer.concat(0));
+        return renderer.renderCircle(this._intersection.column * this._sideLength, this._intersection.row * this._sideLength, 3, this.renderLayer.concat(0), 1);
     }
     presentSelectObject(renderer) {
-        let selectObject = renderer.renderCircle(this._intersection.column * this._sideLength, this._intersection.row * this._sideLength, 7, this.renderLayer.concat(1));
+        let selectObject = renderer.renderCircle(this._intersection.column * this._sideLength, this._intersection.row * this._sideLength, 7, this.renderLayer.concat(1), 1);
         selectObject.makeTransparent();
         return selectObject;
     }
@@ -39640,7 +39813,7 @@ const slitherLink_1 = __webpack_require__(/*! ../../model/shapes/slitherLink */ 
 const property_1 = __webpack_require__(/*! ../../model/property */ "./src/model/property.ts");
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
 const textPropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/textPropertyPresenter */ "./src/presenter/propertyPresenters/textPropertyPresenter.ts");
-const linePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/linePropertyPresenter */ "./src/presenter/propertyPresenters/linePropertyPresenter.ts");
+const cellBorderLinePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/cellBorderLinePropertyPresenter */ "./src/presenter/propertyPresenters/cellBorderLinePropertyPresenter.ts");
 class SlitherLinkPresenter extends gridCellPresenter_1.GridPresenter {
     constructor(width, height, controller) {
         super(new slitherLink_1.SlitherLinkGrid(width, height), controller);
@@ -39650,8 +39823,8 @@ class SlitherLinkPresenter extends gridCellPresenter_1.GridPresenter {
             let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
             this.propertyPresenterFactories.push(propertyPresenter);
         }
-        let property = new property_1.Property("line");
-        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(linePropertyPresenter_1.LinePropertyPresenter, property, linePropertyPresenter_1.LinePropertyPresenter.getKeyboardSelectShortcut(property));
+        let property = new property_1.Property("border line");
+        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter, property, cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(property));
         this.propertyPresenterFactories.push(propertyPresenter);
         property = new property_1.Property("X");
         propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
@@ -39717,20 +39890,20 @@ class D3Renderer {
             .attr("id", "svgcanvas")
             .attr("width", `${this._renderArea.width}px`)
             .attr("height", `${this._renderArea.height}px`);
-        //$("#mysvg")[0].getBoundingClientRect()
     }
     get renderArea() {
         return this._renderArea;
     }
-    renderCircle(x, y, radius, layer) {
+    renderCircle(x, y, radius, layer, opacity) {
         return new D3RenderedObject(this.getLayer(layer).append("circle")
             .attr("cx", this._xOffset + x)
             .attr("cy", this._yOffset + y)
             .attr("r", radius)
             .attr("pointer-events", "all")
-            .style("fill", "black"));
+            .style("fill", "black")
+            .style("opacity", opacity));
     }
-    renderRectangle(x, y, width, height, layer, color) {
+    renderRectangle(x, y, width, height, layer, color, opacity) {
         return new D3RenderedObject(this.getLayer(layer).append("rect")
             .attr("x", this._xOffset + x)
             .attr("y", this._yOffset + y)
@@ -39738,23 +39911,25 @@ class D3Renderer {
             .attr("height", height)
             .attr("pointer-events", "all")
             .style("fill", color)
+            .style("opacity", opacity)
             .style("stroke", "none"));
     }
-    renderLine(fromX, fromY, toX, toY, layer) {
+    renderLine(fromX, fromY, toX, toY, layer, opacity) {
         return new D3RenderedObject(this.getLayer(layer).append("line")
             .attr("x1", this._xOffset + fromX)
             .attr("y1", this._yOffset + fromY)
             .attr("x2", this._xOffset + toX)
             .attr("y2", this._yOffset + toY)
             .style("stroke", "#000")
-            .style("stroke-width", "2"));
+            .style("stroke-width", "2")
+            .style("opacity", opacity));
         /*
         using jquery doesn't seem to trigger redraw of svg
         let line = $(`<line x1="${this._xOffset + fromX}" y1="${this._yOffset + fromY}" x2="${this._xOffset + toX}" y2="${this._yOffset + toY}" style="stroke:#000;stroke-width:2" />`)
         line.appendTo($("#svgcanvas"))
         return new JQueryRenderedObject(line)*/
     }
-    renderText(text, boundingBox, layer) {
+    renderText(text, boundingBox, layer, opacity) {
         //let fontSize = 15
         //let fontSize = 32
         let fontSize = (32 - 15) / (50 - 8) * (boundingBox.minSide - 50) + 32;
@@ -39764,12 +39939,39 @@ class D3Renderer {
             .attr("font-size", fontSize)
             .attr("text-anchor", "middle")
             .attr("font-family", "Verdana")
+            .style("opacity", opacity)
             .text(text));
     }
     renderButton(text, divId) {
         let button = $(`<input type="button" value="${text}" />`);
         button.appendTo($(`#${divId}`));
         return new JQueryRenderedObject(button);
+    }
+    /**
+     * Append a line of a certain width to a d3 element selection
+     */
+    _appendLineOfWidth(element, fromX, fromY, toX, toY, halfWidth) {
+        let width = halfWidth * 2;
+        [fromX, toX] = [fromX, toX].sort((a, b) => a - b);
+        [fromY, toY] = [fromY, toY].sort((a, b) => a - b);
+        element.append("rect")
+            .attr("x", this._xOffset + fromX - halfWidth)
+            .attr("y", this._yOffset + fromY - halfWidth)
+            .attr("width", toX - fromX == 0 ? width : toX - fromX + 8)
+            .attr("height", toY - fromY == 0 ? width : toY - fromY + 8);
+    }
+    /**
+     * @see IRenderer#renderTurn
+     */
+    renderTurn(x1, y1, x2, y2, x3, y3, halfWidth, layer, opacity) {
+        let group = this.getLayer(layer).append("g")
+            .attr("pointer-events", "all")
+            .style("fill", "black")
+            .style("opacity", opacity)
+            .style("stroke", "none");
+        this._appendLineOfWidth(group, x1, y1, x2, y2, halfWidth);
+        this._appendLineOfWidth(group, x2, y2, x3, y3, halfWidth);
+        return new D3RenderedObject(group);
     }
     clear() {
         this._canvas.selectAll("*").remove();
@@ -39896,6 +40098,18 @@ class Rect {
     get centerY() {
         return this.y + Math.floor(this.height / 2);
     }
+    get left() {
+        return this.x;
+    }
+    get right() {
+        return this.x + this.width;
+    }
+    get top() {
+        return this.y;
+    }
+    get bottom() {
+        return this.y + this.height;
+    }
     divide(rows, columns) {
         let subRects = new Array();
         let subRectWidth = this.width / columns;
@@ -40016,6 +40230,29 @@ class EditorView extends view_1.View {
                 this.controller.removePropertyMode();
             }
         });
+        this.renderForking();
+    }
+    /**
+     * Renders the fork button and textbox
+     */
+    renderForking() {
+        let forkButton = $(`<input type="button" value="fork" />`);
+        forkButton.click(() => {
+            let newForkNumber;
+            if (!$("#forkNumber").val()) {
+                newForkNumber = this.controller.forkNumber + 1;
+            }
+            else {
+                newForkNumber = Number($("#forkNumber").val());
+            }
+            this.controller.forkNumber = newForkNumber;
+            $("#forkNumber")
+                .attr("placeholder", `current fork number: ${newForkNumber}`)
+                .val("");
+        });
+        forkButton.appendTo($("#toolbar"));
+        $("#toolbar")
+            .append('<input id="forkNumber" type="text" placeholder="current fork number: 0"/>');
     }
 }
 exports.EditorView = EditorView;

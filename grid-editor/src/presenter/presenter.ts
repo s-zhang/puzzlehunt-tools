@@ -1,13 +1,8 @@
 import { IRenderer, IRenderedObject, NotRenderedObject, Rect } from "../renderer/renderer"
 
 /**
- * IFixedPresenters handle rendering of shapes etc. It renders on a fixed location on the canvas
+ * Utility class shared among presenters
  */
-export interface IFixedPresenter {
-    present(renderer : IRenderer) : void
-    erase() : void
-}
-
 export abstract class Presenter {
     protected renderedObject : IRenderedObject
     public readonly renderLayer : number[]
@@ -24,29 +19,9 @@ export abstract class Presenter {
     public abstract erase(): void
 }
 
-export abstract class FixedPresenter extends Presenter implements IFixedPresenter {
-    constructor(renderLayer : number[], isVisible : boolean = true) {
-        super(renderLayer, isVisible)
-    }
-    abstract present(renderer: IRenderer): void
-}
-
 /**
- * IFlexiblePresenters handle rendering of properties. Its rendering location can be changed.
+ * Presenters that supports being marked as violating certain @see IConstraint s
  */
-export interface IFlexiblePresenter {
-    present(renderer : IRenderer, boudingBox : Rect) : void
-    erase() : void
-}
-
-export abstract class FlexiblePresenter extends Presenter implements IFlexiblePresenter {
-    constructor(renderLayer : number[]) {
-        super(renderLayer, true)
-    }
-
-    abstract present(renderer: IRenderer, boudingBox : Rect): void
-}
-
 export interface IMarkablePresenter {
     markForViolation() : void
     unmarkForViolation() : void
