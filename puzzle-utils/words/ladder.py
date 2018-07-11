@@ -4,6 +4,13 @@ def ladder(word):
     """
     Given a word, find all "adjacent" words in the dictionary
     i.e. all words with edit distance of 1 from the given word
+
+    Params:
+    word (required) - The base word
+
+    Alternatives:
+    find_ladders        - Find all ladders between two words
+    find_ladders_pretty - Print all unique ladders between two words nicely
     """
     found_words = set()
     for i in range(len(word)):
@@ -86,7 +93,7 @@ def follow_ladder_path(word_path, right_word, cached_searches, depth, exact_dept
     return None
 
 
-def find_ladder(left_word, right_word, exact_depth = None, max_depth = 10, use_heuristic = True):
+def find_ladders(left_word, right_word, exact_depth = None, max_depth = 10, use_heuristic = True):
     """
     Given two words, find every "path" from left_word to right_word
     Each path is a list of words where each word is an edit distance
@@ -102,6 +109,10 @@ def find_ladder(left_word, right_word, exact_depth = None, max_depth = 10, use_h
     exact_depth   (optional) - The desired length of the path (default None)
     max_depth     (optional) - The maximum depth of the path (default 10)
     use_heuristic (optional) - Use potentially erroneous heuristics to limit search space (default True)
+
+    Alternatives:
+    ladder              - Find adjacent words
+    find_ladders_pretty - Print all unique ladders between two words nicely
     """
     if len(left_word) != len(right_word):
         raise ValueError("Word ladder words must be same length")
@@ -109,15 +120,19 @@ def find_ladder(left_word, right_word, exact_depth = None, max_depth = 10, use_h
     cached_searches = {}
     return follow_ladder_path([left_word.lower()], right_word.lower(), cached_searches, 2, exact_depth, max_depth, use_heuristic)
 
-def find_ladder_pretty(left_word, right_word, exact_depth = None, max_depth = 10, use_heuristic = True):
+def find_ladders_pretty(left_word, right_word, exact_depth = None, max_depth = 10, use_heuristic = True):
     """
-    See documentation for find_ladder for details
+    See documentation for find_ladders for details
 
     This version prints out results in a more readable format and removes
     paths that are identical except for ordering differences
+
+    Alternatives:
+    ladder       - Find adjacent words
+    find_ladders - Find all ladders between two words
     """
     # Find all ladders and sort by length
-    found_ladders = find_ladder(left_word, right_word, exact_depth, max_depth, use_heuristic)
+    found_ladders = find_ladders(left_word, right_word, exact_depth, max_depth, use_heuristic)
     if found_ladders is None:
         return
 
