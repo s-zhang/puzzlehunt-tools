@@ -7,19 +7,19 @@
 
 Basically what I want is all the random online tools in one easy lightweight place or in script version.
 
-- Word Ladder tools (TODO)
+- Word Ladder tools
     - "Next Word" (adjacent) word generator
     - Ladder solver (or link to a ladder solver)
     - [Example](http://ceptimus.co.uk/wordladder.php)
-- Decode/Encode tools (TODO)
+- Decode/Encode tools
     - Caesar Ciphper (Nick)
         - Shift letters by independent numbers
         - Shift phrase by number
         - Shift phrase brute force
         - Or just use [this](https://www.dcode.fr/shift-cipher)
-    - Morse Code Translator
+    - Morse Code Translator (Nick)
         - [Example](https://morsecode.scphillips.com/translator.html)
-    - Braille Translator
+    - Braille Translator (Nick)
     - Semaphore Translator
     - Number/Hex to Letter
 - Improvements to wordhelper (TODO)
