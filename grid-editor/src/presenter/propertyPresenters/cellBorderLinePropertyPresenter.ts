@@ -1,6 +1,6 @@
 import { PropertyPresenter } from "../propertyPresenter";
 import { IRenderer, Rect, IRenderedObject } from "../../renderer/renderer";
-import { Property } from "../../model/property";
+import { PropertyBuilder } from "../../model/property";
 
 /**
  * Presenter of lines on a @see CellBorder
@@ -17,7 +17,7 @@ export class CellBorderLinePropertyPresenter extends PropertyPresenter {
             this.forkOpacity)
         return renderedObject
     }
-    public static getKeyboardSelectShortcut(property : Property) : string | null {
+    public static getKeyboardSelectShortcut(propertyBuilder : PropertyBuilder) : string | null {
         return "l"
     }
 }

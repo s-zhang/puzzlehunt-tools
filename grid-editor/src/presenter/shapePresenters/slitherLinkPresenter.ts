@@ -1,7 +1,7 @@
 import { GridPresenter } from "./gridCellPresenter";
 import { IController } from "../../controller";
 import { SlitherLinkGrid } from "../../model/shapes/slitherLink";
-import { Property } from "../../model/property";
+import { Property, PropertyBuilder, PropertyAssociationType } from "../../model/property";
 import { PropertyPresenterFactory } from "../propertyPresenter";
 import { TextPropertyPresenter } from "../propertyPresenters/textPropertyPresenter";
 import { CellBorderLinePropertyPresenter } from "../propertyPresenters/cellBorderLinePropertyPresenter";
@@ -12,20 +12,26 @@ export class SlitherLinkPresenter extends GridPresenter {
         this.presentCellBorders = false
 
         for (let i = 0; i <= 4; i++) {
-            let property = new Property(i.toString())
+            let propertyBuilder = new PropertyBuilder(i.toString())
+            propertyBuilder.associationType.value = PropertyAssociationType.Single
+            propertyBuilder.associationType.finalize()
             let propertyPresenter = new PropertyPresenterFactory(TextPropertyPresenter,
-                property, TextPropertyPresenter.getKeyboardSelectShortcut(property))
+                propertyBuilder, TextPropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
             this.propertyPresenterFactories.push(propertyPresenter)
         }
 
-        let property = new Property("border line")
+        let propertyBuilder = new PropertyBuilder("border line")
+        propertyBuilder.associationType.value = PropertyAssociationType.Single
+        propertyBuilder.associationType.finalize()
         let propertyPresenter = new PropertyPresenterFactory(CellBorderLinePropertyPresenter,
-            property, CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(property))
+            propertyBuilder, CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
         this.propertyPresenterFactories.push(propertyPresenter)
 
-        property = new Property("X")
+        propertyBuilder = new PropertyBuilder("X")
+        propertyBuilder.associationType.value = PropertyAssociationType.Single
+        propertyBuilder.associationType.finalize()
         propertyPresenter = new PropertyPresenterFactory(TextPropertyPresenter,
-            property, TextPropertyPresenter.getKeyboardSelectShortcut(property))
+            propertyBuilder, TextPropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
         this.propertyPresenterFactories.push(propertyPresenter)
     }
 }

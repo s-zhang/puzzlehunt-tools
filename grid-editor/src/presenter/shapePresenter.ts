@@ -35,11 +35,7 @@ export abstract class ShapePresenter extends Presenter implements IMarkablePrese
             this.renderedObject = this.presentSelf(renderer)
         }
         this.selectObject = this.presentSelectObject(renderer)
-        this.selectObject.onclick(() => {
-            this.erase()
-            this._controller.selectShape(this)
-            this.present(renderer)
-        })
+        this.selectObject.onclick(() => this._controller.selectShape(this))
         let boundingBoxes : Rect[] = this.getBoundingBoxes(this._propertyPresenters.size)
         let i = 0
         for (let propertyPresenter of this._propertyPresenters.values()) {
@@ -85,12 +81,12 @@ export abstract class ShapePresenter extends Presenter implements IMarkablePrese
     }
     
     addProperty(property : Property, propertyPresenter : PropertyPresenter) {
+        this._shape.addProperty(propertyPresenter.property)
         this._propertyPresenters.set(property, propertyPresenter)
-        this._shape.properties.add(propertyPresenter.property)
     }
     removeProperty(property : Property, propertyPresenter : PropertyPresenter) {
         this._propertyPresenters.delete(property)
-        this._shape.properties.delete(propertyPresenter.property)
+        this._shape.removeProperty(propertyPresenter.property)
     }
     getPropertyPresenter(property : Property) : PropertyPresenter {
         let propertyPresenter : PropertyPresenter | undefined = this._propertyPresenters.get(property)
