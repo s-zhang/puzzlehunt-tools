@@ -9,19 +9,19 @@ def test_wrapper():
     yield
 
 def test_dropquote():
-    grid = ['    -', '  -  ', '     ']
+    grid = ['....-', '..-..', '.....']
     letters = ['gor', 'afo', 'mn', 'ete', 'hs']
     snapshots = dropquote(grid, letters)
 
     assert len(snapshots) == 3
 
-    assert snapshots[0].grid == ['    -', '  -  ', '     ']
+    assert snapshots[0].grid == ['....-', '..-..', '.....']
     assert snapshots[0].letters == ['gor', 'afo', 'mn', 'ete', 'hs']
     assert len(snapshots[0].words) == 3
     assert snapshots[0].words[2].letters == ['ete', 'hs', 'gor', 'afo', 'mn', 'ete', 'hs']
     assert snapshots[0].words[2].possibilities == ['thrones']
 
-    assert snapshots[1].grid == ['    -', '  -th', 'rones']
+    assert snapshots[1].grid == ['....-', '..-th', 'rones']
     assert snapshots[1].letters == ['go', 'af', 'm', 'e', '']
     assert snapshots[1].words[0].letters == ['go', 'af', 'm', 'e']
     assert snapshots[1].words[0].possibilities == ['game']
@@ -32,7 +32,7 @@ def test_dropquote():
     assert snapshots[2].letters == ['', '', '', '', '']
 
 def test_dropquote_double_dash():
-    grid = ['     -', '-     ']
+    grid = ['.....-', '-.....']
     letters = ['h', 'ew', 'lo', 'lr', 'ol', 'd']
     snapshots = dropquote(grid, letters)
 
@@ -45,7 +45,7 @@ def test_dropquote_double_dash():
     assert snapshots[0].words[1].possibilities == ['world']
 
 def test_dropquote_start_dash():
-    grid = ['-     -', '     --']
+    grid = ['-.....-', '.....--']
     letters = ['w', 'ho', 'er', 'll', 'ld', 'o', '']
     snapshots = dropquote(grid, letters)
 
@@ -64,7 +64,7 @@ def test_dropquote_start_dash():
     assert snapshots[1].words[1].word == 'world'
 
 def test_dropquote_existing_word():
-    grid = ['hello-', '     -']
+    grid = ['hello-', '.....-']
     letters = ['w', 'o', 'r', 'l', 'd', '']
     snapshots = dropquote(grid, letters)
 
@@ -78,17 +78,17 @@ def test_dropquote_existing_word():
     assert snapshots[1].words[1].word == 'world'
 
 def test_dropquote_apply_word():
-    grid = ['    -', '  -  ', '     ']
+    grid = ['....-', '..-..', '.....']
     letters = ['gor', 'afo', 'mn', 'ete', 'hs']
-    dropquote_apply_word(grid, letters, 2, 'thrones')
+    grid, letters = dropquote_apply_word(grid, letters, 'thrones', 2)
 
-    assert grid == ['    -', '  -th', 'rones']
+    assert grid == ['....-', '..-th', 'rones']
     assert letters == ['go', 'af', 'm', 'e', '']
 
 def test_dropquote_apply_word_existing_letters():
-    grid = ['    -', '  -  ', 'r   s']
+    grid = ['....-', '..-..', 'r...s']
     letters = ['go', 'afo', 'mn', 'ete', 'h']
-    dropquote_apply_word(grid, letters, 2, 'thrones')
+    grid, letters = dropquote_apply_word(grid, letters, 'thrones', 2)
 
-    assert grid == ['    -', '  -th', 'rones']
+    assert grid == ['....-', '..-th', 'rones']
     assert letters == ['go', 'af', 'm', 'e', '']
