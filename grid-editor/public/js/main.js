@@ -39101,7 +39101,7 @@ class SlitherLinkGrid extends gridCell_1.Grid {
     _borderConstraint(cell) {
         let bordersWithLine = new Array();
         for (let cellBorder of cell.adjacentCellBorders) {
-            if (cellBorder.property != null && cellBorder.property.name == "line") {
+            if (cellBorder.property != null && cellBorder.property.name == "border line") {
                 bordersWithLine.push([cellBorder, cellBorder.property]);
             }
         }
@@ -39344,10 +39344,10 @@ exports.PropertyPresenterFactory = PropertyPresenterFactory;
 
 /***/ }),
 
-/***/ "./src/presenter/propertyPresenters/linePropertyPresenter.ts":
-/*!*******************************************************************!*\
-  !*** ./src/presenter/propertyPresenters/linePropertyPresenter.ts ***!
-  \*******************************************************************/
+/***/ "./src/presenter/propertyPresenters/cellBorderLinePropertyPresenter.ts":
+/*!*****************************************************************************!*\
+  !*** ./src/presenter/propertyPresenters/cellBorderLinePropertyPresenter.ts ***!
+  \*****************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -39355,7 +39355,10 @@ exports.PropertyPresenterFactory = PropertyPresenterFactory;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
-class LinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+/**
+ * Presenter of lines on a @see CellBorder
+ */
+class CellBorderLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
         let renderedObject = renderer.renderRectangle(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height, this.renderLayer, "black", this.forkOpacity);
         return renderedObject;
@@ -39364,7 +39367,100 @@ class LinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
         return "l";
     }
 }
-exports.LinePropertyPresenter = LinePropertyPresenter;
+exports.CellBorderLinePropertyPresenter = CellBorderLinePropertyPresenter;
+
+
+/***/ }),
+
+/***/ "./src/presenter/propertyPresenters/cellLinePropertyPresenter.ts":
+/*!***********************************************************************!*\
+  !*** ./src/presenter/propertyPresenters/cellLinePropertyPresenter.ts ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
+/**
+ * Presenter of a horizontal line in a @see Cell
+ */
+class HorizontalCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderRectangle(boundingBox.x, boundingBox.centerY - 4, boundingBox.width, 8, this.renderLayer, "black", this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return "-";
+    }
+}
+exports.HorizontalCellLinePropertyPresenter = HorizontalCellLinePropertyPresenter;
+/**
+ * Presenter of a vertical line in a @see Cell
+ */
+class VerticalCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderRectangle(boundingBox.centerX - 4, boundingBox.y, 8, boundingBox.height, this.renderLayer, "black", this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return "|";
+    }
+}
+exports.VerticalCellLinePropertyPresenter = VerticalCellLinePropertyPresenter;
+/**
+ * Presenter of a line that goes down and then turns left in a @see Cell
+ */
+class NorthWestBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.top + 4, boundingBox.centerX, boundingBox.centerY, boundingBox.left + 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return null;
+    }
+}
+exports.NorthWestBendCellLinePropertyPresenter = NorthWestBendCellLinePropertyPresenter;
+/**
+ * @see NorthWestBendCellLinePropertyPresenter
+ */
+class NorthEastBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.top + 4, boundingBox.centerX, boundingBox.centerY, boundingBox.right - 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return null;
+    }
+}
+exports.NorthEastBendCellLinePropertyPresenter = NorthEastBendCellLinePropertyPresenter;
+/**
+ * @see NorthWestBendCellLinePropertyPresenter
+ */
+class SouthWestBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.bottom - 4, boundingBox.centerX, boundingBox.centerY, boundingBox.left + 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return null;
+    }
+}
+exports.SouthWestBendCellLinePropertyPresenter = SouthWestBendCellLinePropertyPresenter;
+/**
+ * @see NorthWestBendCellLinePropertyPresenter
+ */
+class SouthEastBendCellLinePropertyPresenter extends propertyPresenter_1.PropertyPresenter {
+    presentProperty(renderer, boundingBox) {
+        let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.bottom - 4, boundingBox.centerX, boundingBox.centerY, boundingBox.right - 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
+        return renderedObject;
+    }
+    static getKeyboardSelectShortcut(property) {
+        return null;
+    }
+}
+exports.SouthEastBendCellLinePropertyPresenter = SouthEastBendCellLinePropertyPresenter;
 
 
 /***/ }),
@@ -39545,7 +39641,8 @@ const gridCell_1 = __webpack_require__(/*! ../../model/shapes/gridCell */ "./src
 const property_1 = __webpack_require__(/*! ../../model/property */ "./src/model/property.ts");
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
 const textPropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/textPropertyPresenter */ "./src/presenter/propertyPresenters/textPropertyPresenter.ts");
-const linePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/linePropertyPresenter */ "./src/presenter/propertyPresenters/linePropertyPresenter.ts");
+const cellBorderLinePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/cellBorderLinePropertyPresenter */ "./src/presenter/propertyPresenters/cellBorderLinePropertyPresenter.ts");
+const cellLinePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/cellLinePropertyPresenter */ "./src/presenter/propertyPresenters/cellLinePropertyPresenter.ts");
 class CustomGridPresenter extends gridCellPresenter_1.GridPresenter {
     constructor(width, height, controller) {
         super(new gridCell_1.Grid(width, height), controller);
@@ -39559,8 +39656,26 @@ class CustomGridPresenter extends gridCellPresenter_1.GridPresenter {
             let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
             this.propertyPresenterFactories.push(propertyPresenter);
         }
-        let property = new property_1.Property("line");
-        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(linePropertyPresenter_1.LinePropertyPresenter, property, linePropertyPresenter_1.LinePropertyPresenter.getKeyboardSelectShortcut(property));
+        let property = new property_1.Property("border line");
+        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter, property, cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("-");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.HorizontalCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.HorizontalCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("|");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.VerticalCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.VerticalCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("⌟");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.NorthWestBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.NorthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("⌞");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("⌝");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        this.propertyPresenterFactories.push(propertyPresenter);
+        property = new property_1.Property("⌜");
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
         this.propertyPresenterFactories.push(propertyPresenter);
     }
 }
@@ -39698,7 +39813,7 @@ const slitherLink_1 = __webpack_require__(/*! ../../model/shapes/slitherLink */ 
 const property_1 = __webpack_require__(/*! ../../model/property */ "./src/model/property.ts");
 const propertyPresenter_1 = __webpack_require__(/*! ../propertyPresenter */ "./src/presenter/propertyPresenter.ts");
 const textPropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/textPropertyPresenter */ "./src/presenter/propertyPresenters/textPropertyPresenter.ts");
-const linePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/linePropertyPresenter */ "./src/presenter/propertyPresenters/linePropertyPresenter.ts");
+const cellBorderLinePropertyPresenter_1 = __webpack_require__(/*! ../propertyPresenters/cellBorderLinePropertyPresenter */ "./src/presenter/propertyPresenters/cellBorderLinePropertyPresenter.ts");
 class SlitherLinkPresenter extends gridCellPresenter_1.GridPresenter {
     constructor(width, height, controller) {
         super(new slitherLink_1.SlitherLinkGrid(width, height), controller);
@@ -39708,8 +39823,8 @@ class SlitherLinkPresenter extends gridCellPresenter_1.GridPresenter {
             let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
             this.propertyPresenterFactories.push(propertyPresenter);
         }
-        let property = new property_1.Property("line");
-        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(linePropertyPresenter_1.LinePropertyPresenter, property, linePropertyPresenter_1.LinePropertyPresenter.getKeyboardSelectShortcut(property));
+        let property = new property_1.Property("border line");
+        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter, property, cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(property));
         this.propertyPresenterFactories.push(propertyPresenter);
         property = new property_1.Property("X");
         propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
@@ -39831,6 +39946,32 @@ class D3Renderer {
         let button = $(`<input type="button" value="${text}" />`);
         button.appendTo($(`#${divId}`));
         return new JQueryRenderedObject(button);
+    }
+    /**
+     * Append a line of a certain width to a d3 element selection
+     */
+    _appendLineOfWidth(element, fromX, fromY, toX, toY, halfWidth) {
+        let width = halfWidth * 2;
+        [fromX, toX] = [fromX, toX].sort((a, b) => a - b);
+        [fromY, toY] = [fromY, toY].sort((a, b) => a - b);
+        element.append("rect")
+            .attr("x", this._xOffset + fromX - halfWidth)
+            .attr("y", this._yOffset + fromY - halfWidth)
+            .attr("width", toX - fromX == 0 ? width : toX - fromX + 8)
+            .attr("height", toY - fromY == 0 ? width : toY - fromY + 8);
+    }
+    /**
+     * @see IRenderer#renderTurn
+     */
+    renderTurn(x1, y1, x2, y2, x3, y3, halfWidth, layer, opacity) {
+        let group = this.getLayer(layer).append("g")
+            .attr("pointer-events", "all")
+            .style("fill", "black")
+            .style("opacity", opacity)
+            .style("stroke", "none");
+        this._appendLineOfWidth(group, x1, y1, x2, y2, halfWidth);
+        this._appendLineOfWidth(group, x2, y2, x3, y3, halfWidth);
+        return new D3RenderedObject(group);
     }
     clear() {
         this._canvas.selectAll("*").remove();
@@ -39956,6 +40097,18 @@ class Rect {
     }
     get centerY() {
         return this.y + Math.floor(this.height / 2);
+    }
+    get left() {
+        return this.x;
+    }
+    get right() {
+        return this.x + this.width;
+    }
+    get top() {
+        return this.y;
+    }
+    get bottom() {
+        return this.y + this.height;
     }
     divide(rows, columns) {
         let subRects = new Array();

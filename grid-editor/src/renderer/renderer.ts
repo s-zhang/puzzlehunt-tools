@@ -8,6 +8,19 @@ export interface IRenderer {
     renderRectangle(x : number, y : number, width : number, height : number, layer : number[], color : string, opacity : number) : IRenderedObject
     renderLine(fromX : number, fromY : number, toX : number, toY : number, layer : number[], opacity : number) : IRenderedObject
     renderText(text : string, boundingBox : Rect, layer : number[], opacity : number) : IRenderedObject
+    /**
+     * Render a turn that consists of two line segments, first one from start to middle, second one fro middle to end.
+     * @param x1 start x
+     * @param y1 start y
+     * @param x2 middle x
+     * @param y2 middle y
+     * @param x3 end x
+     * @param y3 end y
+     * @param halfWidth half the width of the line
+     * @param layer layer on which to render
+     * @param opacity 
+     */
+    renderTurn(x1 : number, y1 : number, x2 : number, y2 : number, x3 : number, y3 : number, halfWidth: number, layer : number[], opacity : number): IRenderedObject
     renderButton(text : string, divId : string) : IRenderedObject
     clear() : void
 }
@@ -28,6 +41,18 @@ export class Rect {
     }
     get centerY(): number {
         return this.y + Math.floor(this.height / 2)
+    }
+    get left(): number {
+        return this.x
+    }
+    get right(): number {
+        return this.x + this.width
+    }
+    get top(): number {
+        return this.y
+    }
+    get bottom(): number {
+        return this.y + this.height
     }
     divide(rows : number, columns : number) : Rect[] {
         let subRects = new Array<Rect>()
