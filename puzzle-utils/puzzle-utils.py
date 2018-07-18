@@ -8,7 +8,7 @@ from encoders.caesar import independent_caesar, brute_caesar, caesar
 
 # Sets up tab completion
 import rlcompleter, readline
-if 'libedit' in readline.__doc__:
+if readline.__doc__ is not None and 'libedit' in readline.__doc__:
     readline.parse_and_bind("bind ^I rl_complete")
 else:
     readline.parse_and_bind("tab: complete")
