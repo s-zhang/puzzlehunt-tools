@@ -1,5 +1,7 @@
 # Super Secret Puzzle Tools to Win [![Build Status](https://travis-ci.com/s-zhang/puzzlehunt-tools.svg?branch=master)](https://travis-ci.com/s-zhang/puzzlehunt-tools)
 
+![logo](https://vignette.wikia.nocookie.net/batman/images/1/13/Batman_Forever_-_The_Riddler_19.jpg/revision/latest/scale-to-width-down/587?cb=20171023054927 "Logo")
+
 ## puzzle-utils
 
 ## Features/To-Dos
