@@ -49,7 +49,7 @@ Install all the dependencies by running
 
 For Mac Users, run
 ```
->.\sh macsetup.sh
+>sh macsetup.sh
 ```
 
 ### Usage
@@ -64,7 +64,7 @@ Start `puzzle-utils` interactively by running
 
 For Mac Users, run
 ```
->.\macrun.sh
+>sh macrun.sh
 >>> anagram("silent")
 ['listen', 'inlets', 'tinsel', 'elints', 'silent', 'intels', 'enlist']
 ```
@@ -83,4 +83,4 @@ See [contributors](https://github.com/s-zhang/puzzlehunt-tools/contributors).
 
 ## License
 
-TBD
+See [LICENSE](LICENSE)
