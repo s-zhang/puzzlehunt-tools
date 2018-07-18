@@ -57,12 +57,15 @@ export abstract class ShapePresenter extends Presenter implements IMarkablePrese
                 }
             }
         }
-        
+
         for (let constraintPresenter of this._affectedConstraints) {
             constraintPresenter.present(renderer)
         }
     }
 
+    /**
+     * Finds the property presenter with a Semi-Single or Single association type if exists.
+     */
     private getSingleAssociationPropertyIfAny(): PropertyPresenter | null {
         for (let propertyPresenter of this._propertyPresenters.values()) {
             if (propertyPresenter.property.associationType != PropertyAssociationType.Multiple)

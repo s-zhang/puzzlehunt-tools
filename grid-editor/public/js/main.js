@@ -39568,6 +39568,9 @@ class ShapePresenter extends presenter_1.Presenter {
             constraintPresenter.present(renderer);
         }
     }
+    /**
+     * Finds the property presenter with a Semi-Single or Single association type if exists.
+     */
     getSingleAssociationPropertyIfAny() {
         for (let propertyPresenter of this._propertyPresenters.values()) {
             if (propertyPresenter.property.associationType != property_1.PropertyAssociationType.Multiple) {
