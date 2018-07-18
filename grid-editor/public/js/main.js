@@ -39521,6 +39521,7 @@ exports.TextPropertyPresenter = TextPropertyPresenter;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const property_1 = __webpack_require__(/*! ../model/property */ "./src/model/property.ts");
 const constraintPresenter_1 = __webpack_require__(/*! ./constraintPresenter */ "./src/presenter/constraintPresenter.ts");
 const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
 const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
@@ -39544,15 +39545,36 @@ class ShapePresenter extends presenter_1.Presenter {
         }
         this.selectObject = this.presentSelectObject(renderer);
         this.selectObject.onclick(() => this._controller.selectShape(this));
-        let boundingBoxes = this.getBoundingBoxes(this._propertyPresenters.size);
-        let i = 0;
-        for (let propertyPresenter of this._propertyPresenters.values()) {
-            propertyPresenter.present(renderer, boundingBoxes[i]);
-            i++;
+        let singleAssociationProperty = this.getSingleAssociationPropertyIfAny();
+        let numberSubBoundingBoxesNeeded;
+        if (singleAssociationProperty !== null) {
+            numberSubBoundingBoxesNeeded = this._propertyPresenters.size - 1;
+            singleAssociationProperty.present(renderer, this.getBoundingBoxes(1)[0]);
+        }
+        else {
+            numberSubBoundingBoxesNeeded = this._propertyPresenters.size;
+        }
+        if (numberSubBoundingBoxesNeeded > 0) {
+            let subBoundingBoxes = this.getBoundingBoxes(numberSubBoundingBoxesNeeded);
+            let i = 0;
+            for (let propertyPresenter of this._propertyPresenters.values()) {
+                if (propertyPresenter.property.associationType == property_1.PropertyAssociationType.Multiple) {
+                    propertyPresenter.present(renderer, subBoundingBoxes[i]);
+                    i++;
+                }
+            }
         }
         for (let constraintPresenter of this._affectedConstraints) {
             constraintPresenter.present(renderer);
         }
+    }
+    getSingleAssociationPropertyIfAny() {
+        for (let propertyPresenter of this._propertyPresenters.values()) {
+            if (propertyPresenter.property.associationType != property_1.PropertyAssociationType.Multiple) {
+                return propertyPresenter;
+            }
+        }
+        return null;
     }
     erase() {
         for (let constraintPresenter of this._affectedConstraints) {
