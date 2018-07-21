@@ -1,5 +1,5 @@
 from .search import search
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Set
 
 def ladder(word: str) -> List[str]:
     """ Find all possibilities for the next word in the ladder
@@ -15,6 +15,7 @@ def ladder(word: str) -> List[str]:
 
     See Also:
         find_ladders: Find all ladders between two words
+        find_ladders_unique: Get unique ladders between two words
         find_ladders_pretty: Print all unique ladders between two words nicely
     """
     found_words = set()
@@ -23,7 +24,7 @@ def ladder(word: str) -> List[str]:
         pattern[i] = '.'
         search_results = search("^" + "".join(pattern) + "$")
         for result in search_results:
-            if result != word and result not in found_words:
+            if result != word:
                 found_words.add(result)
     return found_words
 
@@ -52,7 +53,7 @@ def edit_distance(left_word: str, right_word: str) -> int:
             distance += 1
     return distance
 
-def follow_ladder_path(word_path: List[str], right_word: str, cached_searches: Dict, depth: int, exact_depth: Optional[int], max_depth: int, use_heuristic: bool) -> List[List[str]]:
+def follow_ladder_path(word_path: List[str], parent_set: Set, right_word: str, cached_searches: Dict, depth: int, exact_depth: Optional[int], max_depth: int, use_heuristic: bool) -> List[List[str]]:
     """ Helper to recursively find a word ladder path (see find_ladders)
 
     This function runs a recursive depth first search to find a word ladder.
@@ -60,6 +61,7 @@ def follow_ladder_path(word_path: List[str], right_word: str, cached_searches: D
 
     Args:
         word_path: A list of words in the path so far
+        parent_set: A set of words in the path so far (for easy lookups)
         right_word: The destination word
         cached_searches: A dictionary of adjacency searches
         depth: The current depth of the search
@@ -91,17 +93,15 @@ def follow_ladder_path(word_path: List[str], right_word: str, cached_searches: D
     else:
         adjacent_words = ladder(current_word)
         cached_searches[current_word] = adjacent_words
-    used_words = set(word_path)
-    next_words = list(filter(lambda w: w not in used_words and edit_distance(w, right_word) <= max_edit_distance, adjacent_words))
+    next_words = filter(lambda w: w not in parent_set and edit_distance(w, right_word) <= max_edit_distance, adjacent_words)
 
-    # No ladder exists this way
-    if len(next_words) == 0:
-        return []
-
+    # Go and explore all the new path options
     found_paths = []
     for next_word in next_words:
         word_path.append(next_word)
-        results = follow_ladder_path(word_path, right_word, cached_searches, depth + 1, exact_depth, max_depth, use_heuristic)
+        parent_set.add(next_word)
+        results = follow_ladder_path(word_path, parent_set, right_word, cached_searches, depth + 1, exact_depth, max_depth, use_heuristic)
+        parent_set.remove(next_word)
         word_path.pop()
 
         # We have one or more paths to examine
@@ -130,17 +130,45 @@ def find_ladders(left_word: str, right_word: str, exact_depth: Optional[int] = N
         A list of valid word paths or an empty list if we hit a dead end
 
     Raises:
-        ValueError: If the lengths of the word args are different
+        ValueError: If the lengths of the word args are different or if either word is not real
 
     See Also:
         ladder: Find adjacent words
+        find_ladders_unique: Get unique ladders between two words
         find_ladders_pretty: Print all unique ladders between two words nicely
     """
     if len(left_word) != len(right_word):
         raise ValueError("Word ladder words must be same length")
 
+    # We also want to make sure these words are real
+    if len(search("^" + left_word + "$")) == 0:
+        raise ValueError(left_word + " is not in the dictionary")
+    if len(search("^" + right_word + "$")) == 0:
+        raise ValueError(right_word + " is not in the dictionary")
+
     cached_searches = {}
-    return follow_ladder_path([left_word.lower()], right_word.lower(), cached_searches, 2, exact_depth, max_depth, use_heuristic)
+    return follow_ladder_path([left_word.lower()], {left_word.lower()}, right_word.lower(), cached_searches, 2, exact_depth, max_depth, use_heuristic)
+
+def find_ladders_unique(left_word: str, right_word: str, exact_depth: Optional[int] = None, max_depth: int = 10, use_heuristic: bool = True) -> List[List[str]]:
+    """ Find word ladders that are not combinations of each other (see find_ladders)
+
+    See Also:
+        ladder: Find adjacent words
+        find_ladders: Find all ladders between two words
+        find_ladders_pretty: Print all unique ladders between two words nicely
+    """
+    found_ladders = find_ladders(left_word, right_word, exact_depth, max_depth, use_heuristic)
+
+    # Remove ladders that are just previous ladders rearranged
+    unique_ladder_sets = set(map(lambda x: frozenset(x), found_ladders))
+    unique_ladders = []
+    for found_ladder in found_ladders:
+        found_set = set(found_ladder)
+        if found_set in unique_ladder_sets:
+            unique_ladders.append(found_ladder)
+            unique_ladder_sets.remove(found_set)
+
+    return unique_ladders
 
 def find_ladders_pretty(left_word: str, right_word: str, exact_depth: Optional[int] = None, max_depth: int = 10, use_heuristic: bool = True):
     """ Print unique word ladders (see find_ladders)
@@ -148,18 +176,12 @@ def find_ladders_pretty(left_word: str, right_word: str, exact_depth: Optional[i
     See Also:
         ladder: Find adjacent words
         find_ladders: Find all ladders between two words
+        find_ladders_unique: Get unique ladders between two words
     """
     # Find all ladders and sort by length
-    found_ladders = find_ladders(left_word, right_word, exact_depth, max_depth, use_heuristic)
-    if len(found_ladders) == 0:
+    pretty_ladders = find_ladders_unique(left_word, right_word, exact_depth, max_depth, use_heuristic)
+    if len(pretty_ladders) == 0:
         return
-
-    unique_ladders = set(map(lambda x: frozenset(x), found_ladders))
-    pretty_ladders = []
-    for found_ladder in found_ladders:
-        if set(found_ladder) in unique_ladders:
-            pretty_ladders.append(found_ladder)
-            unique_ladders.remove(set(found_ladder))
 
     pretty_ladders.sort(key=len)
     for pretty_ladder in pretty_ladders:
