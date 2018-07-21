@@ -1,8 +1,6 @@
 import { PropertyPresenter } from "../propertyPresenter"
 import { IRenderer, Rect, IRenderedObject } from "../../renderer/renderer"
-import { Property } from "../../model/property";
-import { IController } from "../../controller";
-import { ShapePresenter } from "../shapePresenter";
+import { PropertyBuilder } from "../../model/property"
 
 export class TextPropertyPresenter extends PropertyPresenter {
     presentProperty(renderer: IRenderer, boundingBox: Rect) : IRenderedObject {
@@ -12,7 +10,7 @@ export class TextPropertyPresenter extends PropertyPresenter {
             this.renderLayer,
             this.forkOpacity)
     }
-    public static getKeyboardSelectShortcut(property : Property) : string | null {
-        return property.name.substr(0, 1)
+    public static getKeyboardSelectShortcut(propertyBuilder : PropertyBuilder) : string | null {
+        return propertyBuilder.name.substr(0, 1)
     }
 }

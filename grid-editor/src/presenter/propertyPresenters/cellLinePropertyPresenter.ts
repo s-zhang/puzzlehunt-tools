@@ -1,6 +1,6 @@
 import { PropertyPresenter } from "../propertyPresenter";
 import { IRenderer, Rect, IRenderedObject } from "../../renderer/renderer";
-import { Property } from "../../model/property";
+import { Property, PropertyBuilder } from "../../model/property";
 
 /**
  * Presenter of a horizontal line in a @see Cell
@@ -17,7 +17,7 @@ export class HorizontalCellLinePropertyPresenter extends PropertyPresenter {
             this.forkOpacity)
         return renderedObject
     }
-    public static getKeyboardSelectShortcut(property : Property) : string | null {
+    public static getKeyboardSelectShortcut(propertyBuilder : PropertyBuilder) : string | null {
         return "-";
     }
 }
@@ -37,7 +37,7 @@ export class VerticalCellLinePropertyPresenter extends PropertyPresenter {
             this.forkOpacity)
         return renderedObject
     }
-    public static getKeyboardSelectShortcut(property : Property) : string | null {
+    public static getKeyboardSelectShortcut(propertyBuilder : PropertyBuilder) : string | null {
         return "|";
     }
 }
@@ -57,7 +57,7 @@ export class NorthWestBendCellLinePropertyPresenter extends PropertyPresenter {
         return renderedObject
     }
 
-    public static getKeyboardSelectShortcut(property : Property) : string | null {
+    public static getKeyboardSelectShortcut(propertyBuilder : PropertyBuilder) : string | null {
         return null;
     }
 }
@@ -77,7 +77,7 @@ export class NorthEastBendCellLinePropertyPresenter extends PropertyPresenter {
         return renderedObject
     }
 
-    public static getKeyboardSelectShortcut(property : Property) : string | null {
+    public static getKeyboardSelectShortcut(propertyBuilder : PropertyBuilder) : string | null {
         return null;
     }
 }
@@ -97,7 +97,7 @@ export class SouthWestBendCellLinePropertyPresenter extends PropertyPresenter {
         return renderedObject
     }
 
-    public static getKeyboardSelectShortcut(property : Property) : string | null {
+    public static getKeyboardSelectShortcut(propertyBuilder : PropertyBuilder) : string | null {
         return null;
     }
 }
@@ -117,7 +117,7 @@ export class SouthEastBendCellLinePropertyPresenter extends PropertyPresenter {
         return renderedObject
     }
 
-    public static getKeyboardSelectShortcut(property : Property) : string | null {
+    public static getKeyboardSelectShortcut(propertyBuilder : PropertyBuilder) : string | null {
         return null;
     }
 }

@@ -36,32 +36,17 @@
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -16427,7 +16412,7 @@ var scheme = new Array(3).concat(
 /*!****************************************!*\
   !*** ./node_modules/d3-scale/index.js ***!
   \****************************************/
-/*! exports provided: scaleBand, scalePoint, scaleIdentity, scaleLinear, scaleLog, scaleOrdinal, scaleImplicit, scalePow, scaleSqrt, scaleQuantile, scaleQuantize, scaleThreshold, scaleTime, scaleUtc, scaleSequential, scaleDiverging */
+/*! exports provided: scaleBand, scalePoint, scaleIdentity, scaleLinear, scaleLog, scaleOrdinal, scaleImplicit, scalePow, scaleSqrt, scaleQuantile, scaleQuantize, scaleThreshold, scaleTime, scaleUtc, scaleSequential */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -16473,11 +16458,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony import */ var _src_sequential__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./src/sequential */ "./node_modules/d3-scale/src/sequential.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "scaleSequential", function() { return _src_sequential__WEBPACK_IMPORTED_MODULE_11__["default"]; });
-
-/* harmony import */ var _src_diverging__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./src/diverging */ "./node_modules/d3-scale/src/diverging.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "scaleDiverging", function() { return _src_diverging__WEBPACK_IMPORTED_MODULE_12__["default"]; });
-
-
 
 
 
@@ -16790,54 +16770,6 @@ function continuous(deinterpolate, reinterpolate) {
   };
 
   return rescale();
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/d3-scale/src/diverging.js":
-/*!************************************************!*\
-  !*** ./node_modules/d3-scale/src/diverging.js ***!
-  \************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return diverging; });
-/* harmony import */ var _linear__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./linear */ "./node_modules/d3-scale/src/linear.js");
-
-
-function diverging(interpolator) {
-  var x0 = 0,
-      x1 = 0.5,
-      x2 = 1,
-      k10 = 1,
-      k21 = 1,
-      clamp = false;
-
-  function scale(x) {
-    var t = 0.5 + ((x = +x) - x1) * (x < x1 ? k10 : k21);
-    return interpolator(clamp ? Math.max(0, Math.min(1, t)) : t);
-  }
-
-  scale.domain = function(_) {
-    return arguments.length ? (x0 = +_[0], x1 = +_[1], x2 = +_[2], k10 = x0 === x1 ? 0 : 0.5 / (x1 - x0), k21 = x1 === x2 ? 0 : 0.5 / (x2 - x1), scale) : [x0, x1, x2];
-  };
-
-  scale.clamp = function(_) {
-    return arguments.length ? (clamp = !!_, scale) : clamp;
-  };
-
-  scale.interpolator = function(_) {
-    return arguments.length ? (interpolator = _, scale) : interpolator;
-  };
-
-  scale.copy = function() {
-    return diverging(interpolator).domain([x0, x1, x2]).clamp(clamp);
-  };
-
-  return Object(_linear__WEBPACK_IMPORTED_MODULE_0__["linearish"])(scale);
 }
 
 
@@ -17430,16 +17362,15 @@ __webpack_require__.r(__webpack_exports__);
 function sequential(interpolator) {
   var x0 = 0,
       x1 = 1,
-      k10 = 1,
       clamp = false;
 
   function scale(x) {
-    var t = (x - x0) * k10;
+    var t = (x - x0) / (x1 - x0);
     return interpolator(clamp ? Math.max(0, Math.min(1, t)) : t);
   }
 
   scale.domain = function(_) {
-    return arguments.length ? (x0 = +_[0], x1 = +_[1], k10 = x0 === x1 ? 0 : 1 / (x1 - x0), scale) : [x0, x1];
+    return arguments.length ? (x0 = +_[0], x1 = +_[1], scale) : [x0, x1];
   };
 
   scale.clamp = function(_) {
@@ -27260,7 +27191,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "devDependencies", function() { return devDependencies; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "dependencies", function() { return dependencies; });
 var name = "d3";
-var version = "5.5.0";
+var version = "5.4.0";
 var description = "Data-Driven Documents";
 var keywords = ["dom","visualization","svg","animation","canvas"];
 var homepage = "https://d3js.org";
@@ -27282,7 +27213,7 @@ var dependencies = {"d3-array":"1","d3-axis":"1","d3-brush":"1","d3-chord":"1","
 /*!**********************************!*\
   !*** ./node_modules/d3/index.js ***!
   \**********************************/
-/*! exports provided: version, bisect, bisectRight, bisectLeft, ascending, bisector, cross, descending, deviation, extent, histogram, thresholdFreedmanDiaconis, thresholdScott, thresholdSturges, max, mean, median, merge, min, pairs, permute, quantile, range, scan, shuffle, sum, ticks, tickIncrement, tickStep, transpose, variance, zip, axisTop, axisRight, axisBottom, axisLeft, brush, brushX, brushY, brushSelection, chord, ribbon, nest, set, map, keys, values, entries, color, rgb, hsl, lab, hcl, lch, gray, cubehelix, contours, contourDensity, dispatch, drag, dragDisable, dragEnable, dsvFormat, csvParse, csvParseRows, csvFormat, csvFormatRows, tsvParse, tsvParseRows, tsvFormat, tsvFormatRows, easeLinear, easeQuad, easeQuadIn, easeQuadOut, easeQuadInOut, easeCubic, easeCubicIn, easeCubicOut, easeCubicInOut, easePoly, easePolyIn, easePolyOut, easePolyInOut, easeSin, easeSinIn, easeSinOut, easeSinInOut, easeExp, easeExpIn, easeExpOut, easeExpInOut, easeCircle, easeCircleIn, easeCircleOut, easeCircleInOut, easeBounce, easeBounceIn, easeBounceOut, easeBounceInOut, easeBack, easeBackIn, easeBackOut, easeBackInOut, easeElastic, easeElasticIn, easeElasticOut, easeElasticInOut, blob, buffer, dsv, csv, tsv, image, json, text, xml, html, svg, forceCenter, forceCollide, forceLink, forceManyBody, forceRadial, forceSimulation, forceX, forceY, formatDefaultLocale, format, formatPrefix, formatLocale, formatSpecifier, precisionFixed, precisionPrefix, precisionRound, geoArea, geoBounds, geoCentroid, geoCircle, geoClipAntimeridian, geoClipCircle, geoClipExtent, geoClipRectangle, geoContains, geoDistance, geoGraticule, geoGraticule10, geoInterpolate, geoLength, geoPath, geoAlbers, geoAlbersUsa, geoAzimuthalEqualArea, geoAzimuthalEqualAreaRaw, geoAzimuthalEquidistant, geoAzimuthalEquidistantRaw, geoConicConformal, geoConicConformalRaw, geoConicEqualArea, geoConicEqualAreaRaw, geoConicEquidistant, geoConicEquidistantRaw, geoEquirectangular, geoEquirectangularRaw, geoGnomonic, geoGnomonicRaw, geoIdentity, geoProjection, geoProjectionMutator, geoMercator, geoMercatorRaw, geoNaturalEarth1, geoNaturalEarth1Raw, geoOrthographic, geoOrthographicRaw, geoStereographic, geoStereographicRaw, geoTransverseMercator, geoTransverseMercatorRaw, geoRotation, geoStream, geoTransform, cluster, hierarchy, pack, packSiblings, packEnclose, partition, stratify, tree, treemap, treemapBinary, treemapDice, treemapSlice, treemapSliceDice, treemapSquarify, treemapResquarify, interpolate, interpolateArray, interpolateBasis, interpolateBasisClosed, interpolateDate, interpolateNumber, interpolateObject, interpolateRound, interpolateString, interpolateTransformCss, interpolateTransformSvg, interpolateZoom, interpolateRgb, interpolateRgbBasis, interpolateRgbBasisClosed, interpolateHsl, interpolateHslLong, interpolateLab, interpolateHcl, interpolateHclLong, interpolateCubehelix, interpolateCubehelixLong, piecewise, quantize, path, polygonArea, polygonCentroid, polygonHull, polygonContains, polygonLength, quadtree, randomUniform, randomNormal, randomLogNormal, randomBates, randomIrwinHall, randomExponential, scaleBand, scalePoint, scaleIdentity, scaleLinear, scaleLog, scaleOrdinal, scaleImplicit, scalePow, scaleSqrt, scaleQuantile, scaleQuantize, scaleThreshold, scaleTime, scaleUtc, scaleSequential, scaleDiverging, schemeCategory10, schemeAccent, schemeDark2, schemePaired, schemePastel1, schemePastel2, schemeSet1, schemeSet2, schemeSet3, interpolateBrBG, schemeBrBG, interpolatePRGn, schemePRGn, interpolatePiYG, schemePiYG, interpolatePuOr, schemePuOr, interpolateRdBu, schemeRdBu, interpolateRdGy, schemeRdGy, interpolateRdYlBu, schemeRdYlBu, interpolateRdYlGn, schemeRdYlGn, interpolateSpectral, schemeSpectral, interpolateBuGn, schemeBuGn, interpolateBuPu, schemeBuPu, interpolateGnBu, schemeGnBu, interpolateOrRd, schemeOrRd, interpolatePuBuGn, schemePuBuGn, interpolatePuBu, schemePuBu, interpolatePuRd, schemePuRd, interpolateRdPu, schemeRdPu, interpolateYlGnBu, schemeYlGnBu, interpolateYlGn, schemeYlGn, interpolateYlOrBr, schemeYlOrBr, interpolateYlOrRd, schemeYlOrRd, interpolateBlues, schemeBlues, interpolateGreens, schemeGreens, interpolateGreys, schemeGreys, interpolatePurples, schemePurples, interpolateReds, schemeReds, interpolateOranges, schemeOranges, interpolateCubehelixDefault, interpolateRainbow, interpolateWarm, interpolateCool, interpolateSinebow, interpolateViridis, interpolateMagma, interpolateInferno, interpolatePlasma, create, creator, local, matcher, mouse, namespace, namespaces, clientPoint, select, selectAll, selection, selector, selectorAll, style, touch, touches, window, event, customEvent, arc, area, line, pie, areaRadial, radialArea, lineRadial, radialLine, pointRadial, linkHorizontal, linkVertical, linkRadial, symbol, symbols, symbolCircle, symbolCross, symbolDiamond, symbolSquare, symbolStar, symbolTriangle, symbolWye, curveBasisClosed, curveBasisOpen, curveBasis, curveBundle, curveCardinalClosed, curveCardinalOpen, curveCardinal, curveCatmullRomClosed, curveCatmullRomOpen, curveCatmullRom, curveLinearClosed, curveLinear, curveMonotoneX, curveMonotoneY, curveNatural, curveStep, curveStepAfter, curveStepBefore, stack, stackOffsetExpand, stackOffsetDiverging, stackOffsetNone, stackOffsetSilhouette, stackOffsetWiggle, stackOrderAscending, stackOrderDescending, stackOrderInsideOut, stackOrderNone, stackOrderReverse, timeInterval, timeMillisecond, timeMilliseconds, utcMillisecond, utcMilliseconds, timeSecond, timeSeconds, utcSecond, utcSeconds, timeMinute, timeMinutes, timeHour, timeHours, timeDay, timeDays, timeWeek, timeWeeks, timeSunday, timeSundays, timeMonday, timeMondays, timeTuesday, timeTuesdays, timeWednesday, timeWednesdays, timeThursday, timeThursdays, timeFriday, timeFridays, timeSaturday, timeSaturdays, timeMonth, timeMonths, timeYear, timeYears, utcMinute, utcMinutes, utcHour, utcHours, utcDay, utcDays, utcWeek, utcWeeks, utcSunday, utcSundays, utcMonday, utcMondays, utcTuesday, utcTuesdays, utcWednesday, utcWednesdays, utcThursday, utcThursdays, utcFriday, utcFridays, utcSaturday, utcSaturdays, utcMonth, utcMonths, utcYear, utcYears, timeFormatDefaultLocale, timeFormat, timeParse, utcFormat, utcParse, timeFormatLocale, isoFormat, isoParse, now, timer, timerFlush, timeout, interval, transition, active, interrupt, voronoi, zoom, zoomTransform, zoomIdentity */
+/*! exports provided: version, bisect, bisectRight, bisectLeft, ascending, bisector, cross, descending, deviation, extent, histogram, thresholdFreedmanDiaconis, thresholdScott, thresholdSturges, max, mean, median, merge, min, pairs, permute, quantile, range, scan, shuffle, sum, ticks, tickIncrement, tickStep, transpose, variance, zip, axisTop, axisRight, axisBottom, axisLeft, brush, brushX, brushY, brushSelection, chord, ribbon, nest, set, map, keys, values, entries, color, rgb, hsl, lab, hcl, lch, gray, cubehelix, contours, contourDensity, dispatch, drag, dragDisable, dragEnable, dsvFormat, csvParse, csvParseRows, csvFormat, csvFormatRows, tsvParse, tsvParseRows, tsvFormat, tsvFormatRows, easeLinear, easeQuad, easeQuadIn, easeQuadOut, easeQuadInOut, easeCubic, easeCubicIn, easeCubicOut, easeCubicInOut, easePoly, easePolyIn, easePolyOut, easePolyInOut, easeSin, easeSinIn, easeSinOut, easeSinInOut, easeExp, easeExpIn, easeExpOut, easeExpInOut, easeCircle, easeCircleIn, easeCircleOut, easeCircleInOut, easeBounce, easeBounceIn, easeBounceOut, easeBounceInOut, easeBack, easeBackIn, easeBackOut, easeBackInOut, easeElastic, easeElasticIn, easeElasticOut, easeElasticInOut, blob, buffer, dsv, csv, tsv, image, json, text, xml, html, svg, forceCenter, forceCollide, forceLink, forceManyBody, forceRadial, forceSimulation, forceX, forceY, formatDefaultLocale, format, formatPrefix, formatLocale, formatSpecifier, precisionFixed, precisionPrefix, precisionRound, geoArea, geoBounds, geoCentroid, geoCircle, geoClipAntimeridian, geoClipCircle, geoClipExtent, geoClipRectangle, geoContains, geoDistance, geoGraticule, geoGraticule10, geoInterpolate, geoLength, geoPath, geoAlbers, geoAlbersUsa, geoAzimuthalEqualArea, geoAzimuthalEqualAreaRaw, geoAzimuthalEquidistant, geoAzimuthalEquidistantRaw, geoConicConformal, geoConicConformalRaw, geoConicEqualArea, geoConicEqualAreaRaw, geoConicEquidistant, geoConicEquidistantRaw, geoEquirectangular, geoEquirectangularRaw, geoGnomonic, geoGnomonicRaw, geoIdentity, geoProjection, geoProjectionMutator, geoMercator, geoMercatorRaw, geoNaturalEarth1, geoNaturalEarth1Raw, geoOrthographic, geoOrthographicRaw, geoStereographic, geoStereographicRaw, geoTransverseMercator, geoTransverseMercatorRaw, geoRotation, geoStream, geoTransform, cluster, hierarchy, pack, packSiblings, packEnclose, partition, stratify, tree, treemap, treemapBinary, treemapDice, treemapSlice, treemapSliceDice, treemapSquarify, treemapResquarify, interpolate, interpolateArray, interpolateBasis, interpolateBasisClosed, interpolateDate, interpolateNumber, interpolateObject, interpolateRound, interpolateString, interpolateTransformCss, interpolateTransformSvg, interpolateZoom, interpolateRgb, interpolateRgbBasis, interpolateRgbBasisClosed, interpolateHsl, interpolateHslLong, interpolateLab, interpolateHcl, interpolateHclLong, interpolateCubehelix, interpolateCubehelixLong, piecewise, quantize, path, polygonArea, polygonCentroid, polygonHull, polygonContains, polygonLength, quadtree, randomUniform, randomNormal, randomLogNormal, randomBates, randomIrwinHall, randomExponential, scaleBand, scalePoint, scaleIdentity, scaleLinear, scaleLog, scaleOrdinal, scaleImplicit, scalePow, scaleSqrt, scaleQuantile, scaleQuantize, scaleThreshold, scaleTime, scaleUtc, scaleSequential, schemeCategory10, schemeAccent, schemeDark2, schemePaired, schemePastel1, schemePastel2, schemeSet1, schemeSet2, schemeSet3, interpolateBrBG, schemeBrBG, interpolatePRGn, schemePRGn, interpolatePiYG, schemePiYG, interpolatePuOr, schemePuOr, interpolateRdBu, schemeRdBu, interpolateRdGy, schemeRdGy, interpolateRdYlBu, schemeRdYlBu, interpolateRdYlGn, schemeRdYlGn, interpolateSpectral, schemeSpectral, interpolateBuGn, schemeBuGn, interpolateBuPu, schemeBuPu, interpolateGnBu, schemeGnBu, interpolateOrRd, schemeOrRd, interpolatePuBuGn, schemePuBuGn, interpolatePuBu, schemePuBu, interpolatePuRd, schemePuRd, interpolateRdPu, schemeRdPu, interpolateYlGnBu, schemeYlGnBu, interpolateYlGn, schemeYlGn, interpolateYlOrBr, schemeYlOrBr, interpolateYlOrRd, schemeYlOrRd, interpolateBlues, schemeBlues, interpolateGreens, schemeGreens, interpolateGreys, schemeGreys, interpolatePurples, schemePurples, interpolateReds, schemeReds, interpolateOranges, schemeOranges, interpolateCubehelixDefault, interpolateRainbow, interpolateWarm, interpolateCool, interpolateSinebow, interpolateViridis, interpolateMagma, interpolateInferno, interpolatePlasma, create, creator, local, matcher, mouse, namespace, namespaces, clientPoint, select, selectAll, selection, selector, selectorAll, style, touch, touches, window, event, customEvent, arc, area, line, pie, areaRadial, radialArea, lineRadial, radialLine, pointRadial, linkHorizontal, linkVertical, linkRadial, symbol, symbols, symbolCircle, symbolCross, symbolDiamond, symbolSquare, symbolStar, symbolTriangle, symbolWye, curveBasisClosed, curveBasisOpen, curveBasis, curveBundle, curveCardinalClosed, curveCardinalOpen, curveCardinal, curveCatmullRomClosed, curveCatmullRomOpen, curveCatmullRom, curveLinearClosed, curveLinear, curveMonotoneX, curveMonotoneY, curveNatural, curveStep, curveStepAfter, curveStepBefore, stack, stackOffsetExpand, stackOffsetDiverging, stackOffsetNone, stackOffsetSilhouette, stackOffsetWiggle, stackOrderAscending, stackOrderDescending, stackOrderInsideOut, stackOrderNone, stackOrderReverse, timeInterval, timeMillisecond, timeMilliseconds, utcMillisecond, utcMilliseconds, timeSecond, timeSeconds, utcSecond, utcSeconds, timeMinute, timeMinutes, timeHour, timeHours, timeDay, timeDays, timeWeek, timeWeeks, timeSunday, timeSundays, timeMonday, timeMondays, timeTuesday, timeTuesdays, timeWednesday, timeWednesdays, timeThursday, timeThursdays, timeFriday, timeFridays, timeSaturday, timeSaturdays, timeMonth, timeMonths, timeYear, timeYears, utcMinute, utcMinutes, utcHour, utcHours, utcDay, utcDays, utcWeek, utcWeeks, utcSunday, utcSundays, utcMonday, utcMondays, utcTuesday, utcTuesdays, utcWednesday, utcWednesdays, utcThursday, utcThursdays, utcFriday, utcFridays, utcSaturday, utcSaturdays, utcMonth, utcMonths, utcYear, utcYears, timeFormatDefaultLocale, timeFormat, timeParse, utcFormat, utcParse, timeFormatLocale, isoFormat, isoParse, now, timer, timerFlush, timeout, interval, transition, active, interrupt, voronoi, zoom, zoomTransform, zoomIdentity */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -27807,8 +27738,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "scaleUtc", function() { return d3_scale__WEBPACK_IMPORTED_MODULE_22__["scaleUtc"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "scaleSequential", function() { return d3_scale__WEBPACK_IMPORTED_MODULE_22__["scaleSequential"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "scaleDiverging", function() { return d3_scale__WEBPACK_IMPORTED_MODULE_22__["scaleDiverging"]; });
 
 /* harmony import */ var d3_scale_chromatic__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! d3-scale-chromatic */ "./node_modules/d3-scale-chromatic/index.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "schemeCategory10", function() { return d3_scale_chromatic__WEBPACK_IMPORTED_MODULE_23__["schemeCategory10"]; });
@@ -38686,36 +38615,79 @@ return jQuery;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const editorView_1 = __webpack_require__(/*! ./view/editorView */ "./src/view/editorView.ts");
+const propertyAssociationTypeSelector_1 = __webpack_require__(/*! ./view/propertyAssociationTypeSelector */ "./src/view/propertyAssociationTypeSelector.ts");
 class Controller {
-    constructor() {
+    constructor(renderer, statusBar) {
         this._selectedProperty = null;
+        this._renderer = renderer;
+        this._statusBar = statusBar;
+        this._propertyAssociationTypeSelector = new propertyAssociationTypeSelector_1.PropertyAssociationTypeSelector(this);
         this.forkNumber = 0;
     }
     addPropertyMode(propertyPresenterFactory) {
         this._selectedProperty = propertyPresenterFactory;
+        if (propertyPresenterFactory.propertyBuilder.associationType.isFinalized) {
+            this._propertyAssociationTypeSelector.disable();
+        }
+        else {
+            this._propertyAssociationTypeSelector.enable();
+        }
+        if (propertyPresenterFactory.propertyBuilder.associationType.hasValue()) {
+            this._propertyAssociationTypeSelector.check(propertyPresenterFactory.propertyBuilder.associationType.value);
+        }
     }
     removePropertyMode() {
         this._selectedProperty = null;
     }
+    /**
+     * See @see IController#selectShape
+     */
     selectShape(shapePresenter) {
         //console.log(shapePresenter)
         //console.log(this._selectedProperty)
+        this._statusBar.clear();
         if (this._selectedProperty == null) {
+            // If no property is selected, then there's nothing to do.
             return;
         }
-        let propertyPresenter = this._selectedProperty.createFromProperty(shapePresenter, this);
-        shapePresenter.addProperty(propertyPresenter.property, propertyPresenter);
-    }
-    selectProperty(propertyPresenter) {
-        if (this._selectedProperty == null) {
-            propertyPresenter.parentShapePresenter.removeProperty(propertyPresenter.property, propertyPresenter);
-            return true;
+        try {
+            let propertyPresenter = this._selectedProperty.createFromProperty(shapePresenter, this);
+            shapePresenter.addProperty(propertyPresenter.property, propertyPresenter);
+            shapePresenter.erase();
+            shapePresenter.present(this._renderer);
         }
-        return false;
+        catch (error) {
+            /*
+            This can happen if the property already exists or the property
+            cannot share the Shape with the properties already associated
+            with the Shape
+            */
+            this._statusBar.error(error);
+        }
     }
-    selectPuzzle(presenter, renderer) {
-        let editor = new editorView_1.EditorView(presenter, this, renderer);
+    /**
+     * @see IController#selectProperty
+     */
+    selectProperty(propertyPresenter, parentShapePresenter) {
+        this._statusBar.clear();
+        if (this._selectedProperty != null) {
+            // If some property is selected, then we are in the add property mode. So property clicked on will not be removed.
+            return;
+        }
+        // Erasing the parentShapePresenter will also erase all properties of it
+        parentShapePresenter.erase();
+        parentShapePresenter.removeProperty(propertyPresenter.property, propertyPresenter);
+        parentShapePresenter.present(this._renderer);
+    }
+    selectPuzzle(presenter) {
+        let editor = new editorView_1.EditorView(presenter, this, this._renderer);
+        this._propertyAssociationTypeSelector.render();
         editor.render();
+    }
+    setPropertyAssociationType(type) {
+        if (this._selectedProperty !== null) {
+            this._selectedProperty.propertyBuilder.associationType.value = type;
+        }
     }
 }
 exports.Controller = Controller;
@@ -38737,31 +38709,13 @@ const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.j
 const d3Renderer_1 = __webpack_require__(/*! ./renderer/d3Renderer */ "./src/renderer/d3Renderer.ts");
 const controller_1 = __webpack_require__(/*! ./controller */ "./src/controller.ts");
 const boardSelectorView_1 = __webpack_require__(/*! ./view/boardSelectorView */ "./src/view/boardSelectorView.ts");
+const statusBar_1 = __webpack_require__(/*! ./view/statusBar */ "./src/view/statusBar.ts");
 $(() => {
-    let controller = new controller_1.Controller();
+    let statusBar = new statusBar_1.StatusBar();
     let renderer = new d3Renderer_1.D3Renderer();
-    let selector = new boardSelectorView_1.BoardSelectorView(controller, renderer);
+    let controller = new controller_1.Controller(renderer, statusBar);
+    let selector = new boardSelectorView_1.BoardSelectorView(controller);
     selector.render();
-    /*let sudoku = new SudokuGrid()
-    let slitherLink = new SlitherLinkGrid()
-    let renderer = new D3Renderer()
-    let controller = new Controller()
-    //let presenter = new GridPresenter(sudoku, controller)
-    let presenter = new GridPresenter(slitherLink, controller)
-    presenter.presentCellBorders = false
-    
-    
-    for (let i = 1; i <= 9; i++) {
-        let property = new Property(i.toString())
-        let propertyPresenter = new PropertyPresenterFactory(TextPropertyPresenter, property)
-        presenter.propertyPresenterFactories.push(propertyPresenter)
-    }
-    let property = new Property("line")
-    let propertyPresenter = new PropertyPresenterFactory(LinePropertyPresenter, property)
-    presenter.propertyPresenterFactories.push(propertyPresenter)
-    
-    let ui = new EditorView(presenter, controller, renderer)
-    ui.render()*/
 });
 
 
@@ -38825,19 +38779,52 @@ exports.ShapesConstraint = ShapesConstraint;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const protectedAccessor_1 = __webpack_require__(/*! ../utils/protectedAccessor */ "./src/utils/protectedAccessor.ts");
 /**
- * Properties associates with @see Shape s and are what the rules of the puzzle (@see IConstraint)
+ * Properties associates with {@link Shape}s and are what the rules of the puzzle ({@link IConstraint}s)
  * act upon. E.g. numbers 1 through 9 are the properties of the @see Cell s on a Sudoku board.
  */
 class Property {
-    constructor(name) {
-        this._name = name;
-    }
-    get name() {
-        return this._name;
+    constructor(name, associationType = PropertyAssociationType.Multiple) {
+        this.name = name;
+        this.associationType = associationType;
     }
 }
 exports.Property = Property;
+/**
+ * Different modes a Property associate with a Shape
+ */
+var PropertyAssociationType;
+(function (PropertyAssociationType) {
+    /**
+     * Multiple Properties of this type can be associated with the same Shape
+     */
+    PropertyAssociationType["Multiple"] = "Multiple";
+    /**
+     * At most one Property of this type and multiple Properties of the Multiple type
+     * can be associated with the same Shape.
+     */
+    PropertyAssociationType["SemiSingle"] = "SemiSingle";
+    /**
+     * At most one Property of this type can be associated with the same Shape
+     */
+    PropertyAssociationType["Single"] = "Single";
+})(PropertyAssociationType = exports.PropertyAssociationType || (exports.PropertyAssociationType = {}));
+exports.allPropertyAssociationTypes = [PropertyAssociationType.Multiple, PropertyAssociationType.SemiSingle, PropertyAssociationType.Single];
+/**
+ * Builder (factory) for {@link Property}s. This is needed in order to keep track of
+ * {@link PropertyAssociationType} of the property before they are created.
+ */
+class PropertyBuilder {
+    constructor(name) {
+        this.associationType = new protectedAccessor_1.ProtectedAcessor();
+        this.name = name;
+    }
+    create() {
+        return new Property(this.name, this.associationType.value);
+    }
+}
+exports.PropertyBuilder = PropertyBuilder;
 
 
 /***/ }),
@@ -38852,6 +38839,7 @@ exports.Property = Property;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const property_1 = __webpack_require__(/*! ./property */ "./src/model/property.ts");
 const constraint_1 = __webpack_require__(/*! ./constraint */ "./src/model/constraint.ts");
 /**
  * Shapes represents components of a puzzle board. E.g. the border of a cell in a grid
@@ -38859,9 +38847,51 @@ const constraint_1 = __webpack_require__(/*! ./constraint */ "./src/model/constr
 class Shape {
     constructor() {
         this._properties = new Set();
+        this._strictestPropertyAssociationType = property_1.PropertyAssociationType.Multiple;
     }
     get properties() {
         return this._properties;
+    }
+    /**
+     * Tries to add the property to the shape. The property might be not added
+     * because of the property association type prohibits.
+     * @param property
+     */
+    addProperty(property) {
+        if (this.properties.has(property)) {
+            throw new Error(`Selected shape already has property "${property.name}"`);
+        }
+        switch (property.associationType) {
+            case property_1.PropertyAssociationType.Multiple:
+                if (this._strictestPropertyAssociationType == property_1.PropertyAssociationType.Single) {
+                    throw new Error(`Cannot add property "${property.name}" since 
+Shape already has a single association property`);
+                }
+                break;
+            case property_1.PropertyAssociationType.SemiSingle:
+                if (this._strictestPropertyAssociationType != property_1.PropertyAssociationType.Multiple) {
+                    throw new Error(`Property "${property.name}" of association type 
+"${property.associationType}" cannot share a Shape with other single or semi-single association properties!`);
+                }
+                break;
+            case property_1.PropertyAssociationType.Single:
+                if (this.properties.size != 0) {
+                    throw new Error(`Property "${property.name}" of association type 
+"${property.associationType}" cannot share a Shape with other properties!`);
+                }
+                break;
+        }
+        this._strictestPropertyAssociationType = property.associationType;
+        this.properties.add(property);
+    }
+    /**
+     * Removes the property from the shape
+     */
+    removeProperty(property) {
+        if (property.associationType >= property_1.PropertyAssociationType.SemiSingle) {
+            this._strictestPropertyAssociationType = property_1.PropertyAssociationType.Multiple;
+        }
+        this._properties.delete(property);
     }
     get property() {
         let singleProperty = null;
@@ -39286,22 +39316,13 @@ class PropertyPresenter extends presenter_1.Presenter {
     constructor(property, parentShapePresenter, controller) {
         super(parentShapePresenter.renderLayer.concat(2), true);
         this.property = property;
-        this.parentShapePresenter = parentShapePresenter;
+        this._parentShapePresenter = parentShapePresenter;
         this._controller = controller;
         this._isViolationMarked = false;
     }
     present(renderer, boundingBox) {
         this.renderedObject = this.presentProperty(renderer, boundingBox);
-        this.renderedObject.onclick(() => {
-            if (this._controller.selectProperty(this)) {
-                // calling this.erase is required because the propertyPresenter is already removed from
-                // parentShapePresenter by now and parentShapePresenter's erase won't be able
-                // to erase the propertyPresenter
-                this.erase();
-                this.parentShapePresenter.erase();
-                this.parentShapePresenter.present(renderer);
-            }
-        });
+        this.renderedObject.onclick(() => this._controller.selectProperty(this, this._parentShapePresenter));
     }
     erase() {
         this.eraseSelf();
@@ -39330,13 +39351,14 @@ class PropertyPresenter extends presenter_1.Presenter {
 }
 exports.PropertyPresenter = PropertyPresenter;
 class PropertyPresenterFactory {
-    constructor(propertyPresenterConstructor, property, keyboardSelectShortcut = null) {
+    constructor(propertyPresenterConstructor, propertyBuilder, keyboardSelectShortcut = null) {
         this._propertyPresenterConstructor = propertyPresenterConstructor;
-        this.property = property;
+        this.propertyBuilder = propertyBuilder;
         this.keyboardSelectShortcut = keyboardSelectShortcut;
     }
     createFromProperty(parentShapePresenter, controller) {
-        return new this._propertyPresenterConstructor(this.property, parentShapePresenter, controller);
+        let property = this.propertyBuilder.create();
+        return new this._propertyPresenterConstructor(property, parentShapePresenter, controller);
     }
 }
 exports.PropertyPresenterFactory = PropertyPresenterFactory;
@@ -39363,7 +39385,7 @@ class CellBorderLinePropertyPresenter extends propertyPresenter_1.PropertyPresen
         let renderedObject = renderer.renderRectangle(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height, this.renderLayer, "black", this.forkOpacity);
         return renderedObject;
     }
-    static getKeyboardSelectShortcut(property) {
+    static getKeyboardSelectShortcut(propertyBuilder) {
         return "l";
     }
 }
@@ -39391,7 +39413,7 @@ class HorizontalCellLinePropertyPresenter extends propertyPresenter_1.PropertyPr
         let renderedObject = renderer.renderRectangle(boundingBox.x, boundingBox.centerY - 4, boundingBox.width, 8, this.renderLayer, "black", this.forkOpacity);
         return renderedObject;
     }
-    static getKeyboardSelectShortcut(property) {
+    static getKeyboardSelectShortcut(propertyBuilder) {
         return "-";
     }
 }
@@ -39404,7 +39426,7 @@ class VerticalCellLinePropertyPresenter extends propertyPresenter_1.PropertyPres
         let renderedObject = renderer.renderRectangle(boundingBox.centerX - 4, boundingBox.y, 8, boundingBox.height, this.renderLayer, "black", this.forkOpacity);
         return renderedObject;
     }
-    static getKeyboardSelectShortcut(property) {
+    static getKeyboardSelectShortcut(propertyBuilder) {
         return "|";
     }
 }
@@ -39417,7 +39439,7 @@ class NorthWestBendCellLinePropertyPresenter extends propertyPresenter_1.Propert
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.top + 4, boundingBox.centerX, boundingBox.centerY, boundingBox.left + 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
         return renderedObject;
     }
-    static getKeyboardSelectShortcut(property) {
+    static getKeyboardSelectShortcut(propertyBuilder) {
         return null;
     }
 }
@@ -39430,7 +39452,7 @@ class NorthEastBendCellLinePropertyPresenter extends propertyPresenter_1.Propert
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.top + 4, boundingBox.centerX, boundingBox.centerY, boundingBox.right - 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
         return renderedObject;
     }
-    static getKeyboardSelectShortcut(property) {
+    static getKeyboardSelectShortcut(propertyBuilder) {
         return null;
     }
 }
@@ -39443,7 +39465,7 @@ class SouthWestBendCellLinePropertyPresenter extends propertyPresenter_1.Propert
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.bottom - 4, boundingBox.centerX, boundingBox.centerY, boundingBox.left + 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
         return renderedObject;
     }
-    static getKeyboardSelectShortcut(property) {
+    static getKeyboardSelectShortcut(propertyBuilder) {
         return null;
     }
 }
@@ -39456,7 +39478,7 @@ class SouthEastBendCellLinePropertyPresenter extends propertyPresenter_1.Propert
         let renderedObject = renderer.renderTurn(boundingBox.centerX, boundingBox.bottom - 4, boundingBox.centerX, boundingBox.centerY, boundingBox.right - 4, boundingBox.centerY, 4, this.renderLayer, this.forkOpacity);
         return renderedObject;
     }
-    static getKeyboardSelectShortcut(property) {
+    static getKeyboardSelectShortcut(propertyBuilder) {
         return null;
     }
 }
@@ -39480,8 +39502,8 @@ class TextPropertyPresenter extends propertyPresenter_1.PropertyPresenter {
     presentProperty(renderer, boundingBox) {
         return renderer.renderText(this.property.name, boundingBox, this.renderLayer, this.forkOpacity);
     }
-    static getKeyboardSelectShortcut(property) {
-        return property.name.substr(0, 1);
+    static getKeyboardSelectShortcut(propertyBuilder) {
+        return propertyBuilder.name.substr(0, 1);
     }
 }
 exports.TextPropertyPresenter = TextPropertyPresenter;
@@ -39499,6 +39521,7 @@ exports.TextPropertyPresenter = TextPropertyPresenter;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const property_1 = __webpack_require__(/*! ../model/property */ "./src/model/property.ts");
 const constraintPresenter_1 = __webpack_require__(/*! ./constraintPresenter */ "./src/presenter/constraintPresenter.ts");
 const presenter_1 = __webpack_require__(/*! ./presenter */ "./src/presenter/presenter.ts");
 const renderer_1 = __webpack_require__(/*! ../renderer/renderer */ "./src/renderer/renderer.ts");
@@ -39521,20 +39544,40 @@ class ShapePresenter extends presenter_1.Presenter {
             this.renderedObject = this.presentSelf(renderer);
         }
         this.selectObject = this.presentSelectObject(renderer);
-        this.selectObject.onclick(() => {
-            this.erase();
-            this._controller.selectShape(this);
-            this.present(renderer);
-        });
-        let boundingBoxes = this.getBoundingBoxes(this._propertyPresenters.size);
-        let i = 0;
-        for (let propertyPresenter of this._propertyPresenters.values()) {
-            propertyPresenter.present(renderer, boundingBoxes[i]);
-            i++;
+        this.selectObject.onclick(() => this._controller.selectShape(this));
+        let singleAssociationProperty = this.getSingleAssociationPropertyIfAny();
+        let numberSubBoundingBoxesNeeded;
+        if (singleAssociationProperty !== null) {
+            numberSubBoundingBoxesNeeded = this._propertyPresenters.size - 1;
+            singleAssociationProperty.present(renderer, this.getBoundingBoxes(1)[0]);
+        }
+        else {
+            numberSubBoundingBoxesNeeded = this._propertyPresenters.size;
+        }
+        if (numberSubBoundingBoxesNeeded > 0) {
+            let subBoundingBoxes = this.getBoundingBoxes(numberSubBoundingBoxesNeeded);
+            let i = 0;
+            for (let propertyPresenter of this._propertyPresenters.values()) {
+                if (propertyPresenter.property.associationType == property_1.PropertyAssociationType.Multiple) {
+                    propertyPresenter.present(renderer, subBoundingBoxes[i]);
+                    i++;
+                }
+            }
         }
         for (let constraintPresenter of this._affectedConstraints) {
             constraintPresenter.present(renderer);
         }
+    }
+    /**
+     * Finds the property presenter with a Semi-Single or Single association type if exists.
+     */
+    getSingleAssociationPropertyIfAny() {
+        for (let propertyPresenter of this._propertyPresenters.values()) {
+            if (propertyPresenter.property.associationType != property_1.PropertyAssociationType.Multiple) {
+                return propertyPresenter;
+            }
+        }
+        return null;
     }
     erase() {
         for (let constraintPresenter of this._affectedConstraints) {
@@ -39567,12 +39610,12 @@ class ShapePresenter extends presenter_1.Presenter {
         this._isViolationMarked = false;
     }
     addProperty(property, propertyPresenter) {
+        this._shape.addProperty(propertyPresenter.property);
         this._propertyPresenters.set(property, propertyPresenter);
-        this._shape.properties.add(propertyPresenter.property);
     }
     removeProperty(property, propertyPresenter) {
         this._propertyPresenters.delete(property);
-        this._shape.properties.delete(propertyPresenter.property);
+        this._shape.removeProperty(propertyPresenter.property);
     }
     getPropertyPresenter(property) {
         let propertyPresenter = this._propertyPresenters.get(property);
@@ -39647,35 +39690,44 @@ class CustomGridPresenter extends gridCellPresenter_1.GridPresenter {
     constructor(width, height, controller) {
         super(new gridCell_1.Grid(width, height), controller);
         for (let i = 0; i <= 9; i++) {
-            let property = new property_1.Property(i.toString());
-            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
+            let propertyBuilder = new property_1.PropertyBuilder(i.toString());
+            propertyBuilder.associationType.value = property_1.PropertyAssociationType.Multiple;
+            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, propertyBuilder, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
             this.propertyPresenterFactories.push(propertyPresenter);
         }
         for (let letter of ["A", "B", "C", "D", "E", "X", "Y", "Z"]) {
-            let property = new property_1.Property(letter);
-            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
+            let propertyBuilder = new property_1.PropertyBuilder(letter);
+            propertyBuilder.associationType.value = property_1.PropertyAssociationType.Multiple;
+            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, propertyBuilder, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
             this.propertyPresenterFactories.push(propertyPresenter);
         }
-        let property = new property_1.Property("border line");
-        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter, property, cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        let propertyBuilder = new property_1.PropertyBuilder("border line");
+        propertyBuilder.associationType.value = property_1.PropertyAssociationType.SemiSingle;
+        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter, propertyBuilder, cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
         this.propertyPresenterFactories.push(propertyPresenter);
-        property = new property_1.Property("-");
-        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.HorizontalCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.HorizontalCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        propertyBuilder = new property_1.PropertyBuilder("-");
+        propertyBuilder.associationType.value = property_1.PropertyAssociationType.SemiSingle;
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.HorizontalCellLinePropertyPresenter, propertyBuilder, cellLinePropertyPresenter_1.HorizontalCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
         this.propertyPresenterFactories.push(propertyPresenter);
-        property = new property_1.Property("|");
-        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.VerticalCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.VerticalCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        propertyBuilder = new property_1.PropertyBuilder("|");
+        propertyBuilder.associationType.value = property_1.PropertyAssociationType.SemiSingle;
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.VerticalCellLinePropertyPresenter, propertyBuilder, cellLinePropertyPresenter_1.VerticalCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
         this.propertyPresenterFactories.push(propertyPresenter);
-        property = new property_1.Property("⌟");
-        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.NorthWestBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.NorthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        propertyBuilder = new property_1.PropertyBuilder("⌟");
+        propertyBuilder.associationType.value = property_1.PropertyAssociationType.SemiSingle;
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.NorthWestBendCellLinePropertyPresenter, propertyBuilder, cellLinePropertyPresenter_1.NorthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
         this.propertyPresenterFactories.push(propertyPresenter);
-        property = new property_1.Property("⌞");
-        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        propertyBuilder = new property_1.PropertyBuilder("⌞");
+        propertyBuilder.associationType.value = property_1.PropertyAssociationType.SemiSingle;
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter, propertyBuilder, cellLinePropertyPresenter_1.NorthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
         this.propertyPresenterFactories.push(propertyPresenter);
-        property = new property_1.Property("⌝");
-        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        propertyBuilder = new property_1.PropertyBuilder("⌝");
+        propertyBuilder.associationType.value = property_1.PropertyAssociationType.SemiSingle;
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter, propertyBuilder, cellLinePropertyPresenter_1.SouthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
         this.propertyPresenterFactories.push(propertyPresenter);
-        property = new property_1.Property("⌜");
-        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter, property, cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        propertyBuilder = new property_1.PropertyBuilder("⌜");
+        propertyBuilder.associationType.value = property_1.PropertyAssociationType.SemiSingle;
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter, propertyBuilder, cellLinePropertyPresenter_1.SouthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
         this.propertyPresenterFactories.push(propertyPresenter);
     }
 }
@@ -39819,15 +39871,21 @@ class SlitherLinkPresenter extends gridCellPresenter_1.GridPresenter {
         super(new slitherLink_1.SlitherLinkGrid(width, height), controller);
         this.presentCellBorders = false;
         for (let i = 0; i <= 4; i++) {
-            let property = new property_1.Property(i.toString());
-            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
+            let propertyBuilder = new property_1.PropertyBuilder(i.toString());
+            propertyBuilder.associationType.value = property_1.PropertyAssociationType.Single;
+            propertyBuilder.associationType.finalize();
+            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, propertyBuilder, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
             this.propertyPresenterFactories.push(propertyPresenter);
         }
-        let property = new property_1.Property("border line");
-        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter, property, cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(property));
+        let propertyBuilder = new property_1.PropertyBuilder("border line");
+        propertyBuilder.associationType.value = property_1.PropertyAssociationType.Single;
+        propertyBuilder.associationType.finalize();
+        let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter, propertyBuilder, cellBorderLinePropertyPresenter_1.CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
         this.propertyPresenterFactories.push(propertyPresenter);
-        property = new property_1.Property("X");
-        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
+        propertyBuilder = new property_1.PropertyBuilder("X");
+        propertyBuilder.associationType.value = property_1.PropertyAssociationType.Single;
+        propertyBuilder.associationType.finalize();
+        propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, propertyBuilder, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
         this.propertyPresenterFactories.push(propertyPresenter);
     }
 }
@@ -39856,8 +39914,10 @@ class SudokuPresenter extends gridCellPresenter_1.GridPresenter {
         super(new sudoku_1.SudokuGrid(), controller);
         this.presentIntersections = false;
         for (let i = 1; i <= 9; i++) {
-            let property = new property_1.Property(i.toString());
-            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, property, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(property));
+            let propertyBuilder = new property_1.PropertyBuilder(i.toString());
+            propertyBuilder.associationType.value = property_1.PropertyAssociationType.Single;
+            propertyBuilder.associationType.finalize();
+            let propertyPresenter = new propertyPresenter_1.PropertyPresenterFactory(textPropertyPresenter_1.TextPropertyPresenter, propertyBuilder, textPropertyPresenter_1.TextPropertyPresenter.getKeyboardSelectShortcut(propertyBuilder));
             this.propertyPresenterFactories.push(propertyPresenter);
         }
     }
@@ -40150,6 +40210,53 @@ function ThrowObjectNotRenderedError() {
 
 /***/ }),
 
+/***/ "./src/utils/protectedAccessor.ts":
+/*!****************************************!*\
+  !*** ./src/utils/protectedAccessor.ts ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Wrapper for a field that can be made readonly
+ */
+class ProtectedAcessor {
+    constructor() {
+        this._isFinalized = false;
+    }
+    get value() {
+        if (!this.hasValue()) {
+            throw new Error("Value is not set");
+        }
+        return this._value;
+    }
+    set value(value) {
+        if (this._isFinalized) {
+            throw new Error("Value has been set already");
+        }
+        this._value = value;
+    }
+    get isFinalized() {
+        return this._isFinalized;
+    }
+    finalize() {
+        if (this._value === undefined) {
+            throw new Error("Value is not set");
+        }
+        this._isFinalized = true;
+    }
+    hasValue() {
+        return this._value !== undefined;
+    }
+}
+exports.ProtectedAcessor = ProtectedAcessor;
+
+
+/***/ }),
+
 /***/ "./src/view/boardSelectorView.ts":
 /*!***************************************!*\
   !*** ./src/view/boardSelectorView.ts ***!
@@ -40184,7 +40291,7 @@ class BoardSelectorView extends view_1.View {
             .append("high");
     }
     _selectPuzzle(shapeCollectionPresenter) {
-        this.controller.selectPuzzle(shapeCollectionPresenter, this.renderer);
+        this.controller.selectPuzzle(shapeCollectionPresenter);
         $("#selector").remove();
     }
 }
@@ -40207,13 +40314,14 @@ const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.j
 const view_1 = __webpack_require__(/*! ./view */ "./src/view/view.ts");
 class EditorView extends view_1.View {
     constructor(shapeCollectionPresenter, controller, renderer) {
-        super(controller, renderer);
+        super(controller);
+        this._renderer = renderer;
         this._shapeCollectionPresenter = shapeCollectionPresenter;
     }
     render() {
-        this._shapeCollectionPresenter.present(this.renderer);
+        this._shapeCollectionPresenter.present(this._renderer);
         for (let propertyPresenter of this._shapeCollectionPresenter.propertyPresenterFactories) {
-            let propertySelectorButton = this.renderer.renderButton(propertyPresenter.property.name, "toolbar");
+            let propertySelectorButton = this._renderer.renderButton(propertyPresenter.propertyBuilder.name, "propertiestoolbar");
             propertySelectorButton.onclick(() => this.controller.addPropertyMode(propertyPresenter));
             if (propertyPresenter.keyboardSelectShortcut != null) {
                 $(document).keypress(event => {
@@ -40223,7 +40331,7 @@ class EditorView extends view_1.View {
                 });
             }
         }
-        let propertyRemoveButton = this.renderer.renderButton("remove", "toolbar");
+        let propertyRemoveButton = this._renderer.renderButton("remove", "propertiestoolbar");
         propertyRemoveButton.onclick(() => this.controller.removePropertyMode());
         $(document).keypress(event => {
             if (event.which == "r".charCodeAt(0)) {
@@ -40250,12 +40358,88 @@ class EditorView extends view_1.View {
                 .attr("placeholder", `current fork number: ${newForkNumber}`)
                 .val("");
         });
-        forkButton.appendTo($("#toolbar"));
-        $("#toolbar")
+        forkButton.appendTo($("#forktoolbar"));
+        $("#forktoolbar")
             .append('<input id="forkNumber" type="text" placeholder="current fork number: 0"/>');
     }
 }
 exports.EditorView = EditorView;
+
+
+/***/ }),
+
+/***/ "./src/view/propertyAssociationTypeSelector.ts":
+/*!*****************************************************!*\
+  !*** ./src/view/propertyAssociationTypeSelector.ts ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+const property_1 = __webpack_require__(/*! ../model/property */ "./src/model/property.ts");
+const view_1 = __webpack_require__(/*! ./view */ "./src/view/view.ts");
+class PropertyAssociationTypeSelector extends view_1.View {
+    render() {
+        for (let propertyAssociationType of property_1.allPropertyAssociationTypes) {
+            let radioButton = $(`<input type="radio" id="propertyAssociationSelector-${propertyAssociationType}" ` +
+                `name="propertyAssociation" value="${propertyAssociationType}" />`);
+            radioButton.click(() => {
+                this.controller.setPropertyAssociationType(propertyAssociationType);
+            });
+            $("#propertyassociation").append(radioButton);
+            $("#propertyassociation").append($(`<span>${propertyAssociationType} &nbsp;</span>`));
+        }
+        this.disable();
+    }
+    disable() {
+        for (let propertyAssociationType of property_1.allPropertyAssociationTypes) {
+            $(`#propertyAssociationSelector-${propertyAssociationType}`)
+                .attr("disabled", "true");
+        }
+    }
+    enable() {
+        for (let propertyAssociationType of property_1.allPropertyAssociationTypes) {
+            $(`#propertyAssociationSelector-${propertyAssociationType}`)
+                .removeAttr("disabled");
+        }
+    }
+    check(propertyAssociationType) {
+        $(`#propertyAssociationSelector-${propertyAssociationType}`)
+            .prop("checked", true);
+    }
+}
+exports.PropertyAssociationTypeSelector = PropertyAssociationTypeSelector;
+
+
+/***/ }),
+
+/***/ "./src/view/statusBar.ts":
+/*!*******************************!*\
+  !*** ./src/view/statusBar.ts ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+class StatusBar {
+    error(message) {
+        $("#statusbar")
+            .html(message)
+            .css("color", "red");
+    }
+    clear() {
+        $("#statusbar")
+            .html("Status: OK")
+            .css("color", "black");
+    }
+}
+exports.StatusBar = StatusBar;
 
 
 /***/ }),
@@ -40274,9 +40458,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Views handles rendering of a specifc page of the UI
  */
 class View {
-    constructor(controller, renderer) {
+    constructor(controller) {
         this.controller = controller;
-        this.renderer = renderer;
     }
 }
 exports.View = View;
