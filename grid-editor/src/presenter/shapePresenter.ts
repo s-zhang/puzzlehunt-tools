@@ -1,4 +1,4 @@
-import { Property } from "../model/property"
+import { Property, PropertyAssociationType } from "../model/property"
 import { Shape } from "../model/shape"
 import { PropertyPresenter, PropertyPresenterFactory } from "./propertyPresenter"
 import { ConstraintPresenter } from "./constraintPresenter"
@@ -30,26 +30,52 @@ export abstract class ShapePresenter extends Presenter implements IMarkablePrese
     }
     protected abstract presentSelf(renderer: IRenderer): IRenderedObject
     protected abstract presentSelectObject(renderer : IRenderer) : IRenderedObject
-    present(renderer: IRenderer) {
+    present(renderer: IRenderer): void {
         if (this.isSelfPresented) {
             this.renderedObject = this.presentSelf(renderer)
         }
         this.selectObject = this.presentSelectObject(renderer)
-        this.selectObject.onclick(() => {
-            this.erase()
-            this._controller.selectShape(this)
-            this.present(renderer)
-        })
-        let boundingBoxes : Rect[] = this.getBoundingBoxes(this._propertyPresenters.size)
-        let i = 0
-        for (let propertyPresenter of this._propertyPresenters.values()) {
-            propertyPresenter.present(renderer, boundingBoxes[i])
-            i++
+        this.selectObject.onclick(() => this._controller.selectShape(this))
+        let singleAssociationProperty: PropertyPresenter | null = this.getSingleAssociationPropertyIfAny()
+        
+        let numberSubBoundingBoxesNeeded: number
+        if (singleAssociationProperty !== null) {
+            numberSubBoundingBoxesNeeded = this._propertyPresenters.size - 1
+            singleAssociationProperty.present(renderer, this.getBoundingBoxes(1)[0])
+        } else {
+            numberSubBoundingBoxesNeeded = this._propertyPresenters.size
         }
+        
+        if (numberSubBoundingBoxesNeeded > 0) {
+            let subBoundingBoxes : Rect[] = this.getBoundingBoxes(numberSubBoundingBoxesNeeded)
+            let i = 0
+            for (let propertyPresenter of this._propertyPresenters.values()) {
+                if (propertyPresenter.property.associationType == PropertyAssociationType.Multiple)
+                {
+                    propertyPresenter.present(renderer, subBoundingBoxes[i])
+                    i++
+                }
+            }
+        }
+
         for (let constraintPresenter of this._affectedConstraints) {
             constraintPresenter.present(renderer)
         }
     }
+
+    /**
+     * Finds the property presenter with a Semi-Single or Single association type if exists.
+     */
+    private getSingleAssociationPropertyIfAny(): PropertyPresenter | null {
+        for (let propertyPresenter of this._propertyPresenters.values()) {
+            if (propertyPresenter.property.associationType != PropertyAssociationType.Multiple)
+            {
+                return propertyPresenter
+            }
+        }
+        return null
+    }
+
     erase() : void {
         for (let constraintPresenter of this._affectedConstraints) {
             constraintPresenter.erase()
@@ -85,12 +111,12 @@ export abstract class ShapePresenter extends Presenter implements IMarkablePrese
     }
     
     addProperty(property : Property, propertyPresenter : PropertyPresenter) {
+        this._shape.addProperty(propertyPresenter.property)
         this._propertyPresenters.set(property, propertyPresenter)
-        this._shape.properties.add(propertyPresenter.property)
     }
     removeProperty(property : Property, propertyPresenter : PropertyPresenter) {
         this._propertyPresenters.delete(property)
-        this._shape.properties.delete(propertyPresenter.property)
+        this._shape.removeProperty(propertyPresenter.property)
     }
     getPropertyPresenter(property : Property) : PropertyPresenter {
         let propertyPresenter : PropertyPresenter | undefined = this._propertyPresenters.get(property)

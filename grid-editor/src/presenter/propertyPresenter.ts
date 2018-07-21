@@ -1,4 +1,4 @@
-import { Property } from "../model/property"
+import { Property, PropertyBuilder } from "../model/property"
 import { IRenderer, Rect, IRenderedObject } from "../renderer/renderer"
 import { Presenter, IMarkablePresenter } from "./presenter";
 import { ShapePresenter } from "./shapePresenter";
@@ -6,29 +6,20 @@ import { IController } from "../controller";
 
 export abstract class PropertyPresenter extends Presenter implements IMarkablePresenter {
     readonly property : Property
-    readonly parentShapePresenter : ShapePresenter
+    private readonly _parentShapePresenter : ShapePresenter
     private readonly _controller : IController
     private _isViolationMarked : boolean
     constructor(property : Property, parentShapePresenter : ShapePresenter, controller : IController) {
         super(parentShapePresenter.renderLayer.concat(2), true)
         this.property = property
-        this.parentShapePresenter = parentShapePresenter
+        this._parentShapePresenter = parentShapePresenter
         this._controller = controller
         this._isViolationMarked = false
     }
     protected abstract presentProperty(renderer: IRenderer, boundingBox: Rect) : IRenderedObject
     present(renderer: IRenderer, boundingBox: Rect): void {
         this.renderedObject = this.presentProperty(renderer, boundingBox)
-        this.renderedObject.onclick(() => {
-            if (this._controller.selectProperty(this)) {
-                // calling this.erase is required because the propertyPresenter is already removed from
-                // parentShapePresenter by now and parentShapePresenter's erase won't be able
-                // to erase the propertyPresenter
-                this.erase()
-                this.parentShapePresenter.erase()
-                this.parentShapePresenter.present(renderer)
-            }
-        })
+        this.renderedObject.onclick(() => this._controller.selectProperty(this, this._parentShapePresenter))
     }
     erase() : void {
         this.eraseSelf()
@@ -64,15 +55,16 @@ export interface IPropertyPresenterConstructor {
 
 export class PropertyPresenterFactory {
     private readonly _propertyPresenterConstructor : IPropertyPresenterConstructor
-    public readonly property : Property
+    public readonly propertyBuilder: PropertyBuilder
     public readonly keyboardSelectShortcut : string | null
-    public constructor(propertyPresenterConstructor : IPropertyPresenterConstructor, property : Property,
+    public constructor(propertyPresenterConstructor : IPropertyPresenterConstructor, propertyBuilder: PropertyBuilder,
         keyboardSelectShortcut : string | null = null) {
         this._propertyPresenterConstructor = propertyPresenterConstructor
-        this.property = property
+        this.propertyBuilder = propertyBuilder
         this.keyboardSelectShortcut = keyboardSelectShortcut
     }
     createFromProperty(parentShapePresenter : ShapePresenter, controller : IController) : PropertyPresenter {
-        return new this._propertyPresenterConstructor(this.property, parentShapePresenter, controller)
+        let property: Property = this.propertyBuilder.create()
+        return new this._propertyPresenterConstructor(property, parentShapePresenter, controller)
     }
 }

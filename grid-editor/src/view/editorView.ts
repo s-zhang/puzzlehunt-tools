@@ -6,17 +6,19 @@ import { View } from "./view";
 
 export class EditorView extends View {
     private readonly _shapeCollectionPresenter : ShapeCollectionPresenter
+    private readonly _renderer: IRenderer
     constructor(shapeCollectionPresenter : ShapeCollectionPresenter,
         controller : IController,
         renderer : IRenderer) {
-        super(controller, renderer)
+        super(controller)
+        this._renderer = renderer
         this._shapeCollectionPresenter = shapeCollectionPresenter
     }
     render(): void {
-        this._shapeCollectionPresenter.present(this.renderer)
+        this._shapeCollectionPresenter.present(this._renderer)
 
         for (let propertyPresenter of this._shapeCollectionPresenter.propertyPresenterFactories) {
-            let propertySelectorButton = this.renderer.renderButton(propertyPresenter.property.name, "toolbar")
+            let propertySelectorButton = this._renderer.renderButton(propertyPresenter.propertyBuilder.name, "propertiestoolbar")
             propertySelectorButton.onclick(() => this.controller.addPropertyMode(propertyPresenter))
             if (propertyPresenter.keyboardSelectShortcut != null) {
                 $(document).keypress(event => {
@@ -27,7 +29,7 @@ export class EditorView extends View {
             }
         }
         
-        let propertyRemoveButton = this.renderer.renderButton("remove", "toolbar")
+        let propertyRemoveButton = this._renderer.renderButton("remove", "propertiestoolbar")
         propertyRemoveButton.onclick(() => this.controller.removePropertyMode())
         $(document).keypress(event => {
             if (event.which == "r".charCodeAt(0)) {
@@ -35,13 +37,14 @@ export class EditorView extends View {
             }
         })
 
-        this.renderForking();
+        this.renderForking()
+
     }
 
     /**
      * Renders the fork button and textbox
      */
-    private renderForking() {
+    private renderForking(): void {
         let forkButton = $(`<input type="button" value="fork" />`);
         forkButton.click(() => {
             let newForkNumber: number;
@@ -56,8 +59,8 @@ export class EditorView extends View {
                 .attr("placeholder", `current fork number: ${newForkNumber}`)
                 .val("");
         });
-        forkButton.appendTo($("#toolbar"));
-        $("#toolbar")
+        forkButton.appendTo($("#forktoolbar"));
+        $("#forktoolbar")
             .append('<input id="forkNumber" type="text" placeholder="current fork number: 0"/>');
     }
 }

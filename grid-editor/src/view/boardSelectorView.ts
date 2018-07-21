@@ -29,7 +29,7 @@ export class BoardSelectorView extends View {
             .append("high")
     }
     private _selectPuzzle(shapeCollectionPresenter : ShapeCollectionPresenter) {
-        this.controller.selectPuzzle(shapeCollectionPresenter, this.renderer)
+        this.controller.selectPuzzle(shapeCollectionPresenter)
         $("#selector").remove()
     }
 }

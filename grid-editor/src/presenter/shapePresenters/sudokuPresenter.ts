@@ -1,7 +1,7 @@
 import { GridPresenter } from "./gridCellPresenter";
 import { SudokuGrid } from "../../model/shapes/sudoku";
 import { IController } from "../../controller";
-import { Property } from "../../model/property";
+import { Property, PropertyBuilder, PropertyAssociationType } from "../../model/property";
 import { PropertyPresenterFactory } from "../propertyPresenter";
 import { TextPropertyPresenter } from "../propertyPresenters/textPropertyPresenter";
 
@@ -11,9 +11,11 @@ export class SudokuPresenter extends GridPresenter {
         this.presentIntersections = false
 
         for (let i = 1; i <= 9; i++) {
-            let property = new Property(i.toString())
+            let propertyBuilder = new PropertyBuilder(i.toString())
+            propertyBuilder.associationType.value = PropertyAssociationType.Single
+            propertyBuilder.associationType.finalize()
             let propertyPresenter = new PropertyPresenterFactory(TextPropertyPresenter,
-                property, TextPropertyPresenter.getKeyboardSelectShortcut(property))
+                propertyBuilder, TextPropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
             this.propertyPresenterFactories.push(propertyPresenter)
         }
     }

@@ -6,7 +6,7 @@ from words.ladder import ladder, find_ladders, find_ladders_unique, find_ladders
 from words.wordsearch import wordsearch_find, wordsearch_brute, wordsearch_reduce, wordsearch_reduce_sentence
 from words.dropquote import dropquote, dropquote_apply_word
 from encoders.semaphore import semaphore, semaphore_multi
-from encoders.caesar import independent_caesar, brute_caesar, caesar
+from encoders.caesar import caesar, caesar_brute, caesar_independent
 
 # Sets up tab completion
 import rlcompleter, readline

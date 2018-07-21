@@ -1,7 +1,7 @@
 import { GridPresenter } from "./gridCellPresenter";
 import { IController } from "../../controller";
 import { Grid } from "../../model/shapes/gridCell";
-import { Property } from "../../model/property";
+import { Property, PropertyAssociationType, PropertyBuilder } from "../../model/property";
 import { PropertyPresenterFactory } from "../propertyPresenter";
 import { TextPropertyPresenter } from "../propertyPresenters/textPropertyPresenter";
 import { CellBorderLinePropertyPresenter } from "../propertyPresenters/cellBorderLinePropertyPresenter";
@@ -12,52 +12,61 @@ export class CustomGridPresenter extends GridPresenter {
         super(new Grid(width, height), controller)
         
         for (let i = 0; i <= 9; i++) {
-            let property = new Property(i.toString())
+            let propertyBuilder = new PropertyBuilder(i.toString())
+            propertyBuilder.associationType.value = PropertyAssociationType.Multiple
             let propertyPresenter = new PropertyPresenterFactory(TextPropertyPresenter,
-                property, TextPropertyPresenter.getKeyboardSelectShortcut(property))
+                propertyBuilder, TextPropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
             this.propertyPresenterFactories.push(propertyPresenter)
         }
 
         for (let letter of ["A", "B", "C", "D", "E", "X", "Y", "Z"]) {
-            let property = new Property(letter)
+            let propertyBuilder = new PropertyBuilder(letter)
+            propertyBuilder.associationType.value = PropertyAssociationType.Multiple
             let propertyPresenter = new PropertyPresenterFactory(TextPropertyPresenter,
-                property, TextPropertyPresenter.getKeyboardSelectShortcut(property))
+                propertyBuilder, TextPropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
             this.propertyPresenterFactories.push(propertyPresenter)
         }
 
-        let property = new Property("border line")
+        let propertyBuilder = new PropertyBuilder("border line")
+        propertyBuilder.associationType.value = PropertyAssociationType.SemiSingle
         let propertyPresenter = new PropertyPresenterFactory(CellBorderLinePropertyPresenter,
-            property, CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(property))
+            propertyBuilder, CellBorderLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
         this.propertyPresenterFactories.push(propertyPresenter)
 
-        property = new Property("-")
+        propertyBuilder = new PropertyBuilder("-")
+        propertyBuilder.associationType.value = PropertyAssociationType.SemiSingle
         propertyPresenter = new PropertyPresenterFactory(HorizontalCellLinePropertyPresenter,
-            property, HorizontalCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
+            propertyBuilder, HorizontalCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
         this.propertyPresenterFactories.push(propertyPresenter)
 
-        property = new Property("|")
+        propertyBuilder = new PropertyBuilder("|")
+        propertyBuilder.associationType.value = PropertyAssociationType.SemiSingle
         propertyPresenter = new PropertyPresenterFactory(VerticalCellLinePropertyPresenter,
-            property, VerticalCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
+            propertyBuilder, VerticalCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
         this.propertyPresenterFactories.push(propertyPresenter)
 
-        property = new Property("⌟")
+        propertyBuilder = new PropertyBuilder("⌟")
+        propertyBuilder.associationType.value = PropertyAssociationType.SemiSingle
         propertyPresenter = new PropertyPresenterFactory(NorthWestBendCellLinePropertyPresenter,
-            property, NorthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
+            propertyBuilder, NorthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
         this.propertyPresenterFactories.push(propertyPresenter)
 
-        property = new Property("⌞")
+        propertyBuilder = new PropertyBuilder("⌞")
+        propertyBuilder.associationType.value = PropertyAssociationType.SemiSingle
         propertyPresenter = new PropertyPresenterFactory(NorthEastBendCellLinePropertyPresenter,
-            property, NorthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
+            propertyBuilder, NorthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
         this.propertyPresenterFactories.push(propertyPresenter)
 
-        property = new Property("⌝")
+        propertyBuilder = new PropertyBuilder("⌝")
+        propertyBuilder.associationType.value = PropertyAssociationType.SemiSingle
         propertyPresenter = new PropertyPresenterFactory(SouthWestBendCellLinePropertyPresenter,
-            property, SouthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
+            propertyBuilder, SouthWestBendCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
         this.propertyPresenterFactories.push(propertyPresenter)
 
-        property = new Property("⌜")
+        propertyBuilder = new PropertyBuilder("⌜")
+        propertyBuilder.associationType.value = PropertyAssociationType.SemiSingle
         propertyPresenter = new PropertyPresenterFactory(SouthEastBendCellLinePropertyPresenter,
-            property, SouthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(property))
+            propertyBuilder, SouthEastBendCellLinePropertyPresenter.getKeyboardSelectShortcut(propertyBuilder))
         this.propertyPresenterFactories.push(propertyPresenter)
     }
 }
