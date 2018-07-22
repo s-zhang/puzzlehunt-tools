@@ -3,19 +3,40 @@ import requests
 import urllib.parse
 from bs4 import BeautifulSoup
 
+def crossword_clue_multi(clues, solver = "wordplays"):
+    """
+        A tool to solve multiple crossword clues. This tool makes requests to online crossword solvers: wordplays or dictionary.
+        Examples:
+        >>> crossword_clue_multi([['largest sea creature'], ['the great white north']])
+        [['WHALE', 'PACIFIC OCEAN', 'STARFISH', 'SQUID', 'ORCA'], ['CANADA', 'DOUG', 'HOSER', 'JAMESEARLJONES', 'ELEANOR']]
+        >>> crossword_clue_multi([['largest sea creature'], ['the great white north', '......']])
+        [['WHALE', 'PACIFIC OCEAN', 'STARFISH', 'SQUID', 'ORCA'], ['CANADA', 'NORMAN', 'SHARKS', 'LATEST', 'ISALIE']]
+        >>> crossword_clue_multi([['largest sea creature', 'W.A.E'], ['the great white north', '...ADA']])
+        [['WHALE'], ['CANADA', 'MASADA']]
+        >>> crossword_clue_multi([['largest sea creature'], ['the great white north']], solver = 'dictionary')
+        [['ORCA', 'ASIA', 'ARAL', 'EEL', 'ERNE'], ['CANADA', 'SEA', 'ELM', 'FEAR', 'ELK']]
+    """
+    results = []
+    for clue in clues:
+        pattern = clue[1] if len(clue) > 1 else ''
+        results.append(crossword_clue(clue[0], pattern, solver))
+    return results
+
 def crossword_clue(clue, pattern = '', solver = 'wordplays'):
     """
-        A tool to solve a crossword clue. This tool can make requests to online crossword solvers: wordplays.com (wordplays) or dictionary.com (dictionary).
+        A tool to solve a crossword clue. This tool makes requests to online crossword solvers: wordplays or dictionary.
         Examples:
         >>> crossword_clue('largest sea creature')
         ['WHALE', 'PACIFIC OCEAN', 'STARFISH', 'SQUID', 'ORCA']
-        >>> crossword_clue('largest sea creature', '?????')
+        >>> crossword_clue('largest sea creature', '.....')
         ['WHALE', 'SQUID', 'POLYP', 'SALPA', 'WHELK']
         >>> crossword_clue('largest sea creature', 'W?A?E')
         ['WHALE']
         >>> crossword_clue('largest sea creature', solver = 'dictionary')
         ['ORCA', 'ASIA', 'ARAL', 'EEL', 'ERNE']
     """
+    pattern.replace('.', '?')
+
     if (solver == 'wordplays'):
         return crossword_clue_wordplays(clue, pattern)
     elif (solver == 'dictionary'):
@@ -77,28 +98,4 @@ def crossword_clue_dictionary_extract(html):
     for resultElement in resultElements[1:]:
         results.append(resultElement.text.strip())
 
-    return results
-
-def crossword_clue_multi(clues, patterns = [], solver = "wordplays"):
-    """
-        A tool to solve multiple crossword clues. This tool can make requests to online crossword solvers: wordplays.com (wordplays) or dictionary.com (dictionary).
-        Examples:
-        >>> crossword_clue_multi(['largest sea creature', 'the great white north'])
-        [['WHALE', 'PACIFIC OCEAN', 'STARFISH', 'SQUID', 'ORCA'], ['CANADA', 'DOUG', 'HOSER', 'JAMESEARLJONES', 'ELEANOR']]
-        >>> crossword_clue_multi(['largest sea creature', 'the great white north'], ['', '??????'])
-        [['WHALE', 'PACIFIC OCEAN', 'STARFISH', 'SQUID', 'ORCA'], ['CANADA', 'NORMAN', 'SHARKS', 'LATEST', 'ISALIE']]
-        >>> crossword_clue_multi(['largest sea creature', 'the great white north'], ['W?A?E', '???ADA'])
-        [['WHALE'], ['CANADA', 'MASADA']]
-        >>> crossword_clue_multi(['largest sea creature', 'the great white north'], solver = 'dictionary')
-        [['ORCA', 'ASIA', 'ARAL', 'EEL', 'ERNE'], ['CANADA', 'SEA', 'ELM', 'FEAR', 'ELK']]
-    """
-    results = []
-    if len(patterns) == 0:
-        for i in range(len(clues)):
-            results.append(crossword_clue(clues[i], solver = solver))
-    elif len(clues) == len(patterns):
-        for i in range(len(clues)):
-            results.append(crossword_clue(clues[i], patterns[i], solver = solver))
-    else:
-        print('Mismatched number of clues and patterns')
     return results
