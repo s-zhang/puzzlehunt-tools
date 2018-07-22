@@ -6,13 +6,15 @@ class AnagramPattern:
 	__words_sorted_by_length_then_lex = None
 	def __init__(self, pattern=None, character_histogram=None, num_wildcards=None):
 		"""
-		:param pattern: anagram pattern to look up. consists of lower case chars and ? for wildcard
+		:param pattern: anagram pattern to look up. consists of chars and ? for wildcard
 		:type pattern: string
 		:param character_histogram: (internal-use only) array of ints denoting character frequencies in pattern, wildcard excluded
 		:type character_histogram: list[int]
 		:param num_wildcards: (internal-use only) number of wildcards in pattern.
 		:type num_wildcards: int
 		"""
+		pattern = pattern.lower() if pattern != None else None
+
 		if character_histogram == None:
 			wildcard_stripped = list(filter(lambda c: c != "?", pattern))
 			character_histogram = get_character_histogram(wildcard_stripped)
