@@ -3,6 +3,11 @@ import requests
 import urllib.parse
 from bs4 import BeautifulSoup
 
+class CrosswordClueResult:
+    def __init__(self, answer, ranking):
+        self.answer = answer
+        self.ranking = ranking
+
 def crossword_clue(clue, pattern = '', solver = 'wordplays'):
     """
         A tool to solve a crossword clue. This tool can make requests to online crossword solvers: wordplays.com (wordplays) or dictionary.com (dictionary).
@@ -17,11 +22,13 @@ def crossword_clue(clue, pattern = '', solver = 'wordplays'):
         ['ORCA', 'ASIA', 'ARAL', 'EEL', 'ERNE']
     """
     if (solver == 'wordplays'):
-        return crossword_clue_wordplays(clue, pattern)
+        results = crossword_clue_wordplays(clue, pattern)
     elif (solver == 'dictionary'):
-        return crossword_clue_dictionary(clue, pattern)
+        results = crossword_clue_dictionary(clue, pattern)
     else:
         raise ValueError('Invalid crossword clue solver')
+    
+    return [result.answer for result in results]
 
 def crossword_clue_wordplays(clue, pattern = ''):
     html = crossword_clue_wordplays_request(clue, pattern)
@@ -44,11 +51,16 @@ def crossword_clue_wordplays_request(clue, pattern = ''):
 
 def crossword_clue_wordplays_extract(html):
     soup = BeautifulSoup(html, 'html.parser')
-    resultElements = soup.find_all('a', { 'href': re.compile('^/crossword-clues/') })
+    resultsTableElement = soup.find('table', id='wordlists')
+    resultsTableBodyElement = resultsTableElement.find('tbody')
+    resultElements = resultsTableBodyElement.find_all('tr')
 
     results = []
-    for resultElement in resultElements:
-        results.append(resultElement.text.strip())
+    for resultElement in resultElements[1:]:
+        resultColumnElements = list(resultElement.children)
+        ranking = len(resultColumnElements[0].find('div', { 'class': 'stars' }).find_all('div')) / 5
+        answer = resultColumnElements[1].text.strip()
+        results.append(CrosswordClueResult(answer, ranking))
 
     return results
 
@@ -71,11 +83,14 @@ def crossword_clue_dictionary_request(clue, pattern = ''):
 
 def crossword_clue_dictionary_extract(html):
     soup = BeautifulSoup(html, 'html.parser')
-    resultElements = soup.find_all('div', { 'class': 'matching-answer' })
+    resultElements = soup.find_all('div', { 'class': 'result-row' })
 
     results = []
     for resultElement in resultElements[1:]:
-        results.append(resultElement.text.strip())
+        resultColumnElements = resultElement.find_all('div')
+        ranking = int(resultColumnElements[0].text.strip().strip('%')) / 100
+        answer = resultColumnElements[1].text.strip()
+        results.append(CrosswordClueResult(answer, ranking))
 
     return results
 
