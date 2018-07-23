@@ -4,9 +4,9 @@ import urllib.parse
 from bs4 import BeautifulSoup
 
 class CrosswordClueResult:
-    def __init__(self, answer, ranking):
+    def __init__(self, answer, score):
         self.answer = answer
-        self.ranking = ranking
+        self.score = score
 
 def crossword_clue(clue, pattern = '', solver = 'wordplays'):
     """
@@ -58,9 +58,9 @@ def crossword_clue_wordplays_extract(html):
     results = []
     for resultElement in resultElements[1:]:
         resultColumnElements = list(resultElement.children)
-        ranking = len(resultColumnElements[0].find('div', { 'class': 'stars' }).find_all('div')) / 5
+        score = len(resultColumnElements[0].find('div', { 'class': 'stars' }).find_all('div')) / 5
         answer = resultColumnElements[1].text.strip()
-        results.append(CrosswordClueResult(answer, ranking))
+        results.append(CrosswordClueResult(answer, score))
 
     return results
 
@@ -88,9 +88,9 @@ def crossword_clue_dictionary_extract(html):
     results = []
     for resultElement in resultElements[1:]:
         resultColumnElements = resultElement.find_all('div')
-        ranking = int(resultColumnElements[0].text.strip().strip('%')) / 100
+        score = int(resultColumnElements[0].text.strip().strip('%')) / 100
         answer = resultColumnElements[1].text.strip()
-        results.append(CrosswordClueResult(answer, ranking))
+        results.append(CrosswordClueResult(answer, score))
 
     return results
 
