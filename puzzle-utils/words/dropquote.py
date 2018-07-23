@@ -43,14 +43,14 @@ class DropQuoteSolver:
         '''
         Validates that the drop quote puzzle is in a valid format.
         '''
-        # Checks the number of blanks matches the number of available letters in each column
+        # Checks the number of blanks is less than the number of available letters in each column
         for column in range(len(self.letters)):
             blanks = 0
             for row in range(len(self.grid)):
                 if len(self.grid[row]) > column and self.grid[row][column] == BLANK_CHARACTER:
                     blanks += 1
             
-            if blanks != len(self.letters[column]):
+            if blanks > len(self.letters[column]):
                 raise ValueError(f'Column {column} has {len(self.letters[column])} letters but has {blanks} blanks.')
         
         # Checks there aren't any rows that are longer than the number of columns
