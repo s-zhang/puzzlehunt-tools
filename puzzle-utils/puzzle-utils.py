@@ -4,7 +4,7 @@ from words.crossword_clue import crossword_clue, crossword_clue_multi
 from words.search import search
 from words.ladder import ladder, find_ladders, find_ladders_unique, find_ladders_pretty
 from words.wordsearch import wordsearch_find, wordsearch_brute, wordsearch_reduce, wordsearch_reduce_sentence
-from words.dropquote import dropquote, dropquote_apply_word
+from words.dropquote import DropQuoteSolver
 from encoders.semaphore import semaphore, semaphore_multi
 from encoders.caesar import caesar, caesar_brute, caesar_independent
 

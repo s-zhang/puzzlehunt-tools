@@ -17,6 +17,13 @@ class DropQuoteWord:
         self.row = row
         self.column = column
         self.possibilities = possibilities
+    
+    def print(self):
+        print(f'{self.index}:\tWord: {self.word}')
+        print(f'\tLetters: {self.letters}')
+        print(f'\tRow: {self.row}')
+        print(f'\tColumn: {self.column}')
+        print(f'\tPossibilities: {self.possibilities}')
 
 class DropQuoteSolver:
     def __init__(self, grid, letters):
@@ -30,6 +37,7 @@ class DropQuoteSolver:
 
         self.validate()
         self.words = self.parse()
+        self.snapshots = []
 
     def validate(self):
         '''
@@ -92,20 +100,15 @@ class DropQuoteSolver:
         Attempt to solve the drop quote puzzle and returns a set of snapshots on the iterations performed.
         '''	
         stuck = False
-        dropQuoteSnapshots = []
         while not stuck:
             stuck = True
             self.search()
-            dropQuoteSnapshots.append(self.snapshot())
+            self.snapshots.append(self.snapshot())
 
             for word in self.words:
                 if len(word.possibilities) == 1:
                     stuck = False
-                    self.apply_word(word.possibilities[0], word.row, word.column)
-                    word.word = word.possibilities[0]
-                    word.possibilities = []
-        
-        return dropQuoteSnapshots
+                    self.apply_word(word.possibilities[0], word.index)
 
     def search(self):
         '''
@@ -129,10 +132,15 @@ class DropQuoteSolver:
         pattern += '$'
         return search(pattern)
 
-    def apply_word(self, word, row, column):
+    def apply_word(self, word, index):
         '''
         Updates the grid and available letters with the provided word at the specified row and column.
         '''
+        self.words[index].word = word
+        self.words[index].possibilities = []
+        row = self.words[index].row
+        column = self.words[index].column
+
         for letter in word:
             if self.grid[row][column] == SPACE_CHARACTER:
                 raise ValueError('The provided word was longer than the word in the grid.')
@@ -151,6 +159,8 @@ class DropQuoteSolver:
             if column >= len(self.grid[row]):
                 row += 1
                 column = 0
+        
+        self.snapshots.append(self.snapshot())
     
     def snapshot(self):
         '''	
@@ -169,40 +179,31 @@ class DropQuoteSolver:
                 word.possibilities))
         
         return snapshot
+    
+    def print(self):
+        print('========== LETTERS ==========')
+        longest_column = 0
+        for column in self.letters:
+            if longest_column < len(column):
+                longest_column = len(column)
+        
+        for letter_row in range(longest_column - 1, -1, -1):
+            for column in self.letters:
+                if letter_row < len(column):
+                    print(column[letter_row], end='')
+                else:
+                    print(' ', end='')
+            print()
+        
+        print()
 
-def dropquote(grid, letters):
-    '''	
-    This solver will attempt to solve the drop quote puzzle and returns a set of snapshots on the iterations performed.
-    >>> grid = ['....-', '..-..', '.....']
-    >>> letters = ['gor', 'afo', 'mn', 'ete', 'hs']
-    >>> snapshots = dropquote(grid, letters)
-    >>> print(snapshots[0].grid) # prints the initial state of the grid
-    ['....-', '..-..', '.....']
-    >>> print(snapshots[0].letters) # prints the initial state of available letters
-    ['gor', 'afo', 'mn', 'ete', 'hs']
-    >>> for index, words in snapshots[0].words.items():
-    >>>     print(f'{index}: {words.letters} | {words.words}') # prints the index of the word, available letters, and found words
-    0: ['gor', 'afo', 'mn', 'ete'] | ['gant', 'rone', 'ront', 'oont', 'gone', 'rant', 'game', 'gane']
-    1: ['gor', 'afo'] | ['go', 'of']
-    2: ['ete', 'hs', 'gor', 'afo', 'mn', 'ete', 'hs'] | ['thrones']
-    >>> print(snapshots[-1].grid) # prints the current state of the grid
-    ['game-', 'of-th', 'rones']
-    '''	
-    solver = DropQuoteSolver(grid, letters)
-    return solver.solve()
+        print('========== GRID ==========')
+        for row in self.grid:
+            print(row)
+        
+        print()
 
-def dropquote_apply_word(grid, letters, word, index):
-    '''	
-    Applies a word at the word index to the grid and removes the consumed letters.
-    >>> grid = ['....-', '..-..', '.....']
-    >>> letters = ['gor', 'afo', 'mn', 'ete', 'hs']
-    >>> dropquote_apply_word(grid, letters, 'thrones', 2)
-    >>> print(grid)
-    ['....-', '..-th', 'rones']
-    >>> print(letters)
-    ['go', 'af', 'm', 'e', '']
-    '''	
-    solver = DropQuoteSolver(grid, letters)
-    solver.apply_word(word, solver.words[index].row, solver.words[index].column)
-    snapshot = solver.snapshot()
-    return snapshot.grid, snapshot.letters
+        print('========== REMAINING WORDS ==========')
+        for word in self.words:
+            if BLANK_CHARACTER in word.word:
+                word.print()
