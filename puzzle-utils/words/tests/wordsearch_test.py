@@ -41,7 +41,55 @@ def test_wordsearch_brute():
     assert_wordsearch_results(expectedResults, wordsearch_brute(grid, 4))
     
 def test_wordsearch_reduce_sentence():
-    assert wordsearch_reduce_sentence(grid, words) == 'SEELETTERSATINTERSECTIONSORENDSDRAWLINESBETWEENGUIDEDBYNONSENSEDRAWNEWLETTERSSPELLNEWWORD'
+    assert wordsearch_reduce_sentence(grid, words) == 'seelettersatintersectionsorendsdrawlinesbetweenguidedbynonsensedrawnewlettersspellnewword'
+
+def test_wordsearch_irregular():
+    grid = [
+        ['P',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','CAT'],
+        ['E','L',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','CAT','E'],
+        ['S','A','CAT',' ',' ',' ',' ',' ',' ',' ',' ',' ','I','T','CAT'],
+        ['CAT','R','S','CAT',' ','T','CAT','H','CAT','CAT',' ','CAT','R','E','I'],
+        ['A','D','E','O','CAT','CAT','C','E','L','A','S','O','CAT','C','D'],
+        ['R','E','CAT','P','CAT','K','I','CAT','N','CAT','L','U','T','H','N'],
+        ['I','H','CAT','A','I','CAT','E','U','G','M','O','L','P','R','I'],
+        ['A','CAT','N','CAT','P','Z','CAT','D','O','I','N','CAT','O','E','G'],
+        ['N','B','CAT','CAT','A','U','Z','E','L','CAT','N','D','T','CAT','H'],
+        ['E','I','F','O','CAT','O','L','I','A','D','CAT','B','O','I','E'],
+        ['CAT','F','W','CAT','L','CAT','CAT','T','CAT','I','CAT','CAT','CAT','L','CAT'],
+        ['CAT','U','CAT','H','S','E','CAT','E','CAT','O','V','D','A','P','M'],
+        ['P','R','V','A','CAT','I','O','N','N','O','L','H','CAT','E','D'],
+        [' ','CAT','T','R','Y','CAT','H','T','S','Y','L','A','CAT','R'],
+        [' ','E','CAT','S','CAT','CAT','E','CAT','I','D','E','D','U','CAT'],
+        [' ',' ','CAT','I','M','CAT','A','N','CAT','W','CAT','A','K'],
+        [' ',' ',' ','S','CAT','B','M','O','C','A','CAT','E'],
+        [' ',' ',' ',' ',' ','CAT','CAT','U','P','CAT']
+    ]
+
+    words = [
+        'pescatarian',
+        'allocate',
+        'catapult',
+        'pizzicato',
+        'indicate',
+        'cathedral',
+        'bifurcate',
+        'educate',
+        'catharsis',
+        'catalog',
+        'advocate',
+        'vacation',
+        'decathlon',
+        'catalyst',
+        'replicate',
+        'dedicate',
+        'catacomb',
+        'catsup'
+    ]
+
+    result = wordsearch_reduce_sentence(grid, words)
+    result = result.replace('cat', '')
+    assert 'itsthreeoclockinthemorningandthefoodbowlisemptyhumanwakeup' == result
+
 
 def assert_wordsearch_results(expectedResults, actualResults):
     for expectedResult in expectedResults:
