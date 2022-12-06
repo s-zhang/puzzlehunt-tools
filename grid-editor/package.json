@@ -19,7 +19,7 @@
     "@types/jquery": "^3.2.13",
     "@types/node": "^8.0.34",
     "@types/webpack": "^4.1.6",
-    "http-server": "^0.10.0",
+    "http-server": "^14.1.1",
     "jquery": "^3.2.1",
     "ts-loader": "^4.3.0",
     "tslint": "^5.7.0",
